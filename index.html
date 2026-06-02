@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- app-version: v81-iphone-landscape-app-fullscreen-fix -->
+  <!-- app-version: v82-auto-app-fullscreen-safari -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0f0f0f" />
@@ -1070,6 +1070,24 @@
     }
 
 
+  
+    /* Early fullscreen paint before body class is added */
+    html.minute-app-fullscreen body main {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: calc(var(--app-vh, 1vh) * 100) !important;
+      min-height: calc(var(--app-vh, 1vh) * 100) !important;
+      max-height: none !important;
+      aspect-ratio: auto !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      margin: 0 !important;
+      background: var(--bg) !important;
+    }
+
+
   </style>
 </head>
 <body>
@@ -1136,6 +1154,20 @@
     function updateViewportHeight() {
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty("--app-vh", `${vh}px`);
+    }
+
+
+    function shouldAutoStartAppFullscreen() {
+      const ua = navigator.userAgent;
+      const isIOS = /iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      const isWebKit = /WebKit/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
+      return isIOS && isWebKit;
+    }
+
+    function startInAppFullscreenIfNeeded() {
+      if (shouldAutoStartAppFullscreen() && !isAppFullscreen()) {
+        enterAppFullscreen();
+      }
     }
 
     function pad(n) {
@@ -1411,7 +1443,13 @@
     window.addEventListener("focus", startLiveLoop);
     window.addEventListener("pageshow", startLiveLoop);
     window.addEventListener("resize", updateViewportHeight);
-    window.addEventListener("orientationchange", updateViewportHeight);
+    window.addEventListener("orientationchange", () => {
+      updateViewportHeight();
+      setTimeout(() => {
+        updateViewportHeight();
+        startInAppFullscreenIfNeeded();
+      }, 250);
+    });
 
     let controlsTimer = null;
 
@@ -1441,6 +1479,7 @@
 
     updateViewportHeight();
     updateTheme();
+    startInAppFullscreenIfNeeded();
     startLiveLoop();
   </script>
 </body>
