@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- app-version: v80-always-app-fullscreen-no-square -->
+  <!-- app-version: v81-iphone-landscape-app-fullscreen-fix -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0f0f0f" />
@@ -894,9 +894,9 @@
     html.minute-app-fullscreen body {
       width: 100vw !important;
       height: 100vh !important;
-      height: 100dvh !important;
+      height: calc(var(--app-vh, 1vh) * 100) !important;
       min-height: 100vh !important;
-      min-height: 100dvh !important;
+      min-height: calc(var(--app-vh, 1vh) * 100) !important;
       margin: 0 !important;
       padding: 0 !important;
       overflow: hidden !important;
@@ -916,9 +916,9 @@
       inset: 0 !important;
       width: 100vw !important;
       height: 100vh !important;
-      height: 100dvh !important;
+      height: calc(var(--app-vh, 1vh) * 100) !important;
       min-height: 100vh !important;
-      min-height: 100dvh !important;
+      min-height: calc(var(--app-vh, 1vh) * 100) !important;
       max-height: none !important;
       aspect-ratio: auto !important;
       border: 0 !important;
@@ -990,6 +990,86 @@
     }
 
 
+  
+    /* iPhone Safari landscape app-fullscreen fix */
+    @media (orientation: landscape) {
+      html.minute-app-fullscreen,
+      html.minute-app-fullscreen body,
+      body.minute-app-fullscreen {
+        width: 100vw !important;
+        height: 100vh !important;
+        height: calc(var(--app-vh, 1vh) * 100) !important;
+        min-height: 100vh !important;
+        min-height: calc(var(--app-vh, 1vh) * 100) !important;
+        overflow: hidden !important;
+      }
+
+      body.minute-app-fullscreen main {
+        width: 100vw !important;
+        height: 100vh !important;
+        height: calc(var(--app-vh, 1vh) * 100) !important;
+        min-height: 100vh !important;
+        min-height: calc(var(--app-vh, 1vh) * 100) !important;
+        max-height: none !important;
+        aspect-ratio: auto !important;
+        border-radius: 0 !important;
+        padding:
+          max(18px, env(safe-area-inset-top))
+          max(38px, env(safe-area-inset-right))
+          max(20px, env(safe-area-inset-bottom))
+          max(38px, env(safe-area-inset-left)) !important;
+        grid-template-rows: auto minmax(0, 1fr) auto !important;
+        gap: clamp(10px, 2.4vh, 22px) !important;
+      }
+
+      body.minute-app-fullscreen .countdown {
+        position: relative !important;
+        display: grid !important;
+        place-content: center !important;
+        justify-items: center !important;
+        gap: clamp(8px, 2vh, 16px) !important;
+        min-height: 0 !important;
+      }
+
+      body.minute-app-fullscreen #minutes {
+        font-size: clamp(124px, 28vw, 300px) !important;
+        line-height: 0.70 !important;
+        letter-spacing: -0.085em !important;
+      }
+
+      body.minute-app-fullscreen .label {
+        font-size: clamp(18px, 3.2vw, 42px) !important;
+      }
+
+      body.minute-app-fullscreen .remaining-section {
+        width: min(70vw, 760px) !important;
+        transform: translateY(-10px) !important;
+      }
+
+      body.minute-app-fullscreen .remaining-labels {
+        font-size: clamp(10px, 1.6vw, 16px) !important;
+      }
+
+      body.minute-app-fullscreen .designer-credit {
+        bottom: max(6px, env(safe-area-inset-bottom)) !important;
+        font-size: clamp(8px, 1.2vw, 11px) !important;
+      }
+
+      body.minute-app-fullscreen #numberHitArea {
+        left: 50% !important;
+        top: 50% !important;
+        width: min(74vw, 740px) !important;
+        height: clamp(150px, 34vw, 320px) !important;
+        transform: translate(-50%, -52%) !important;
+        z-index: 5 !important;
+      }
+
+      body.minute-app-fullscreen .top {
+        font-size: clamp(11px, 1.8vw, 16px) !important;
+      }
+    }
+
+
   </style>
 </head>
 <body>
@@ -1051,6 +1131,12 @@
     let nightInverted = localStorage.getItem("dayLeftNightTheme") === "inverted";
     let displayMode = localStorage.getItem("dayLeftDisplayMode") || "minutes";
     let animationId = null;
+
+
+    function updateViewportHeight() {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty("--app-vh", `${vh}px`);
+    }
 
     function pad(n) {
       return String(n).padStart(2, "0");
@@ -1251,6 +1337,7 @@
       document.documentElement.classList.remove("app-fullscreen");
       document.body.classList.remove("app-fullscreen");
       document.body.classList.remove("fake-fullscreen");
+      updateViewportHeight();
       window.scrollTo(0, 0);
       setFullscreenButtonState(true);
     }
@@ -1323,6 +1410,8 @@
 
     window.addEventListener("focus", startLiveLoop);
     window.addEventListener("pageshow", startLiveLoop);
+    window.addEventListener("resize", updateViewportHeight);
+    window.addEventListener("orientationchange", updateViewportHeight);
 
     let controlsTimer = null;
 
@@ -1350,6 +1439,7 @@
       }
     });
 
+    updateViewportHeight();
     updateTheme();
     startLiveLoop();
   </script>
