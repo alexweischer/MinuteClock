@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- app-version: v91-normal-credit-centered-spacing -->
+  <!-- app-version: v92-fullscreen-top-date-time-refined -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0f0f0f" />
@@ -1057,6 +1057,33 @@
         bottom: 7px !important;
         font-size: 8px !important;
       }
+    }
+
+
+  
+    /* Fullscreen date/time refinement: larger, lower, more inward */
+    main:fullscreen .top,
+    main:-webkit-full-screen .top {
+      padding: clamp(18px, 2.2vw, 34px) clamp(26px, 3.2vw, 58px) 0 !important;
+      font-size: clamp(16px, 1.75vw, 26px) !important;
+      letter-spacing: 0.18em !important;
+      opacity: 0.94 !important;
+      align-items: flex-start !important;
+    }
+
+    main:fullscreen #dateLabel,
+    main:-webkit-full-screen #dateLabel {
+      text-align: left !important;
+    }
+
+    main:fullscreen #clock,
+    main:-webkit-full-screen #clock {
+      text-align: right !important;
+    }
+
+    /* iPhone app fullscreen keeps its own tighter spacing */
+    body.iphone-app-fullscreen .top {
+      padding: 0 clamp(2px, 1.2vw, 18px) !important;
     }
 
 
