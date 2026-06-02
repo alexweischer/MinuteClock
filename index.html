@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- app-version: v95-iphone-landscape-credit-lowest -->
+  <!-- app-version: v96-iphone-landscape-credit-much-lower -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0f0f0f" />
@@ -1090,14 +1090,14 @@
 
 
   
-    /* iPhone landscape fullscreen: designer credit as low as safely possible */
+    /* iPhone landscape fullscreen: push designer credit clearly lower */
     @media (orientation: landscape) {
       body.iphone-app-fullscreen .designer-credit {
         position: fixed !important;
         left: 50% !important;
         right: auto !important;
-        bottom: max(0px, env(safe-area-inset-bottom)) !important;
-        transform: translateX(-50%) translateY(2px) !important;
+        bottom: -10px !important;
+        transform: translateX(-50%) !important;
         width: max-content !important;
         max-width: 90vw !important;
         text-align: center !important;
