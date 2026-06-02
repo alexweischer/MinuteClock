@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- app-version: v99-even-weaker-dark-credit -->
+  <!-- app-version: v100-smartphone-credit-visible -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0f0f0f" />
@@ -1148,6 +1148,41 @@
     /* Even weaker designer credit in normal dark mode */
     body:not(.light):not(.night-mode) main.controls-visible .designer-credit {
       opacity: 0.09 !important;
+    }
+
+
+  
+    /* Smartphone normal mode credit visibility fix */
+    @media (max-width: 520px) {
+      body:not(.iphone-app-fullscreen) main:not(:fullscreen):not(:-webkit-full-screen) .designer-credit {
+        position: absolute !important;
+        left: 50% !important;
+        right: auto !important;
+        bottom: 6px !important;
+        transform: translateX(-50%) !important;
+        width: max-content !important;
+        max-width: 92vw !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        font-size: 8px !important;
+        line-height: 1 !important;
+        z-index: 60 !important;
+        display: block !important;
+        visibility: visible !important;
+        pointer-events: none !important;
+      }
+
+      body:not(.night-mode) main.controls-visible .designer-credit {
+        opacity: 0.16 !important;
+      }
+
+      body:not(.light):not(.night-mode) main.controls-visible .designer-credit {
+        opacity: 0.12 !important;
+      }
+
+      body.light:not(.night-mode) main.controls-visible .designer-credit {
+        opacity: 0.15 !important;
+      }
     }
 
 
