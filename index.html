@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- app-version: v57-large-fullscreen-slim-clean-bar -->
+  <!-- app-version: v78-no-black-glow-inverted-night -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0f0f0f" />
@@ -87,8 +87,6 @@
       transition: opacity 0.18s ease;
     }
 
-    main:hover .settings,
-    main:focus-within .settings,
     .settings.is-visible {
       opacity: 1;
       pointer-events: auto;
@@ -220,6 +218,47 @@
       border-radius: 18px;
     }
 
+
+    .designer-credit {
+      position: absolute;
+      left: 50%;
+      bottom: clamp(14px, 2.6vw, 22px);
+      transform: translateX(-50%);
+      color: var(--muted);
+      opacity: 0;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-select: none;
+      font-size: clamp(8px, 1.35vw, 10px);
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: none;
+      white-space: nowrap;
+      transition: opacity 0.18s ease;
+      z-index: 2;
+    }
+
+    main.controls-visible .designer-credit {
+      opacity: 0.22;
+    }
+
+    main:fullscreen .designer-credit,
+    main:-webkit-full-screen .designer-credit,
+    body.fake-fullscreen .designer-credit {
+      bottom: max(10px, env(safe-area-inset-bottom));
+      font-size: clamp(9px, 1.15vw, 13px);
+    }
+
+
+    /* Slightly clearer credit in black/red night mode */
+    body.night-mode:not(.night-inverted) main.controls-visible .designer-credit {
+      opacity: 0.34;
+      color: rgba(255, 68, 58, 0.62);
+      text-shadow:
+        0 0 5px rgba(255, 68, 58, 0.26),
+        0 0 14px rgba(255, 68, 58, 0.14);
+    }
+
     .remaining-section {
       width: min(76%, 540px);
       justify-self: center;
@@ -246,6 +285,7 @@
 
     #remainingPercent {
       color: var(--muted);
+      text-transform: none;
     }
 
     .remaining-labels span:nth-child(3) {
@@ -291,6 +331,92 @@
       --danger-track: rgba(185, 59, 53, 0.14);
     }
 
+
+    /* Night mode: 00:00–07:59, red-only visual system */
+    body.night-mode {
+      --bg: #070202;
+      --fg: #ff443a;
+      --muted: rgba(255, 59, 52, 0.46);
+      --line: rgba(255, 59, 52, 0.20);
+      --track: rgba(255, 59, 52, 0.13);
+      --orange: #ff443a;
+      --yellow: #c82f2a;
+      --mint: #e0443d;
+      --danger-bg: #070202;
+      --danger-fg: #ff443a;
+      --danger-muted: rgba(255, 59, 52, 0.46);
+      --danger-line: rgba(255, 59, 52, 0.20);
+      --danger-red: #ff443a;
+      --danger-track: rgba(255, 59, 52, 0.13);
+    }
+
+    body.night-mode.night-inverted {
+      --bg: #b51f1a;
+      --fg: #080202;
+      --muted: rgba(8, 2, 2, 0.56);
+      --line: rgba(8, 2, 2, 0.24);
+      --track: rgba(8, 2, 2, 0.16);
+      --orange: #080202;
+      --yellow: #170404;
+      --mint: #100303;
+      --danger-bg: #b51f1a;
+      --danger-fg: #080202;
+      --danger-muted: rgba(8, 2, 2, 0.56);
+      --danger-line: rgba(8, 2, 2, 0.24);
+      --danger-red: #080202;
+      --danger-track: rgba(8, 2, 2, 0.16);
+    }
+
+    body.night-mode #minutes,
+    body.night-mode .label,
+    body.night-mode #clock,
+    body.night-mode #dateLabel,
+    body.night-mode #remainingPercent,
+    body.night-mode .remaining-labels,
+    body.night-mode .icon-button,
+    body.night-mode .designer-credit {
+      color: var(--fg);
+      text-shadow: none;
+    }
+
+    body.night-mode .top {
+      color: var(--muted);
+    }
+
+    body.night-mode #dateLabel {
+      color: var(--yellow);
+    }
+
+    body.night-mode #clock {
+      color: var(--mint);
+    }
+
+    body.night-mode .label,
+    body.night-mode #remainingPercent,
+    body.night-mode .remaining-labels,
+    body.night-mode .designer-credit {
+      color: var(--muted);
+    }
+
+    body.night-mode .remaining-track {
+      background: var(--track);
+      border-color: var(--line);
+    }
+
+    body.night-mode .remaining-fill {
+      background: var(--orange) !important;
+    }
+
+    body.night-mode main {
+      background: var(--bg);
+      color: var(--fg);
+      box-shadow: none;
+    }
+
+    body.night-mode .theme-dot {
+      background: var(--fg);
+    }
+
     body.tomorrow-mode {
       --bg: var(--danger-bg);
       --fg: var(--danger-fg);
@@ -325,6 +451,118 @@
 
     body.tomorrow-mode main {
       box-shadow: none;
+    }
+
+
+
+    /* Night alarm clock glow */
+    body.night-mode #minutes {
+      text-shadow:
+        0 0 8px rgba(255, 59, 52, 0.42),
+        0 0 22px rgba(255, 59, 52, 0.24),
+        0 0 46px rgba(255, 59, 52, 0.14);
+    }
+
+    body.night-mode .label,
+    body.night-mode #clock,
+    body.night-mode #dateLabel,
+    body.night-mode #remainingPercent,
+    body.night-mode .remaining-labels,
+    body.night-mode .icon-button,
+    body.night-mode .designer-credit {
+      text-shadow:
+        0 0 6px rgba(255, 59, 52, 0.30),
+        0 0 18px rgba(255, 59, 52, 0.16);
+    }
+
+    body.night-mode .remaining-fill {
+      box-shadow:
+        0 0 7px rgba(255, 59, 52, 0.48),
+        0 0 18px rgba(255, 59, 52, 0.24);
+    }
+
+    body.night-mode .remaining-track {
+      box-shadow:
+        inset 0 0 8px rgba(255, 59, 52, 0.08),
+        0 0 10px rgba(255, 59, 52, 0.10);
+    }
+
+
+
+
+
+
+    /* Inverted red/black night theme: flat black signs, no glow */
+    body.night-mode.night-inverted #minutes,
+    body.night-mode.night-inverted .label,
+    body.night-mode.night-inverted #clock,
+    body.night-mode.night-inverted #dateLabel,
+    body.night-mode.night-inverted #remainingPercent,
+    body.night-mode.night-inverted .remaining-labels,
+    body.night-mode.night-inverted .icon-button,
+    body.night-mode.night-inverted .designer-credit {
+      text-shadow: none;
+    }
+
+    body.night-mode.night-inverted .remaining-fill,
+    body.night-mode.night-inverted .remaining-track {
+      box-shadow: none;
+    }
+
+    body.night-mode.night-inverted main {
+      background: var(--bg);
+    }
+
+    /* Final night override so the 22:00–07:59 red theme wins over sleep mode */
+    body.night-mode,
+    body.night-mode.tomorrow-mode {
+      background: var(--bg);
+      color: var(--fg);
+    }
+
+    body.night-mode.tomorrow-mode #minutes {
+      color: var(--fg);
+    }
+
+    body.night-mode.tomorrow-mode .label,
+    body.night-mode.tomorrow-mode #remainingPercent,
+    body.night-mode.tomorrow-mode .remaining-labels,
+    body.night-mode.tomorrow-mode .designer-credit {
+      color: var(--muted);
+    }
+
+    body.night-mode.tomorrow-mode #dateLabel {
+      color: var(--yellow);
+    }
+
+    body.night-mode.tomorrow-mode #clock {
+      color: var(--mint);
+    }
+
+    body.night-mode.tomorrow-mode .remaining-fill {
+      background: var(--orange) !important;
+    }
+
+
+    /* Final override: no black glow in inverted red/black night mode */
+    body.night-mode.night-inverted #minutes,
+    body.night-mode.night-inverted .label,
+    body.night-mode.night-inverted #clock,
+    body.night-mode.night-inverted #dateLabel,
+    body.night-mode.night-inverted #remainingPercent,
+    body.night-mode.night-inverted .remaining-labels,
+    body.night-mode.night-inverted .icon-button,
+    body.night-mode.night-inverted .designer-credit {
+      text-shadow: none !important;
+    }
+
+    body.night-mode.night-inverted .remaining-fill,
+    body.night-mode.night-inverted .remaining-track {
+      box-shadow: none !important;
+    }
+
+    body.night-mode.night-inverted main {
+      background: var(--bg) !important;
     }
 
     /* Large readable fullscreen display */
@@ -418,6 +656,65 @@
       border-radius: 999px;
     }
 
+    
+
+
+    /* Larger tap/click area for display mode toggle in fullscreen */
+    main:fullscreen #numberHitArea,
+    main:-webkit-full-screen #numberHitArea,
+    body.fake-fullscreen #numberHitArea {
+      width: min(92vw, 980px);
+      height: clamp(260px, 48vw, 560px);
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+    }
+
+    @media (orientation: landscape) and (max-height: 900px) {
+      main:fullscreen #numberHitArea,
+      main:-webkit-full-screen #numberHitArea,
+      body.fake-fullscreen #numberHitArea {
+        width: min(88vw, 900px);
+        height: clamp(220px, 42vw, 440px);
+        transform: translate(-50%, -50%);
+      }
+    }
+
+    /* Better fullscreen date/time positioning */
+    main:fullscreen .top,
+    main:-webkit-full-screen .top,
+    body.fake-fullscreen .top {
+      width: 100%;
+      padding: 0 clamp(2px, 1.2vw, 18px);
+      font-size: clamp(13px, 1.35vw, 20px);
+      letter-spacing: 0.18em;
+      opacity: 0.88;
+      align-items: flex-start;
+    }
+
+    main:fullscreen #dateLabel,
+    main:-webkit-full-screen #dateLabel,
+    body.fake-fullscreen #dateLabel {
+      text-align: left;
+      color: var(--yellow);
+      color: color-mix(in srgb, var(--yellow) 78%, var(--fg) 22%);
+    }
+
+    main:fullscreen #clock,
+    main:-webkit-full-screen #clock,
+    body.fake-fullscreen #clock {
+      text-align: right;
+      color: var(--mint);
+      color: color-mix(in srgb, var(--mint) 78%, var(--fg) 22%);
+    }
+
+    /* Raise lower progress section in fullscreen for better visual balance */
+    main:fullscreen .remaining-section,
+    main:-webkit-full-screen .remaining-section,
+    body.fake-fullscreen .remaining-section {
+      transform: translateY(-36px);
+    }
+
     @media (orientation: landscape) and (max-height: 900px) {
       main:fullscreen #minutes,
       main:-webkit-full-screen #minutes {
@@ -463,6 +760,18 @@
         width: min(88%, 390px);
       }
     }
+  
+    /* Final fullscreen hit-area override */
+    main:fullscreen #numberHitArea,
+    main:-webkit-full-screen #numberHitArea,
+    body.fake-fullscreen #numberHitArea {
+      width: min(92vw, 980px);
+      height: clamp(260px, 48vw, 560px);
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+
   </style>
 </head>
 <body>
@@ -502,6 +811,8 @@
         <div id="remainingFill" class="remaining-fill"></div>
       </div>
     </section>
+
+    <div class="designer-credit">Designed by Alex Weischer</div>
 </main>
 
   <script>
@@ -516,8 +827,10 @@
     const barEndLabelEl = document.getElementById("barEndLabel");
     const toggleTheme = document.getElementById("toggleTheme");
     const toggleFullscreen = document.getElementById("toggleFullscreen");
+    const mainEl = document.querySelector("main");
 
     let lightMode = localStorage.getItem("dayLeftTheme") === "light";
+    let nightInverted = localStorage.getItem("dayLeftNightTheme") === "inverted";
     let displayMode = localStorage.getItem("dayLeftDisplayMode") || "minutes";
     let animationId = null;
 
@@ -531,10 +844,22 @@
     }
 
     function updateTheme() {
-      document.body.classList.toggle("light", lightMode);
-      toggleTheme.title = lightMode ? "Dark mode" : "Light mode";
-      toggleTheme.setAttribute("aria-label", lightMode ? "Switch to dark mode" : "Switch to light mode");
-      localStorage.setItem("dayLeftTheme", lightMode ? "light" : "dark");
+      const now = new Date();
+      const isNight = now.getHours() < 8
+
+      document.body.classList.toggle("light", !isNight && lightMode);
+      document.body.classList.toggle("night-mode", isNight);
+      document.body.classList.toggle("night-inverted", isNight && nightInverted);
+
+      if (isNight) {
+        toggleTheme.title = nightInverted ? "Black red theme" : "Red black theme";
+        toggleTheme.setAttribute("aria-label", nightInverted ? "Switch to black red theme" : "Switch to red black theme");
+        localStorage.setItem("dayLeftNightTheme", nightInverted ? "inverted" : "default");
+      } else {
+        toggleTheme.title = lightMode ? "Dark mode" : "Light mode";
+        toggleTheme.setAttribute("aria-label", lightMode ? "Switch to dark mode" : "Switch to light mode");
+        localStorage.setItem("dayLeftTheme", lightMode ? "light" : "dark");
+      }
     }
 
     function getState(now) {
@@ -543,6 +868,7 @@
 
       // Sleep mode: between 00:00 and 07:59, show minutes remaining until 8:00.
       const sleepMode = hour < 8;
+      const nightMode = hour < 8
 
       const end = new Date(now);
       end.setHours(24, 0, 0, 0);
@@ -578,6 +904,7 @@
         sleepProgressPercent,
         displayPercent,
         sleepMode,
+        nightMode,
         hour,
         minute
       };
@@ -597,19 +924,54 @@
       return "var(--time-0)";
     }
 
+    function mixChannel(a, b, t) {
+      return Math.round(a + (b - a) * t);
+    }
+
+    function mixRgb(from, to, t) {
+      return `rgb(${mixChannel(from[0], to[0], t)}, ${mixChannel(from[1], to[1], t)}, ${mixChannel(from[2], to[2], t)})`;
+    }
+
+    function getSmoothPercentColor(percentLeft) {
+      const p = Math.max(0, Math.min(100, percentLeft));
+
+      const stops = [
+        { p: 100, c: [76, 175, 80] },
+        { p: 75, c: [168, 189, 61] },
+        { p: 55, c: [217, 165, 46] },
+        { p: 35, c: [217, 106, 34] },
+        { p: 15, c: [204, 52, 40] },
+        { p: 0, c: [185, 31, 31] }
+      ];
+
+      for (let i = 0; i < stops.length - 1; i++) {
+        const high = stops[i];
+        const low = stops[i + 1];
+
+        if (p <= high.p && p >= low.p) {
+          const t = (high.p - p) / (high.p - low.p);
+          return mixRgb(high.c, low.c, t);
+        }
+      }
+
+      return mixRgb(stops[stops.length - 1].c, stops[stops.length - 1].c, 0);
+    }
+
     function render() {
       const now = new Date();
       const state = getState(now);
 
+      updateTheme();
       document.body.classList.toggle("tomorrow-mode", state.sleepMode);
 
       const timeColor = getTimeColor(state.minutesLeft);
 
       if (displayMode === "percent") {
+        const percentColor = getSmoothPercentColor(state.displayPercent);
         minutesEl.textContent = state.displayPercent;
         mainLabelEl.textContent = "percent left today";
-        minutesEl.style.color = timeColor;
-        remainingFillEl.style.background = timeColor;
+        minutesEl.style.color = state.nightMode ? "var(--fg)" : percentColor;
+        remainingFillEl.style.background = state.nightMode ? "var(--orange)" : percentColor;
       } else {
         minutesEl.textContent = state.minutesLeft;
         mainLabelEl.textContent = state.sleepMode ? "minutes sleep" : "minutes left today";
@@ -625,14 +987,14 @@
         barEndLabelEl.textContent = "8:00";
         remainingFillEl.style.width = `${state.sleepProgressPercent}%`;
         remainingPercentEl.textContent = displayMode === "percent"
-          ? `${state.minutesLeft} minutes left`
+          ? `${state.minutesLeft} min`
           : `${Math.round(state.sleepProgressPercent)}%`;
       } else {
         barStartLabelEl.textContent = "8:00";
         barEndLabelEl.textContent = "24:00";
         remainingFillEl.style.width = `${state.dayRemainingPercent}%`;
         remainingPercentEl.textContent = displayMode === "percent"
-          ? `${state.minutesLeft} minutes left`
+          ? `${state.minutesLeft} min`
           : `${Math.round(state.dayRemainingPercent)}%`;
       }
     }
@@ -650,25 +1012,57 @@
       animationId = window.requestAnimationFrame(liveLoop);
     }
 
+    function isFakeFullscreen() {
+      return document.body.classList.contains("fake-fullscreen");
+    }
+
+    function setFullscreenButtonState(active) {
+      toggleFullscreen.title = active ? "Exit fullscreen" : "Enter fullscreen";
+      toggleFullscreen.setAttribute("aria-label", active ? "Exit fullscreen" : "Enter fullscreen");
+    }
+
     async function toggleFullScreenMode() {
       try {
-        if (!document.fullscreenElement) {
-          await document.querySelector("main").requestFullscreen();
-          toggleFullscreen.title = "Exit fullscreen";
-          toggleFullscreen.setAttribute("aria-label", "Exit fullscreen");
-        } else {
-          await document.exitFullscreen();
-          toggleFullscreen.title = "Enter fullscreen";
-          toggleFullscreen.setAttribute("aria-label", "Enter fullscreen");
+        if (isFakeFullscreen()) {
+          document.body.classList.remove("fake-fullscreen");
+          setFullscreenButtonState(false);
+          return;
         }
+
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
+          setFullscreenButtonState(false);
+          return;
+        }
+
+        const target = document.querySelector("main");
+
+        if (target.requestFullscreen) {
+          await target.requestFullscreen();
+          setFullscreenButtonState(true);
+          return;
+        }
+
+        if (target.webkitRequestFullscreen) {
+          target.webkitRequestFullscreen();
+          setFullscreenButtonState(true);
+          return;
+        }
+
+        document.body.classList.add("fake-fullscreen");
+        setFullscreenButtonState(true);
       } catch (error) {
-        console.warn("Fullscreen mode is not available:", error);
+        document.body.classList.add("fake-fullscreen");
+        setFullscreenButtonState(true);
       }
     }
 
     document.addEventListener("fullscreenchange", () => {
-      toggleFullscreen.title = document.fullscreenElement ? "Exit fullscreen" : "Enter fullscreen";
-      toggleFullscreen.setAttribute("aria-label", document.fullscreenElement ? "Exit fullscreen" : "Enter fullscreen");
+      setFullscreenButtonState(Boolean(document.fullscreenElement) || isFakeFullscreen());
+    });
+
+    document.addEventListener("webkitfullscreenchange", () => {
+      setFullscreenButtonState(Boolean(document.webkitFullscreenElement) || isFakeFullscreen());
     });
 
     function toggleDisplayMode() {
@@ -684,12 +1078,24 @@
     }, { passive: false });
 
     toggleTheme.addEventListener("click", () => {
-      lightMode = !lightMode;
+      const now = new Date();
+      const isNight = now.getHours() < 8
+
+      if (isNight) {
+        nightInverted = !nightInverted;
+      } else {
+        lightMode = !lightMode;
+      }
+
       updateTheme();
       render();
+      showControlsBriefly();
     });
 
-    toggleFullscreen.addEventListener("click", toggleFullScreenMode);
+    toggleFullscreen.addEventListener("click", () => {
+      toggleFullScreenMode();
+      showControlsBriefly();
+    });
 
     document.addEventListener("visibilitychange", () => {
       if (!document.hidden) startLiveLoop();
@@ -699,17 +1105,25 @@
     window.addEventListener("pageshow", startLiveLoop);
 
     let controlsTimer = null;
-    function showControlsBriefly() {
+
+    function setControlsVisible(visible) {
       const settings = document.querySelector(".settings");
-      settings.classList.add("is-visible");
+      settings.classList.toggle("is-visible", visible);
+      mainEl.classList.toggle("controls-visible", visible);
+    }
+
+    function showControlsBriefly() {
+      setControlsVisible(true);
       clearTimeout(controlsTimer);
       controlsTimer = setTimeout(() => {
-        settings.classList.remove("is-visible");
-      }, 1800);
+        setControlsVisible(false);
+      }, 2200);
     }
 
     window.addEventListener("mousemove", showControlsBriefly);
+    window.addEventListener("mousedown", showControlsBriefly);
     window.addEventListener("touchstart", showControlsBriefly, { passive: true });
+    window.addEventListener("keydown", showControlsBriefly);
 
     updateTheme();
     startLiveLoop();
