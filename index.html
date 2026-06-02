@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- app-version: v87-strict-number-only-hitarea -->
+  <!-- app-version: v88-centered-designer-credit-fullscreen -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0f0f0f" />
@@ -1007,6 +1007,34 @@
         transform: translate(-50%, -56%) !important;
         z-index: 1 !important;
       }
+    }
+
+
+  
+    /* Keep designer credit centered below the bar on iPad / real fullscreen */
+    main:fullscreen .designer-credit,
+    main:-webkit-full-screen .designer-credit {
+      position: absolute !important;
+      left: 50% !important;
+      right: auto !important;
+      transform: translateX(-50%) !important;
+      bottom: max(10px, env(safe-area-inset-bottom)) !important;
+      text-align: center !important;
+      width: max-content !important;
+      max-width: 90vw !important;
+      white-space: nowrap !important;
+    }
+
+    /* In iPhone app fullscreen it also stays centered, not edge-aligned */
+    body.iphone-app-fullscreen .designer-credit {
+      position: absolute !important;
+      left: 50% !important;
+      right: auto !important;
+      transform: translateX(-50%) !important;
+      text-align: center !important;
+      width: max-content !important;
+      max-width: 90vw !important;
+      white-space: nowrap !important;
     }
 
 
