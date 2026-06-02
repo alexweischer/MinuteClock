@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- app-version: v78-no-black-glow-inverted-night -->
+  <!-- app-version: v79-iphone-safari-app-fullscreen -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0f0f0f" />
@@ -138,11 +138,13 @@
       display: none;
     }
 
-    :fullscreen .fullscreen-enter {
+    :fullscreen .fullscreen-enter,
+    body.app-fullscreen .fullscreen-enter {
       display: none;
     }
 
-    :fullscreen .fullscreen-exit {
+    :fullscreen .fullscreen-exit,
+    body.app-fullscreen .fullscreen-exit {
       display: block;
     }
 
@@ -565,6 +567,113 @@
       background: var(--bg) !important;
     }
 
+
+    /* App fullscreen fallback for iPhone Safari */
+    html.app-fullscreen,
+    html.app-fullscreen body {
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    body.app-fullscreen {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100dvh;
+      min-height: 100dvh;
+      display: block;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    body.app-fullscreen main {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100dvh;
+      max-height: none;
+      aspect-ratio: auto;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      padding: max(28px, env(safe-area-inset-top)) max(26px, env(safe-area-inset-right)) max(34px, env(safe-area-inset-bottom)) max(26px, env(safe-area-inset-left));
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: clamp(24px, 3.4vw, 44px);
+      background: var(--bg);
+    }
+
+    body.app-fullscreen .fullscreen-enter {
+      display: none;
+    }
+
+    body.app-fullscreen .fullscreen-exit {
+      display: block;
+    }
+
+    body.app-fullscreen #minutes {
+      font-size: clamp(158px, 42vw, 520px);
+      line-height: 0.70;
+      letter-spacing: -0.09em;
+    }
+
+    body.app-fullscreen .label {
+      font-size: clamp(26px, 6.5vw, 76px);
+      letter-spacing: 0.035em;
+      opacity: 0.78;
+    }
+
+    body.app-fullscreen .top {
+      width: 100%;
+      padding: 0 clamp(2px, 1.2vw, 18px);
+      font-size: clamp(13px, 3.4vw, 20px);
+      letter-spacing: 0.18em;
+      opacity: 0.88;
+      align-items: flex-start;
+    }
+
+    body.app-fullscreen .countdown {
+      gap: clamp(18px, 4vw, 38px);
+    }
+
+    body.app-fullscreen .remaining-section {
+      width: min(82vw, 980px);
+      gap: 10px;
+      transform: translateY(-36px);
+    }
+
+    body.app-fullscreen .remaining-labels {
+      font-size: clamp(12px, 3vw, 20px);
+    }
+
+    body.app-fullscreen .remaining-track {
+      height: 6px;
+    }
+
+    body.app-fullscreen .designer-credit {
+      bottom: max(10px, env(safe-area-inset-bottom));
+      font-size: clamp(9px, 2.2vw, 13px);
+    }
+
+    body.app-fullscreen #numberHitArea {
+      width: min(92vw, 980px);
+      height: clamp(260px, 58vw, 560px);
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+    }
+
+    @supports (height: 100svh) {
+      body.app-fullscreen,
+      body.app-fullscreen main {
+        height: 100svh;
+        min-height: 100svh;
+      }
+    }
+
     /* Large readable fullscreen display */
     main:fullscreen {
       width: 100vw;
@@ -759,6 +868,13 @@
     .remaining-section {
         width: min(88%, 390px);
       }
+
+
+      .designer-credit {
+        bottom: 6px;
+        font-size: 8px;
+      }
+
     }
   
     /* Final fullscreen hit-area override */
@@ -1012,8 +1128,34 @@
       animationId = window.requestAnimationFrame(liveLoop);
     }
 
+    function isAppFullscreen() {
+      return document.body.classList.contains("app-fullscreen");
+    }
+
     function isFakeFullscreen() {
-      return document.body.classList.contains("fake-fullscreen");
+      return document.body.classList.contains("fake-fullscreen") || isAppFullscreen();
+    }
+
+    function isIPhoneSafari() {
+      const ua = navigator.userAgent;
+      const isIOS = /iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      const isWebKit = /WebKit/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
+      return isIOS && isWebKit;
+    }
+
+    function enterAppFullscreen() {
+      document.documentElement.classList.add("app-fullscreen");
+      document.body.classList.add("app-fullscreen");
+      document.body.classList.remove("fake-fullscreen");
+      window.scrollTo(0, 0);
+      setFullscreenButtonState(true);
+    }
+
+    function exitAppFullscreen() {
+      document.documentElement.classList.remove("app-fullscreen");
+      document.body.classList.remove("app-fullscreen");
+      document.body.classList.remove("fake-fullscreen");
+      setFullscreenButtonState(false);
     }
 
     function setFullscreenButtonState(active) {
@@ -1023,15 +1165,24 @@
 
     async function toggleFullScreenMode() {
       try {
-        if (isFakeFullscreen()) {
-          document.body.classList.remove("fake-fullscreen");
-          setFullscreenButtonState(false);
+        if (isAppFullscreen()) {
+          exitAppFullscreen();
           return;
         }
 
         if (document.fullscreenElement) {
           await document.exitFullscreen();
           setFullscreenButtonState(false);
+          return;
+        }
+
+        /*
+          iPhone Safari does not expose reliable true fullscreen for normal pages.
+          This intentionally enters an app-style fullscreen layout instead.
+          For the closest native feel, add the site to the Home Screen.
+        */
+        if (isIPhoneSafari()) {
+          enterAppFullscreen();
           return;
         }
 
@@ -1049,20 +1200,18 @@
           return;
         }
 
-        document.body.classList.add("fake-fullscreen");
-        setFullscreenButtonState(true);
+        enterAppFullscreen();
       } catch (error) {
-        document.body.classList.add("fake-fullscreen");
-        setFullscreenButtonState(true);
+        enterAppFullscreen();
       }
     }
 
     document.addEventListener("fullscreenchange", () => {
-      setFullscreenButtonState(Boolean(document.fullscreenElement) || isFakeFullscreen());
+      setFullscreenButtonState(Boolean(document.fullscreenElement) || isAppFullscreen());
     });
 
     document.addEventListener("webkitfullscreenchange", () => {
-      setFullscreenButtonState(Boolean(document.webkitFullscreenElement) || isFakeFullscreen());
+      setFullscreenButtonState(Boolean(document.webkitFullscreenElement) || isAppFullscreen());
     });
 
     function toggleDisplayMode() {
@@ -1123,7 +1272,12 @@
     window.addEventListener("mousemove", showControlsBriefly);
     window.addEventListener("mousedown", showControlsBriefly);
     window.addEventListener("touchstart", showControlsBriefly, { passive: true });
-    window.addEventListener("keydown", showControlsBriefly);
+    window.addEventListener("keydown", function (event) {
+      showControlsBriefly();
+      if (event.key === "Escape" && isAppFullscreen()) {
+        exitAppFullscreen();
+      }
+    });
 
     updateTheme();
     startLiveLoop();
