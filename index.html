@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- app-version: v85-iphone-fullscreen-layout-cleanup -->
+  <!-- app-version: v86-precise-phone-landscape-hitarea -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0f0f0f" />
@@ -1072,6 +1072,18 @@
 
       body.iphone-app-fullscreen #minutes {
         font-size: clamp(126px, 36vw, 240px) !important;
+      }
+    }
+
+
+  
+    /* More precise normal iPhone landscape tap area */
+    @media (orientation: landscape) and (max-height: 520px) and (max-width: 950px) {
+      body:not(.iphone-app-fullscreen) #numberHitArea {
+        width: min(52vw, 420px) !important;
+        height: clamp(92px, 23vw, 190px) !important;
+        top: 50% !important;
+        transform: translate(-50%, -56%) !important;
       }
     }
 
