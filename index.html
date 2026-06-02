@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- app-version: v78-no-black-glow-inverted-night -->
+  <!-- app-version: v79-safari-fullscreen-fixed-mobile-credit-lower -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0f0f0f" />
@@ -566,6 +566,43 @@
     }
 
     /* Large readable fullscreen display */
+
+    /* Strong Safari/iPhone fullscreen fallback */
+    html.fake-fullscreen-root,
+    html.fake-fullscreen-root body,
+    body.fake-fullscreen {
+      width: 100vw;
+      height: 100dvh;
+      min-height: 100dvh;
+      margin: 0;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    body.fake-fullscreen {
+      position: fixed;
+      inset: 0;
+      display: block;
+      place-items: unset;
+    }
+
+    body.fake-fullscreen main {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100dvh;
+      max-height: none;
+      aspect-ratio: auto;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      padding: max(28px, env(safe-area-inset-top)) max(52px, env(safe-area-inset-right)) max(36px, env(safe-area-inset-bottom)) max(52px, env(safe-area-inset-left));
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: clamp(24px, 3.4vw, 44px);
+      background: var(--bg);
+    }
+
     main:fullscreen {
       width: 100vw;
       height: 100dvh;
@@ -1021,10 +1058,18 @@
       toggleFullscreen.setAttribute("aria-label", active ? "Exit fullscreen" : "Enter fullscreen");
     }
 
+    function isIOSWebKit() {
+      return /iPad|iPhone|iPod/.test(navigator.userAgent)
+        || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    }
+
     async function toggleFullScreenMode() {
       try {
+        const root = document.documentElement;
+
         if (isFakeFullscreen()) {
           document.body.classList.remove("fake-fullscreen");
+          root.classList.remove("fake-fullscreen-root");
           setFullscreenButtonState(false);
           return;
         }
@@ -1032,6 +1077,17 @@
         if (document.fullscreenElement) {
           await document.exitFullscreen();
           setFullscreenButtonState(false);
+          return;
+        }
+
+        /*
+          iPhone Safari does not reliably support Element.requestFullscreen.
+          So on iOS/WebKit we intentionally use the CSS fullscreen fallback.
+        */
+        if (isIOSWebKit()) {
+          document.body.classList.add("fake-fullscreen");
+          root.classList.add("fake-fullscreen-root");
+          setFullscreenButtonState(true);
           return;
         }
 
@@ -1043,25 +1099,23 @@
           return;
         }
 
-        if (target.webkitRequestFullscreen) {
-          target.webkitRequestFullscreen();
-          setFullscreenButtonState(true);
-          return;
-        }
-
         document.body.classList.add("fake-fullscreen");
+        root.classList.add("fake-fullscreen-root");
         setFullscreenButtonState(true);
       } catch (error) {
         document.body.classList.add("fake-fullscreen");
+        document.documentElement.classList.add("fake-fullscreen-root");
         setFullscreenButtonState(true);
       }
     }
-
-    document.addEventListener("fullscreenchange", () => {
+, () => {
       setFullscreenButtonState(Boolean(document.fullscreenElement) || isFakeFullscreen());
     });
 
     document.addEventListener("webkitfullscreenchange", () => {
+      if (!document.webkitFullscreenElement && !isFakeFullscreen()) {
+        document.documentElement.classList.remove("fake-fullscreen-root");
+      }
       setFullscreenButtonState(Boolean(document.webkitFullscreenElement) || isFakeFullscreen());
     });
 
