@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- app-version: v83-stable-live-clock-restored -->
+  <!-- app-version: v84-hybrid-ipad-real-iphone-app-fullscreen -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0f0f0f" />
@@ -772,6 +772,144 @@
     }
 
 
+  
+    /* iPhone-only app fullscreen fallback; iPad keeps real browser fullscreen */
+    html.iphone-app-fullscreen,
+    html.iphone-app-fullscreen body,
+    body.iphone-app-fullscreen {
+      width: 100vw !important;
+      height: 100vh !important;
+      height: 100dvh !important;
+      min-height: 100vh !important;
+      min-height: 100dvh !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      background: var(--bg) !important;
+    }
+
+    body.iphone-app-fullscreen {
+      position: fixed !important;
+      inset: 0 !important;
+      display: block !important;
+      place-items: unset !important;
+    }
+
+    body.iphone-app-fullscreen main {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      height: 100dvh !important;
+      min-height: 100vh !important;
+      min-height: 100dvh !important;
+      max-height: none !important;
+      aspect-ratio: auto !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      margin: 0 !important;
+      padding: max(28px, env(safe-area-inset-top)) max(26px, env(safe-area-inset-right)) max(34px, env(safe-area-inset-bottom)) max(26px, env(safe-area-inset-left)) !important;
+      display: grid !important;
+      grid-template-rows: auto 1fr auto !important;
+      gap: clamp(24px, 3.4vw, 44px) !important;
+      background: var(--bg) !important;
+    }
+
+    body.iphone-app-fullscreen .fullscreen-enter {
+      display: none !important;
+    }
+
+    body.iphone-app-fullscreen .fullscreen-exit {
+      display: block !important;
+    }
+
+    body.iphone-app-fullscreen #minutes {
+      font-size: clamp(158px, 42vw, 520px) !important;
+      line-height: 0.70 !important;
+      letter-spacing: -0.09em !important;
+    }
+
+    body.iphone-app-fullscreen .label {
+      font-size: clamp(26px, 6.5vw, 76px) !important;
+      letter-spacing: 0.035em !important;
+      opacity: 0.78 !important;
+    }
+
+    body.iphone-app-fullscreen .top {
+      width: 100% !important;
+      padding: 0 clamp(2px, 1.2vw, 18px) !important;
+      font-size: clamp(13px, 3.4vw, 20px) !important;
+      letter-spacing: 0.18em !important;
+      opacity: 0.88 !important;
+      align-items: flex-start !important;
+    }
+
+    body.iphone-app-fullscreen .countdown {
+      gap: clamp(18px, 4vw, 38px) !important;
+    }
+
+    body.iphone-app-fullscreen .remaining-section {
+      width: min(82vw, 980px) !important;
+      gap: 10px !important;
+      transform: translateY(-36px) !important;
+    }
+
+    body.iphone-app-fullscreen .remaining-labels {
+      font-size: clamp(12px, 3vw, 20px) !important;
+    }
+
+    body.iphone-app-fullscreen .designer-credit {
+      bottom: max(10px, env(safe-area-inset-bottom)) !important;
+      font-size: clamp(9px, 2.2vw, 13px) !important;
+    }
+
+    body.iphone-app-fullscreen #numberHitArea {
+      width: min(92vw, 980px) !important;
+      height: clamp(260px, 58vw, 560px) !important;
+      top: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      z-index: 5 !important;
+    }
+
+    @media (orientation: landscape) {
+      body.iphone-app-fullscreen main {
+        padding:
+          max(18px, env(safe-area-inset-top))
+          max(38px, env(safe-area-inset-right))
+          max(20px, env(safe-area-inset-bottom))
+          max(38px, env(safe-area-inset-left)) !important;
+        grid-template-rows: auto minmax(0, 1fr) auto !important;
+        gap: clamp(10px, 2.4vh, 22px) !important;
+      }
+
+      body.iphone-app-fullscreen #minutes {
+        font-size: clamp(124px, 28vw, 300px) !important;
+        line-height: 0.70 !important;
+      }
+
+      body.iphone-app-fullscreen .label {
+        font-size: clamp(18px, 3.2vw, 42px) !important;
+      }
+
+      body.iphone-app-fullscreen .remaining-section {
+        width: min(70vw, 760px) !important;
+        transform: translateY(-10px) !important;
+      }
+
+      body.iphone-app-fullscreen #numberHitArea {
+        width: min(74vw, 740px) !important;
+        height: clamp(150px, 34vw, 320px) !important;
+        transform: translate(-50%, -52%) !important;
+      }
+
+      body.iphone-app-fullscreen .designer-credit {
+        bottom: max(6px, env(safe-area-inset-bottom)) !important;
+        font-size: clamp(8px, 1.2vw, 11px) !important;
+      }
+    }
+
+
   </style>
 </head>
 <body>
@@ -833,6 +971,11 @@
     let nightInverted = localStorage.getItem("dayLeftNightTheme") === "inverted";
     let displayMode = localStorage.getItem("dayLeftDisplayMode") || "minutes";
     let animationId = null;
+
+    function updateViewportHeight() {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty("--app-vh", `${vh}px`);
+    }
 
     function pad(n) {
       return String(n).padStart(2, "0");
@@ -1012,8 +1155,35 @@
       animationId = window.requestAnimationFrame(liveLoop);
     }
 
+    function isIPhoneOnlySafari() {
+      const ua = navigator.userAgent;
+      const isIPhone = /iPhone|iPod/.test(ua);
+      const isWebKit = /WebKit/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
+      return isIPhone && isWebKit;
+    }
+
+    function isIPhoneAppFullscreen() {
+      return document.body.classList.contains("iphone-app-fullscreen");
+    }
+
     function isFakeFullscreen() {
-      return document.body.classList.contains("fake-fullscreen");
+      return isIPhoneAppFullscreen();
+    }
+
+    function enterIPhoneAppFullscreen() {
+      document.documentElement.classList.add("iphone-app-fullscreen");
+      document.body.classList.add("iphone-app-fullscreen");
+      document.documentElement.classList.remove("minute-app-fullscreen", "app-fullscreen", "fake-fullscreen-root");
+      document.body.classList.remove("minute-app-fullscreen", "app-fullscreen", "fake-fullscreen");
+      updateViewportHeight();
+      window.scrollTo(0, 0);
+      setFullscreenButtonState(true);
+    }
+
+    function exitIPhoneAppFullscreen() {
+      document.documentElement.classList.remove("iphone-app-fullscreen", "minute-app-fullscreen", "app-fullscreen", "fake-fullscreen-root");
+      document.body.classList.remove("iphone-app-fullscreen", "minute-app-fullscreen", "app-fullscreen", "fake-fullscreen");
+      setFullscreenButtonState(false);
     }
 
     function setFullscreenButtonState(active) {
@@ -1023,14 +1193,29 @@
 
     async function toggleFullScreenMode() {
       try {
-        if (isFakeFullscreen()) {
-          document.body.classList.remove("fake-fullscreen");
-          setFullscreenButtonState(false);
+        /*
+          iPhone Safari: use app-style fullscreen because true browser fullscreen
+          is not available/reliable for normal webpages.
+        */
+        if (isIPhoneOnlySafari()) {
+          if (isIPhoneAppFullscreen()) {
+            exitIPhoneAppFullscreen();
+          } else {
+            enterIPhoneAppFullscreen();
+          }
           return;
         }
 
-        if (document.fullscreenElement) {
-          await document.exitFullscreen();
+        /*
+          iPad Safari and desktop: keep using real Fullscreen API,
+          so the Safari/address bars can disappear as before.
+        */
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+          if (document.exitFullscreen) {
+            await document.exitFullscreen();
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          }
           setFullscreenButtonState(false);
           return;
         }
@@ -1049,20 +1234,18 @@
           return;
         }
 
-        document.body.classList.add("fake-fullscreen");
-        setFullscreenButtonState(true);
+        enterIPhoneAppFullscreen();
       } catch (error) {
-        document.body.classList.add("fake-fullscreen");
-        setFullscreenButtonState(true);
+        enterIPhoneAppFullscreen();
       }
     }
 
     document.addEventListener("fullscreenchange", () => {
-      setFullscreenButtonState(Boolean(document.fullscreenElement) || isFakeFullscreen());
+      setFullscreenButtonState(Boolean(document.fullscreenElement) || isIPhoneAppFullscreen());
     });
 
     document.addEventListener("webkitfullscreenchange", () => {
-      setFullscreenButtonState(Boolean(document.webkitFullscreenElement) || isFakeFullscreen());
+      setFullscreenButtonState(Boolean(document.webkitFullscreenElement) || isIPhoneAppFullscreen());
     });
 
     function toggleDisplayMode() {
@@ -1103,6 +1286,11 @@
 
     window.addEventListener("focus", startLiveLoop);
     window.addEventListener("pageshow", startLiveLoop);
+    window.addEventListener("resize", updateViewportHeight);
+    window.addEventListener("orientationchange", () => {
+      updateViewportHeight();
+      setTimeout(updateViewportHeight, 250);
+    });
 
     let controlsTimer = null;
 
@@ -1125,6 +1313,7 @@
     window.addEventListener("touchstart", showControlsBriefly, { passive: true });
     window.addEventListener("keydown", showControlsBriefly);
 
+    updateViewportHeight();
     updateTheme();
     startLiveLoop();
   </script>
