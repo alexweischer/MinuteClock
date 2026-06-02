@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- app-version: v82-auto-app-fullscreen-safari -->
+  <!-- app-version: v78-no-black-glow-inverted-night -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0f0f0f" />
@@ -138,13 +138,11 @@
       display: none;
     }
 
-    :fullscreen .fullscreen-enter,
-    body.app-fullscreen .fullscreen-enter {
+    :fullscreen .fullscreen-enter {
       display: none;
     }
 
-    :fullscreen .fullscreen-exit,
-    body.app-fullscreen .fullscreen-exit {
+    :fullscreen .fullscreen-exit {
       display: block;
     }
 
@@ -567,113 +565,6 @@
       background: var(--bg) !important;
     }
 
-
-    /* App fullscreen fallback for iPhone Safari */
-    html.app-fullscreen,
-    html.app-fullscreen body {
-      width: 100%;
-      height: 100%;
-      min-height: 100%;
-      overflow: hidden;
-      background: var(--bg);
-    }
-
-    body.app-fullscreen {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100dvh;
-      min-height: 100dvh;
-      display: block;
-      overflow: hidden;
-      background: var(--bg);
-    }
-
-    body.app-fullscreen main {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100dvh;
-      max-height: none;
-      aspect-ratio: auto;
-      border: 0;
-      border-radius: 0;
-      box-shadow: none;
-      padding: max(28px, env(safe-area-inset-top)) max(26px, env(safe-area-inset-right)) max(34px, env(safe-area-inset-bottom)) max(26px, env(safe-area-inset-left));
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      gap: clamp(24px, 3.4vw, 44px);
-      background: var(--bg);
-    }
-
-    body.app-fullscreen .fullscreen-enter {
-      display: none;
-    }
-
-    body.app-fullscreen .fullscreen-exit {
-      display: block;
-    }
-
-    body.app-fullscreen #minutes {
-      font-size: clamp(158px, 42vw, 520px);
-      line-height: 0.70;
-      letter-spacing: -0.09em;
-    }
-
-    body.app-fullscreen .label {
-      font-size: clamp(26px, 6.5vw, 76px);
-      letter-spacing: 0.035em;
-      opacity: 0.78;
-    }
-
-    body.app-fullscreen .top {
-      width: 100%;
-      padding: 0 clamp(2px, 1.2vw, 18px);
-      font-size: clamp(13px, 3.4vw, 20px);
-      letter-spacing: 0.18em;
-      opacity: 0.88;
-      align-items: flex-start;
-    }
-
-    body.app-fullscreen .countdown {
-      gap: clamp(18px, 4vw, 38px);
-    }
-
-    body.app-fullscreen .remaining-section {
-      width: min(82vw, 980px);
-      gap: 10px;
-      transform: translateY(-36px);
-    }
-
-    body.app-fullscreen .remaining-labels {
-      font-size: clamp(12px, 3vw, 20px);
-    }
-
-    body.app-fullscreen .remaining-track {
-      height: 6px;
-    }
-
-    body.app-fullscreen .designer-credit {
-      bottom: max(10px, env(safe-area-inset-bottom));
-      font-size: clamp(9px, 2.2vw, 13px);
-    }
-
-    body.app-fullscreen #numberHitArea {
-      width: min(92vw, 980px);
-      height: clamp(260px, 58vw, 560px);
-      top: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 5;
-    }
-
-    @supports (height: 100svh) {
-      body.app-fullscreen,
-      body.app-fullscreen main {
-        height: 100svh;
-        min-height: 100svh;
-      }
-    }
-
     /* Large readable fullscreen display */
     main:fullscreen {
       width: 100vw;
@@ -868,13 +759,6 @@
     .remaining-section {
         width: min(88%, 390px);
       }
-
-
-      .designer-credit {
-        bottom: 6px;
-        font-size: 8px;
-      }
-
     }
   
     /* Final fullscreen hit-area override */
@@ -885,206 +769,6 @@
       height: clamp(260px, 48vw, 560px);
       top: 50%;
       transform: translate(-50%, -50%);
-    }
-
-
-  
-    /* FINAL OVERRIDE: true app-style fullscreen, no square card */
-    html.minute-app-fullscreen,
-    html.minute-app-fullscreen body {
-      width: 100vw !important;
-      height: 100vh !important;
-      height: calc(var(--app-vh, 1vh) * 100) !important;
-      min-height: 100vh !important;
-      min-height: calc(var(--app-vh, 1vh) * 100) !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      overflow: hidden !important;
-      background: var(--bg) !important;
-    }
-
-    body.minute-app-fullscreen {
-      position: fixed !important;
-      inset: 0 !important;
-      display: block !important;
-      place-items: unset !important;
-      overflow: hidden !important;
-    }
-
-    body.minute-app-fullscreen main {
-      position: fixed !important;
-      inset: 0 !important;
-      width: 100vw !important;
-      height: 100vh !important;
-      height: calc(var(--app-vh, 1vh) * 100) !important;
-      min-height: 100vh !important;
-      min-height: calc(var(--app-vh, 1vh) * 100) !important;
-      max-height: none !important;
-      aspect-ratio: auto !important;
-      border: 0 !important;
-      border-radius: 0 !important;
-      box-shadow: none !important;
-      margin: 0 !important;
-      padding: max(28px, env(safe-area-inset-top)) max(26px, env(safe-area-inset-right)) max(34px, env(safe-area-inset-bottom)) max(26px, env(safe-area-inset-left)) !important;
-      display: grid !important;
-      grid-template-rows: auto 1fr auto !important;
-      gap: clamp(24px, 3.4vw, 44px) !important;
-      background: var(--bg) !important;
-      transform: none !important;
-    }
-
-    body.minute-app-fullscreen .fullscreen-enter {
-      display: none !important;
-    }
-
-    body.minute-app-fullscreen .fullscreen-exit {
-      display: block !important;
-    }
-
-    body.minute-app-fullscreen #minutes {
-      font-size: clamp(158px, 42vw, 520px) !important;
-      line-height: 0.70 !important;
-      letter-spacing: -0.09em !important;
-    }
-
-    body.minute-app-fullscreen .label {
-      font-size: clamp(26px, 6.5vw, 76px) !important;
-      letter-spacing: 0.035em !important;
-      opacity: 0.78 !important;
-    }
-
-    body.minute-app-fullscreen .top {
-      width: 100% !important;
-      padding: 0 clamp(2px, 1.2vw, 18px) !important;
-      font-size: clamp(13px, 3.4vw, 20px) !important;
-      letter-spacing: 0.18em !important;
-      opacity: 0.88 !important;
-      align-items: flex-start !important;
-    }
-
-    body.minute-app-fullscreen .countdown {
-      gap: clamp(18px, 4vw, 38px) !important;
-    }
-
-    body.minute-app-fullscreen .remaining-section {
-      width: min(82vw, 980px) !important;
-      gap: 10px !important;
-      transform: translateY(-36px) !important;
-    }
-
-    body.minute-app-fullscreen .remaining-labels {
-      font-size: clamp(12px, 3vw, 20px) !important;
-    }
-
-    body.minute-app-fullscreen .designer-credit {
-      bottom: max(10px, env(safe-area-inset-bottom)) !important;
-      font-size: clamp(9px, 2.2vw, 13px) !important;
-    }
-
-    body.minute-app-fullscreen #numberHitArea {
-      width: min(92vw, 980px) !important;
-      height: clamp(260px, 58vw, 560px) !important;
-      top: 50% !important;
-      transform: translate(-50%, -50%) !important;
-      z-index: 5 !important;
-    }
-
-
-  
-    /* iPhone Safari landscape app-fullscreen fix */
-    @media (orientation: landscape) {
-      html.minute-app-fullscreen,
-      html.minute-app-fullscreen body,
-      body.minute-app-fullscreen {
-        width: 100vw !important;
-        height: 100vh !important;
-        height: calc(var(--app-vh, 1vh) * 100) !important;
-        min-height: 100vh !important;
-        min-height: calc(var(--app-vh, 1vh) * 100) !important;
-        overflow: hidden !important;
-      }
-
-      body.minute-app-fullscreen main {
-        width: 100vw !important;
-        height: 100vh !important;
-        height: calc(var(--app-vh, 1vh) * 100) !important;
-        min-height: 100vh !important;
-        min-height: calc(var(--app-vh, 1vh) * 100) !important;
-        max-height: none !important;
-        aspect-ratio: auto !important;
-        border-radius: 0 !important;
-        padding:
-          max(18px, env(safe-area-inset-top))
-          max(38px, env(safe-area-inset-right))
-          max(20px, env(safe-area-inset-bottom))
-          max(38px, env(safe-area-inset-left)) !important;
-        grid-template-rows: auto minmax(0, 1fr) auto !important;
-        gap: clamp(10px, 2.4vh, 22px) !important;
-      }
-
-      body.minute-app-fullscreen .countdown {
-        position: relative !important;
-        display: grid !important;
-        place-content: center !important;
-        justify-items: center !important;
-        gap: clamp(8px, 2vh, 16px) !important;
-        min-height: 0 !important;
-      }
-
-      body.minute-app-fullscreen #minutes {
-        font-size: clamp(124px, 28vw, 300px) !important;
-        line-height: 0.70 !important;
-        letter-spacing: -0.085em !important;
-      }
-
-      body.minute-app-fullscreen .label {
-        font-size: clamp(18px, 3.2vw, 42px) !important;
-      }
-
-      body.minute-app-fullscreen .remaining-section {
-        width: min(70vw, 760px) !important;
-        transform: translateY(-10px) !important;
-      }
-
-      body.minute-app-fullscreen .remaining-labels {
-        font-size: clamp(10px, 1.6vw, 16px) !important;
-      }
-
-      body.minute-app-fullscreen .designer-credit {
-        bottom: max(6px, env(safe-area-inset-bottom)) !important;
-        font-size: clamp(8px, 1.2vw, 11px) !important;
-      }
-
-      body.minute-app-fullscreen #numberHitArea {
-        left: 50% !important;
-        top: 50% !important;
-        width: min(74vw, 740px) !important;
-        height: clamp(150px, 34vw, 320px) !important;
-        transform: translate(-50%, -52%) !important;
-        z-index: 5 !important;
-      }
-
-      body.minute-app-fullscreen .top {
-        font-size: clamp(11px, 1.8vw, 16px) !important;
-      }
-    }
-
-
-  
-    /* Early fullscreen paint before body class is added */
-    html.minute-app-fullscreen body main {
-      position: fixed !important;
-      inset: 0 !important;
-      width: 100vw !important;
-      height: calc(var(--app-vh, 1vh) * 100) !important;
-      min-height: calc(var(--app-vh, 1vh) * 100) !important;
-      max-height: none !important;
-      aspect-ratio: auto !important;
-      border: 0 !important;
-      border-radius: 0 !important;
-      box-shadow: none !important;
-      margin: 0 !important;
-      background: var(--bg) !important;
     }
 
 
@@ -1149,26 +833,6 @@
     let nightInverted = localStorage.getItem("dayLeftNightTheme") === "inverted";
     let displayMode = localStorage.getItem("dayLeftDisplayMode") || "minutes";
     let animationId = null;
-
-
-    function updateViewportHeight() {
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty("--app-vh", `${vh}px`);
-    }
-
-
-    function shouldAutoStartAppFullscreen() {
-      const ua = navigator.userAgent;
-      const isIOS = /iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-      const isWebKit = /WebKit/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
-      return isIOS && isWebKit;
-    }
-
-    function startInAppFullscreenIfNeeded() {
-      if (shouldAutoStartAppFullscreen() && !isAppFullscreen()) {
-        enterAppFullscreen();
-      }
-    }
 
     function pad(n) {
       return String(n).padStart(2, "0");
@@ -1348,39 +1012,8 @@
       animationId = window.requestAnimationFrame(liveLoop);
     }
 
-    function isAppFullscreen() {
-      return document.body.classList.contains("minute-app-fullscreen");
-    }
-
     function isFakeFullscreen() {
-      return isAppFullscreen();
-    }
-
-    function isIPhoneSafari() {
-      const ua = navigator.userAgent;
-      const isIOS = /iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-      const isWebKit = /WebKit/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
-      return isIOS && isWebKit;
-    }
-
-    function enterAppFullscreen() {
-      document.documentElement.classList.add("minute-app-fullscreen");
-      document.body.classList.add("minute-app-fullscreen");
-      document.documentElement.classList.remove("app-fullscreen");
-      document.body.classList.remove("app-fullscreen");
-      document.body.classList.remove("fake-fullscreen");
-      updateViewportHeight();
-      window.scrollTo(0, 0);
-      setFullscreenButtonState(true);
-    }
-
-    function exitAppFullscreen() {
-      document.documentElement.classList.remove("minute-app-fullscreen");
-      document.body.classList.remove("minute-app-fullscreen");
-      document.documentElement.classList.remove("app-fullscreen");
-      document.body.classList.remove("app-fullscreen");
-      document.body.classList.remove("fake-fullscreen");
-      setFullscreenButtonState(false);
+      return document.body.classList.contains("fake-fullscreen");
     }
 
     function setFullscreenButtonState(active) {
@@ -1389,19 +1022,47 @@
     }
 
     async function toggleFullScreenMode() {
-      if (isAppFullscreen()) {
-        exitAppFullscreen();
-      } else {
-        enterAppFullscreen();
+      try {
+        if (isFakeFullscreen()) {
+          document.body.classList.remove("fake-fullscreen");
+          setFullscreenButtonState(false);
+          return;
+        }
+
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
+          setFullscreenButtonState(false);
+          return;
+        }
+
+        const target = document.querySelector("main");
+
+        if (target.requestFullscreen) {
+          await target.requestFullscreen();
+          setFullscreenButtonState(true);
+          return;
+        }
+
+        if (target.webkitRequestFullscreen) {
+          target.webkitRequestFullscreen();
+          setFullscreenButtonState(true);
+          return;
+        }
+
+        document.body.classList.add("fake-fullscreen");
+        setFullscreenButtonState(true);
+      } catch (error) {
+        document.body.classList.add("fake-fullscreen");
+        setFullscreenButtonState(true);
       }
     }
 
     document.addEventListener("fullscreenchange", () => {
-      setFullscreenButtonState(isAppFullscreen());
+      setFullscreenButtonState(Boolean(document.fullscreenElement) || isFakeFullscreen());
     });
 
     document.addEventListener("webkitfullscreenchange", () => {
-      setFullscreenButtonState(isAppFullscreen());
+      setFullscreenButtonState(Boolean(document.webkitFullscreenElement) || isFakeFullscreen());
     });
 
     function toggleDisplayMode() {
@@ -1442,14 +1103,6 @@
 
     window.addEventListener("focus", startLiveLoop);
     window.addEventListener("pageshow", startLiveLoop);
-    window.addEventListener("resize", updateViewportHeight);
-    window.addEventListener("orientationchange", () => {
-      updateViewportHeight();
-      setTimeout(() => {
-        updateViewportHeight();
-        startInAppFullscreenIfNeeded();
-      }, 250);
-    });
 
     let controlsTimer = null;
 
@@ -1470,16 +1123,9 @@
     window.addEventListener("mousemove", showControlsBriefly);
     window.addEventListener("mousedown", showControlsBriefly);
     window.addEventListener("touchstart", showControlsBriefly, { passive: true });
-    window.addEventListener("keydown", function (event) {
-      showControlsBriefly();
-      if (event.key === "Escape" && isAppFullscreen()) {
-        exitAppFullscreen();
-      }
-    });
+    window.addEventListener("keydown", showControlsBriefly);
 
-    updateViewportHeight();
     updateTheme();
-    startInAppFullscreenIfNeeded();
     startLiveLoop();
   </script>
 </body>
