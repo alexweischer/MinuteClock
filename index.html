@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- app-version: v88-centered-designer-credit-fullscreen -->
+  <!-- app-version: v91-normal-credit-centered-spacing -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0f0f0f" />
@@ -1038,6 +1038,28 @@
     }
 
 
+  
+    /* Normal mode designer credit: centered below bar with balanced spacing */
+    body:not(.iphone-app-fullscreen) main:not(:fullscreen):not(:-webkit-full-screen) .designer-credit {
+      position: absolute !important;
+      left: 50% !important;
+      right: auto !important;
+      bottom: clamp(8px, 1.65vw, 16px) !important;
+      transform: translateX(-50%) !important;
+      width: max-content !important;
+      max-width: 90% !important;
+      text-align: center !important;
+      white-space: nowrap !important;
+    }
+
+    @media (max-width: 520px) {
+      body:not(.iphone-app-fullscreen) main:not(:fullscreen):not(:-webkit-full-screen) .designer-credit {
+        bottom: 7px !important;
+        font-size: 8px !important;
+      }
+    }
+
+
   </style>
 </head>
 <body>
@@ -1064,7 +1086,7 @@
     <section class="countdown">
       <div id="minutes">1440</div>
       <button id="numberHitArea" type="button" aria-label="Toggle between minutes and percent left today"></button>
-      <div id="mainLabel" class="label">minutes left today</div>
+      <div id="mainLabel" class="label">min</div>
     </section>
 
     <section class="remaining-section" aria-label="Remaining time from 8:00 to 24:00">
@@ -1240,12 +1262,12 @@
       if (displayMode === "percent") {
         const percentColor = getSmoothPercentColor(state.displayPercent);
         minutesEl.textContent = state.displayPercent;
-        mainLabelEl.textContent = "percent left today";
+        mainLabelEl.textContent = "%";
         minutesEl.style.color = state.nightMode ? "var(--fg)" : percentColor;
         remainingFillEl.style.background = state.nightMode ? "var(--orange)" : percentColor;
       } else {
         minutesEl.textContent = state.minutesLeft;
-        mainLabelEl.textContent = state.sleepMode ? "minutes sleep" : "minutes left today";
+        mainLabelEl.textContent = "min";
         minutesEl.style.color = "";
         remainingFillEl.style.background = "var(--orange)";
       }
