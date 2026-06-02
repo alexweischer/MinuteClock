@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- app-version: v93-fullscreen-top-bigger-lower-inward -->
+  <!-- app-version: v94-iphone-landscape-credit-lower -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0f0f0f" />
@@ -1085,6 +1085,16 @@
     /* iPhone app fullscreen keeps its own tighter spacing */
     body.iphone-app-fullscreen .top {
       padding: 0 clamp(2px, 1.2vw, 18px) !important;
+    }
+
+
+  
+    /* iPhone landscape fullscreen: lower designer credit for more bar spacing */
+    @media (orientation: landscape) {
+      body.iphone-app-fullscreen .designer-credit {
+        bottom: max(2px, env(safe-area-inset-bottom)) !important;
+        transform: translateX(-50%) !important;
+      }
     }
 
 
