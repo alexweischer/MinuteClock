@@ -1918,7 +1918,7 @@
         <div id="glassFill" class="glass-fill"></div>
         <div class="glass-shine"></div>
       </div>
-      <button id="numberHitArea" type="button" aria-label="Toggle between sec, min, h, percent, and battery view"></button>
+      <button id="numberHitArea" type="button" aria-label="Toggle between min, percent, and battery view"></button>
       <div id="mainLabel" class="label">min</div>
     </section>
 
@@ -1966,7 +1966,7 @@
     let currentTheme = localStorage.getItem("dayLeftTheme") || "default";
     if (!themeModes.includes(currentTheme)) currentTheme = "default";
     let displayMode = localStorage.getItem("dayLeftDisplayMode") || "minutes";
-    if (!["minutes", "hours", "percent", "glass", "seconds"].includes(displayMode)) {
+    if (!["minutes", "percent", "glass"].includes(displayMode)) {
       displayMode = "minutes";
     }
 
@@ -2670,11 +2670,6 @@
         mainLabelEl.textContent = "30 min";
         minutesEl.style.color = "";
         remainingFillEl.style.background = timeColor;
-      } else if (displayMode === "hours") {
-        nextNumberText = String(Math.ceil(state.minutesLeft / 60));
-        mainLabelEl.textContent = "h";
-        minutesEl.style.color = "";
-        remainingFillEl.style.background = timeColor;
       } else if (displayMode === "percent") {
         nextNumberText = String(state.displayPercent);
         mainLabelEl.textContent = "%";
@@ -2691,11 +2686,6 @@
           glassFillEl.style.height = `${fillPercent}%`;
           glassFillEl.style.setProperty("--glass-color", timeColor);
         }
-      } else if (displayMode === "seconds") {
-        nextNumberText = String(state.secondsLeft);
-        mainLabelEl.textContent = "sec";
-        minutesEl.style.color = "";
-        remainingFillEl.style.background = timeColor;
       } else {
         nextNumberText = String(state.minutesLeft);
         mainLabelEl.textContent = "min";
@@ -2838,7 +2828,7 @@
     }
 
     function toggleDisplayMode() {
-      const modes = ["seconds", "minutes", "hours", "percent", "glass"];
+      const modes = ["minutes", "percent", "glass"];
       const currentIndex = modes.indexOf(displayMode);
       displayMode = modes[(currentIndex + 1 + modes.length) % modes.length];
       localStorage.setItem("dayLeftDisplayMode", displayMode);
