@@ -1785,6 +1785,40 @@
       }
     }
 
+
+    /* iPhone battery mode: keep the lower progress bar in exactly the same
+       position as all other modes. Only the battery visual/label is adjusted. */
+    @media (max-width: 520px) {
+      body.glass-mode .remaining-section {
+        transform: translateY(clamp(-56px, -13.4vw, -30px)) !important;
+      }
+
+      body.glass-mode .countdown {
+        gap: 5px;
+        transform: translateY(clamp(-10px, -2.8vw, -4px));
+      }
+
+      body.glass-mode .label {
+        font-size: 10px;
+        line-height: 0.95;
+        margin-top: -1px;
+      }
+    }
+
+    @media (max-width: 390px) {
+      body.glass-mode .remaining-section {
+        transform: translateY(clamp(-56px, -13.4vw, -30px)) !important;
+      }
+
+      body.glass-mode .countdown {
+        transform: translateY(-12px);
+      }
+
+      body.glass-mode .label {
+        font-size: 9.5px;
+      }
+    }
+
   </style>
 </head>
 <body>
