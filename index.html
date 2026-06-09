@@ -1,2937 +1,949 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- app-version: battery-iphone-no-block-modes | based on battery-iphone-fixed -->
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0f0f0f" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="Day Left" />
-  <title>Day Left</title>
-  <style>
-    :root {
-      /* Default: RAL 9002 Grauweiß background, RAL 9005 Schwarz digits */
-      --bg: #D7D5CB;
-      --fg: #0A0A0A;
-      --muted: rgba(10, 10, 10, 0.56);
-      --line: rgba(10, 10, 10, 0.16);
-      --track: rgba(10, 10, 10, 0.10);
-      --orange: #0A0A0A;
-      --yellow: #202020;
-      --mint: #202020;
-      --danger-bg: #D7D5CB;
-      --danger-fg: #0A0A0A;
-      --danger-muted: rgba(10, 10, 10, 0.56);
-      --danger-line: rgba(10, 10, 10, 0.16);
-      --danger-red: #0A0A0A;
-      --danger-track: rgba(10, 10, 10, 0.10);
-      --time-1000: #273b25;
-      --time-900: #3d4a24;
-      --time-800: #5a5523;
-      --time-700: #705b22;
-      --time-600: #845521;
-      --time-500: #934920;
-      --time-400: #973b22;
-      --time-300: #8f2f24;
-      --time-200: #782626;
-      --time-100: #5c2022;
-      --time-0: #3f191c;
-    }
-
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    html, body {
-      margin: 0;
-      width: 100%;
-      min-height: 100%;
-      background: var(--bg);
-      color: var(--fg);
-      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
-    }
-
-    body {
-      min-height: 100dvh;
-      display: grid;
-      place-items: center;
-      overflow: hidden;
-    }
-
-    main {
-      width: min(94vw, 760px);
-      aspect-ratio: 1 / 1;
-      max-height: 94dvh;
-      border: 1px solid var(--line);
-      border-radius: 34px;
-      padding: clamp(24px, 4.8vw, 46px);
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      gap: clamp(20px, 3vw, 34px);
-      position: relative;
-      background: var(--bg);
-      color: var(--fg);
-      box-shadow: 0 18px 60px rgba(0,0,0,0.24);
-    }
-
-    .settings {
-      position: absolute;
-      left: 50%;
-      top: clamp(18px, 4vw, 34px);
-      transform: translateX(-50%);
-      display: flex;
-      gap: 8px;
-      z-index: 300;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.18s ease;
-    }
-
-    main:hover .settings,
-    main:focus-within .settings,
-    .settings.is-visible {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .icon-button {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 34px;
-      height: 34px;
-      min-width: 34px;
-      min-height: 34px;
-      border: 1px solid var(--line);
-      color: var(--fg);
-      background: transparent;
-      border-radius: 50%;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-sizing: border-box;
-    }
-
-
-
-    .theme-button,
-    .fullscreen-button,
-    .sound-button {
-      position: relative;
-      z-index: 301;
-      flex: 0 0 34px;
-      overflow: visible;
-    }
-
-    .theme-button::before,
-    .fullscreen-button::before,
-    .sound-button::before {
-      content: "";
-      position: absolute;
-      inset: -8px;
-      border-radius: 999px;
-    }
-
-    .theme-button > *,
-    .fullscreen-button > *,
-    .sound-button > * {
-      position: relative;
-      z-index: 1;
-      pointer-events: none;
-    }
-
-    .theme-dot {
-      width: 13px;
-      height: 13px;
-      min-width: 13px;
-      min-height: 13px;
-      max-width: 13px;
-      max-height: 13px;
-      display: block;
-      background: var(--fg);
-      border-radius: 50%;
-      flex: 0 0 13px;
-      box-sizing: border-box;
-    }
-.fullscreen-button svg {
-      width: 16px;
-      height: 16px;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 1.8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    .fullscreen-exit {
-      display: none;
-    }
-
-    .sound-icon {
-      width: 18px;
-      height: 18px;
-      display: block;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      overflow: visible;
-      transform: translateX(0);
-    }
-
-    .sound-on {
-      display: none;
-    }
-
-    body.sound-enabled .sound-on {
-      display: block;
-    }
-
-    body.sound-enabled .sound-off {
-      display: none;
-    }
-
-    .sound-button svg {
-      flex: 0 0 auto;
-    }
-
-
-
-    :fullscreen .fullscreen-enter {
-      display: none;
-    }
-
-    :fullscreen .fullscreen-exit {
-      display: block;
-    }
-
-    .top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 16px;
-      color: var(--muted);
-      font-size: clamp(10px, 1.8vw, 13px);
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      font-variant-numeric: tabular-nums;
-      position: relative;
-      z-index: 120;
-    }
-
-    #clock {
-      color: var(--mint);
-    }
-
-    #dateLabel {
-      color: var(--yellow);
-      cursor: pointer;
-      border-radius: 999px;
-      position: relative;
-      z-index: 42;
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: manipulation;
-      text-transform: uppercase;
-    }
-
-    #dateLabel::before {
-      content: "";
-      position: absolute;
-      left: -14px;
-      right: -14px;
-      top: -12px;
-      bottom: -12px;
-      border-radius: 999px;
-    }
-
-    #dateLabel:focus-visible {
-      outline: 1px solid var(--muted);
-      outline-offset: 5px;
-    }
-
-    .calendar-popover {
-      position: absolute;
-      left: clamp(24px, 4.8vw, 46px);
-      top: clamp(52px, 7.4vw, 68px);
-      width: min(58vw, 226px);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: var(--bg);
-      background: color-mix(in srgb, var(--bg) 94%, transparent);
-      color: var(--fg);
-      box-shadow: 0 14px 38px rgba(0, 0, 0, 0.18);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      padding: 10px;
-      z-index: 260;
-      opacity: 0;
-      transform: translateY(-5px) scale(0.985);
-      pointer-events: none;
-      transition: opacity 160ms ease, transform 160ms ease;
-      text-transform: lowercase;
-      letter-spacing: 0.025em;
-      font-variant-numeric: tabular-nums;
-    }
-
-    main.calendar-open .calendar-popover {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-      pointer-events: auto;
-    }
-
-    .calendar-title {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 7px;
-      color: var(--fg);
-    }
-
-    .calendar-month {
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.075em;
-    }
-
-    .calendar-today-label {
-      font-size: 8px;
-      color: var(--muted);
-      letter-spacing: 0.05em;
-    }
-
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 3px;
-      align-items: center;
-    }
-
-    .calendar-weekday,
-    .calendar-day {
-      min-height: 18px;
-      display: grid;
-      place-items: center;
-      border-radius: 999px;
-      font-size: 8.5px;
-      line-height: 1;
-      white-space: nowrap;
-    }
-
-    .calendar-weekday {
-      color: var(--muted);
-      opacity: 0.72;
-      letter-spacing: 0.10em;
-    }
-
-    .calendar-day {
-      color: var(--fg);
-      opacity: 0.74;
-    }
-
-    .calendar-day.is-today {
-      color: var(--bg);
-      background: var(--fg);
-      opacity: 1;
-      font-weight: 600;
-    }
-
-    .calendar-day.is-empty {
-      opacity: 0;
-    }
-
-    body.theme-nightlight .calendar-day.is-today {
-      background: var(--fg);
-      color: var(--bg);
-      box-shadow: 0 0 10px rgba(180, 48, 44, 0.22);
-    }
-
-    .countdown {
-      text-align: center;
-      transition: color 240ms ease;
-      display: grid;
-      place-content: center;
-      justify-items: center;
-      gap: clamp(10px, 2vw, 18px);
-      min-height: 0;
-      position: relative;
-    }
-#minutes {
-      font-size: clamp(108px, 24vw, 220px);
-      font-weight: 500;
-      line-height: 0.80;
-      letter-spacing: -0.065em;
-      font-variant-numeric: tabular-nums;
-      text-align: center;
-    }
-
-
-    #circleGrid {
-      width: min(76vw, 540px);
-      max-height: clamp(180px, 34vw, 310px);
-      display: none;
-      grid-template-columns: repeat(36, minmax(0, 1fr));
-      gap: clamp(5px, 0.85vw, 9px);
-      align-content: center;
-      justify-content: center;
-      overflow: hidden;
-      padding: clamp(6px, 1vw, 12px);
-    }
-
-
-    #glassVisual {
-      width: clamp(112px, 21vw, 176px);
-      height: clamp(184px, 32vw, 276px);
-      display: none;
-      position: relative;
-      border: 2px solid color-mix(in srgb, var(--fg) 58%, transparent);
-      border-radius: 26px;
-      overflow: visible;
-      background:
-        linear-gradient(to top,
-          color-mix(in srgb, var(--bg) 89%, var(--fg) 11%) 0%,
-          color-mix(in srgb, var(--bg) 96%, var(--fg) 4%) 100%);
-      box-shadow:
-        inset 0 0 0 1px color-mix(in srgb, var(--fg) 10%, transparent),
-        0 10px 24px rgba(0, 0, 0, 0.10);
-    }
-
-    #glassVisual::before {
-      content: "";
-      position: absolute;
-      left: 50%;
-      top: -16px;
-      width: 42%;
-      height: 14px;
-      transform: translateX(-50%);
-      border: 2px solid color-mix(in srgb, var(--fg) 54%, transparent);
-      border-bottom: 0;
-      border-radius: 12px 12px 0 0;
-      background: color-mix(in srgb, var(--bg) 96%, var(--fg) 4%);
-      pointer-events: none;
-      z-index: 3;
-    }
-
-    #glassVisual::after {
-      content: "";
-      position: absolute;
-      inset: 10px;
-      border-radius: 18px;
-      border: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
-      pointer-events: none;
-      z-index: 5;
-      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bg) 70%, transparent);
-    }
-
-    .glass-fill {
-      position: absolute;
-      left: 10px;
-      right: 10px;
-      bottom: 10px;
-      height: 100%;
-      max-height: calc(100% - 20px);
-      border-radius: 16px;
-      background: var(--glass-color, #2FA84F);
-      box-shadow: inset 0 0 0 1px color-mix(in srgb, white 20%, transparent);
-      transition: height 0.25s linear, background 90ms ease;
-      z-index: 2;
-    }
-
-    .glass-fill::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      background:
-        linear-gradient(to bottom,
-          rgba(255,255,255,0.16),
-          rgba(255,255,255,0.00) 34%,
-          rgba(0,0,0,0.08) 100%);
-      pointer-events: none;
-    }
-
-    .glass-shine {
-      position: absolute;
-      top: 14px;
-      bottom: 14px;
-      left: 16px;
-      width: 5px;
-      border-radius: 999px;
-      background: color-mix(in srgb, var(--fg) 18%, transparent);
-      opacity: 0.32;
-      z-index: 6;
-      pointer-events: none;
-    }
-
-    body.glass-mode #minutes,
-    body.glass-mode #circleGrid {
-      display: none;
-    }
-
-    body.glass-mode #glassVisual {
-      display: block;
-    }
-
-    main:fullscreen #glassVisual,
-    main:-webkit-full-screen #glassVisual {
-      width: clamp(170px, 16vw, 260px);
-      height: clamp(280px, 27vw, 420px);
-      border-radius: 34px;
-    }
-
-    main:fullscreen #glassVisual::before,
-    main:-webkit-full-screen #glassVisual::before {
-      top: -20px;
-      height: 18px;
-      border-radius: 14px 14px 0 0;
-    }
-
-    main:fullscreen .glass-fill,
-    main:-webkit-full-screen .glass-fill {
-      left: 12px;
-      right: 12px;
-      bottom: 12px;
-      max-height: calc(100% - 24px);
-      border-radius: 22px;
-    }
-
-    @media (orientation: landscape) and (min-width: 900px) and (max-width: 1400px) and (max-height: 1100px) {
-      main:fullscreen #glassVisual,
-      main:-webkit-full-screen #glassVisual,
-      body.fake-fullscreen main #glassVisual {
-        width: clamp(138px, 12vw, 196px);
-        height: clamp(226px, 22vw, 326px);
-        border-radius: 28px;
-      }
-    }
-
-    .minute-dot {
-      width: clamp(3.5px, 0.62vw, 6px);
-      height: clamp(3.5px, 0.62vw, 6px);
-      border-radius: 50%;
-      background: currentColor;
-      opacity: 0.48;
-      justify-self: center;
-      align-self: center;
-    }
-
-    .minute-dot:nth-child(5n) {
-      opacity: 0.62;
-    }
-
-    .minute-dot:nth-child(15n) {
-      opacity: 0.78;
-    }
-
-    body.circles-mode #minutes {
-      display: none;
-    }
-
-    body.circles-mode #circleGrid {
-      display: grid;
-      color: var(--fg);
-    }
-
-    .label {
-      color: var(--fg);
-      font-size: clamp(13px, 2.4vw, 20px);
-      font-weight: 400;
-      letter-spacing: 0.04em;
-      text-transform: lowercase;
-      opacity: 0.70;
-    }
-
-
-    #numberHitArea {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -58%);
-      width: min(78vw, 520px);
-      height: clamp(130px, 28vw, 260px);
-      border: 0;
-      background: transparent;
-      padding: 0;
-      margin: 0;
-      cursor: pointer;
-      z-index: 4;
-      appearance: none;
-      -webkit-appearance: none;
-    }
-
-    #numberHitArea:focus-visible {
-      outline: 1px solid var(--fg);
-      outline-offset: 6px;
-      border-radius: 18px;
-    }
-
-
-    .designer-credit {
-      position: absolute;
-      left: 50%;
-      bottom: clamp(14px, 2.6vw, 22px);
-      transform: translateX(-50%);
-      color: var(--muted);
-      opacity: 0;
-      pointer-events: none;
-      user-select: none;
-      -webkit-user-select: none;
-      font-size: clamp(8px, 1.35vw, 10px);
-      font-weight: 400;
-      letter-spacing: 0.12em;
-      text-transform: none;
-      white-space: nowrap;
-      transition: opacity 0.18s ease;
-      z-index: 2;
-    }
-
-    main.controls-visible .designer-credit,
-    main:focus-within .designer-credit,
-    .settings.is-visible ~ .designer-credit {
-      opacity: 0.22;
-    }
-
-    main:fullscreen .designer-credit,
-    main:-webkit-full-screen .designer-credit,
-    body.fake-fullscreen .designer-credit {
-      bottom: max(18px, env(safe-area-inset-bottom));
-      font-size: clamp(9px, 1.15vw, 13px);
-    }
-
-    .remaining-section {
-      width: min(76%, 540px);
-      justify-self: center;
-      align-self: end;
-      display: grid;
-      gap: 8px;
-      position: relative;
-      z-index: 30;
-    }
-
-    .remaining-labels {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: 16px;
-      align-items: center;
-      color: var(--muted);
-      font-size: clamp(9px, 1.5vw, 11px);
-      letter-spacing: 0.09em;
-      text-transform: uppercase;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .remaining-labels span:nth-child(2) {
-      text-align: center;
-    }
-
-    #remainingPercent {
-      color: var(--muted);
-    }
-
-    .remaining-labels span:nth-child(3) {
-      text-align: right;
-    }
-
-    #barStartLabel,
-    #barEndLabel {
-      cursor: pointer;
-      border-radius: 999px;
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: manipulation;
-      pointer-events: auto;
-      position: relative;
-      z-index: 20;
-    }
-
-    /* Large invisible hit area without moving the visible labels */
-    #barStartLabel::before,
-    #barEndLabel::before {
-      content: "";
-      position: absolute;
-      left: -16px;
-      right: -16px;
-      top: -12px;
-      bottom: -12px;
-      border-radius: 999px;
-    }
-
-    #barStartLabel:focus-visible,
-    #barEndLabel:focus-visible {
-      outline: 1px solid var(--muted);
-      outline-offset: 4px;
-    }
-
-    .remaining-track {
-      position: relative;
-      width: 100%;
-      height: 6px;
-      background:
-        linear-gradient(180deg,
-          color-mix(in srgb, var(--fg) 18%, var(--bg)) 0%,
-          color-mix(in srgb, var(--fg) 10%, var(--bg)) 100%);
-      border: 1px solid color-mix(in srgb, var(--fg) 34%, transparent);
-      border-radius: 999px;
-      overflow: hidden;
-      display: block;
-      box-shadow:
-        inset 0 0 0 1px color-mix(in srgb, var(--bg) 62%, transparent),
-        inset 0 1px 2px color-mix(in srgb, #000 18%, transparent),
-        0 0 0 1px color-mix(in srgb, var(--fg) 7%, transparent);
-    }
-
-    .remaining-track::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      pointer-events: none;
-      background: linear-gradient(90deg,
-        color-mix(in srgb, var(--fg) 10%, transparent),
-        transparent 18%,
-        transparent 82%,
-        color-mix(in srgb, var(--bg) 18%, transparent));
-      opacity: 0.42;
-    }
-
-    .remaining-fill {
-      position: absolute;
-      right: 0;
-      top: 0;
-      height: 100%;
-      width: 100%;
-      background: transparent;
-      border-left: 1px solid color-mix(in srgb, var(--fg) 38%, transparent);
-      border-radius: 999px;
-      display: block;
-      box-shadow:
-        inset 0 1px 0 color-mix(in srgb, #fff 20%, transparent),
-        inset 0 -1px 0 color-mix(in srgb, #000 16%, transparent),
-        -1px 0 0 color-mix(in srgb, var(--bg) 42%, transparent);
-      transition: width 0.25s linear, background 12ms cubic-bezier(0.12, 0.86, 0.14, 1);
-    }
-
-    .light {
-      --bg: #f4f1ea;
-      --fg: #111;
-      --muted: rgba(17, 17, 17, 0.55);
-      --line: rgba(17, 17, 17, 0.16);
-      --track: rgba(17, 17, 17, 0.10);
-      --yellow: #8c7a24;
-      --mint: #3f827c;
-      --danger-bg: #fff0ee;
-      --danger-fg: #210504;
-      --danger-muted: rgba(33, 5, 4, 0.56);
-      --danger-line: rgba(185, 59, 53, 0.30);
-      --danger-red: #b93b35;
-      --danger-track: rgba(185, 59, 53, 0.14);
-    }
-
-
-    /* Reduced 3-theme system */
-    body.theme-invert {
-      --bg: #0A0A0A;
-      --fg: #D7D5CB;
-      --muted: rgba(215, 213, 203, 0.58);
-      --line: rgba(215, 213, 203, 0.18);
-      --track: rgba(215, 213, 203, 0.12);
-      --orange: #D7D5CB;
-      --yellow: #D7D5CB;
-      --mint: #D7D5CB;
-      --time-1000: #8ca37f;
-      --time-900: #9ea378;
-      --time-800: #b0a06f;
-      --time-700: #bf9565;
-      --time-600: #c88459;
-      --time-500: #ca6f50;
-      --time-400: #c45b49;
-      --time-300: #b84843;
-      --time-200: #a4393d;
-      --time-100: #872f36;
-      --time-0: #6c2830;
-    }
-
-    body.theme-night-red {
-      /* Dim warm red on RAL 9005 black for night use. */
-      --bg: #0A0A0A;
-      --fg: #B7352D;
-      --muted: rgba(183, 53, 45, 0.58);
-      --line: rgba(183, 53, 45, 0.18);
-      --track: rgba(183, 53, 45, 0.11);
-      --orange: #B7352D;
-      --yellow: #A93630;
-      --mint: #A93630;
-      --time-1000: #C95045;
-      --time-900: #C54A40;
-      --time-800: #BF443B;
-      --time-700: #B93E36;
-      --time-600: #B33831;
-      --time-500: #AA332E;
-      --time-400: #9E2F2B;
-      --time-300: #902A28;
-      --time-200: #802624;
-      --time-100: #6E2221;
-      --time-0: #5A1D1D;
-    }
-
-    body.theme-night-red #minutes,
-    body.theme-night-red .label,
-    body.theme-night-red #clock,
-    body.theme-night-red #dateLabel,
-    body.theme-night-red #remainingPercent,
-    body.theme-night-red .remaining-labels,
-    body.theme-night-red .icon-button,
-    body.theme-night-red .designer-credit {
-      color: var(--fg);
-      text-shadow: none;
-    }
-
-    body.theme-night-red .remaining-fill {
-      background: var(--fg) !important;
-      box-shadow: none;
-    }
-
-
-    body.theme-midnight {
-      --bg: #08111f;
-      --fg: #dbe9ff;
-      --muted: rgba(219, 233, 255, 0.56);
-      --line: rgba(154, 190, 255, 0.20);
-      --track: rgba(154, 190, 255, 0.13);
-      --orange: #7aa2ff;
-      --yellow: #a7b7ff;
-      --mint: #77d6c7;
-      --time-1000: #84dcc6;
-      --time-900: #79d3d9;
-      --time-800: #7aa2ff;
-      --time-700: #8d8cff;
-      --time-600: #a88cff;
-      --time-500: #c38dff;
-      --time-400: #d487e6;
-      --time-300: #df7ebd;
-      --time-200: #e07194;
-      --time-100: #df6f76;
-      --time-0: #d85c5c;
-    }
-
-    body.theme-sage {
-      --bg: #101510;
-      --fg: #edf4df;
-      --muted: rgba(237, 244, 223, 0.55);
-      --line: rgba(181, 208, 154, 0.20);
-      --track: rgba(181, 208, 154, 0.13);
-      --orange: #a8c66c;
-      --yellow: #b8a85a;
-      --mint: #7fb59f;
-      --time-1000: #8fcf7a;
-      --time-900: #a3c86d;
-      --time-800: #b9bd61;
-      --time-700: #c8ad55;
-      --time-600: #d29b4f;
-      --time-500: #d28649;
-      --time-400: #ca7043;
-      --time-300: #bd5c3f;
-      --time-200: #ad473a;
-      --time-100: #9e3435;
-      --time-0: #8e252f;
-    }
-
-    body.theme-sand {
-      --bg: #efe5d2;
-      --fg: #231c14;
-      --muted: rgba(35, 28, 20, 0.54);
-      --line: rgba(35, 28, 20, 0.14);
-      --track: rgba(35, 28, 20, 0.09);
-      --orange: #b86b28;
-      --yellow: #8b6f2c;
-      --mint: #4f7c72;
-      --time-1000: #4f8f59;
-      --time-900: #6b9b4d;
-      --time-800: #8fa344;
-      --time-700: #aaa240;
-      --time-600: #bd963a;
-      --time-500: #c58334;
-      --time-400: #c46c30;
-      --time-300: #b9552d;
-      --time-200: #a83f2c;
-      --time-100: #96302d;
-      --time-0: #84232b;
-    }
-
-    body.theme-lilac {
-      --bg: #15101d;
-      --fg: #f1e9ff;
-      --muted: rgba(241, 233, 255, 0.56);
-      --line: rgba(211, 189, 255, 0.20);
-      --track: rgba(211, 189, 255, 0.12);
-      --orange: #bda0ff;
-      --yellow: #d4b26f;
-      --mint: #9ccfc5;
-      --time-1000: #90d7bd;
-      --time-900: #9bd0d4;
-      --time-800: #aab8ee;
-      --time-700: #bda0ff;
-      --time-600: #cf91f2;
-      --time-500: #db84d2;
-      --time-400: #df78ad;
-      --time-300: #dc6f89;
-      --time-200: #d2606b;
-      --time-100: #c24e55;
-      --time-0: #a93b45;
-    }
-
-    body.theme-graphite {
-      --bg: #101113;
-      --fg: #e8e5de;
-      --muted: rgba(232, 229, 222, 0.50);
-      --line: rgba(232, 229, 222, 0.15);
-      --track: rgba(232, 229, 222, 0.10);
-      --orange: #c9924a;
-      --yellow: #a9924a;
-      --mint: #6fa79f;
-      --time-1000: #75b882;
-      --time-900: #8ab673;
-      --time-800: #a6b268;
-      --time-700: #bba75e;
-      --time-600: #c99853;
-      --time-500: #cc844a;
-      --time-400: #c86e43;
-      --time-300: #bd573d;
-      --time-200: #ad4238;
-      --time-100: #9b3134;
-      --time-0: #81282e;
-    }
-
-
-    body.theme-nightlight {
-      --bg: #040101;
-      --fg: #d84a43;
-      --muted: rgba(216, 74, 67, 0.52);
-      --line: rgba(216, 74, 67, 0.18);
-      --track: rgba(216, 74, 67, 0.10);
-      --orange: #d84a43;
-      --yellow: #cf5a52;
-      --mint: #c96760;
-      --time-1000: #e47c74;
-      --time-900: #df726b;
-      --time-800: #da6962;
-      --time-700: #d66059;
-      --time-600: #d25750;
-      --time-500: #cf5049;
-      --time-400: #c94943;
-      --time-300: #bf423d;
-      --time-200: #b73b37;
-      --time-100: #aa3432;
-      --time-0: #96302f;
-    }
-
-    body.theme-nightlight #minutes {
-      color: #d84a43;
-      text-shadow:
-        0 0 2px rgba(216, 74, 67, 0.58),
-        0 0 7px rgba(216, 74, 67, 0.34),
-        0 0 16px rgba(216, 74, 67, 0.16);
-    }
-
-    body.theme-nightlight .label,
-    body.theme-nightlight #clock,
-    body.theme-nightlight #dateLabel,
-    body.theme-nightlight #remainingPercent,
-    body.theme-nightlight .remaining-labels,
-    body.theme-nightlight .icon-button,
-    body.theme-nightlight .designer-credit {
-      color: #d84a43;
-      text-shadow:
-        0 0 2px rgba(216, 74, 67, 0.32),
-        0 0 8px rgba(216, 74, 67, 0.14);
-    }
-
-    body.theme-nightlight main {
-      box-shadow:
-        0 18px 60px rgba(0, 0, 0, 0.36),
-        inset 0 0 22px rgba(216, 74, 67, 0.024);
-    }
-
-    body.theme-nightlight .remaining-fill {
-      box-shadow:
-        0 0 4px rgba(216, 74, 67, 0.38),
-        0 0 11px rgba(216, 74, 67, 0.16);
-    }
-
-    body.theme-nightlight .theme-dot {
-      box-shadow:
-        0 0 4px rgba(216, 74, 67, 0.38),
-        0 0 10px rgba(216, 74, 67, 0.16);
-    }
-
-
-    /* Large readable fullscreen display */
-    main:fullscreen {
-      width: 100vw;
-      height: 100dvh;
-      max-height: none;
-      aspect-ratio: auto;
-      border: 0;
-      border-radius: 0;
-      box-shadow: none;
-      padding: max(28px, env(safe-area-inset-top)) max(52px, env(safe-area-inset-right)) max(36px, env(safe-area-inset-bottom)) max(52px, env(safe-area-inset-left));
-      grid-template-rows: auto 1fr auto;
-      gap: clamp(24px, 3.4vw, 44px);
-    }
-
-    main:fullscreen #minutes {
-      font-size: clamp(230px, 38vw, 560px);
-      line-height: 0.68;
-      letter-spacing: -0.09em;
-    }
-
-    main:fullscreen #circleGrid {
-      width: min(82vw, 1120px);
-      max-height: min(54vh, 620px);
-      grid-template-columns: repeat(auto-fill, minmax(9px, 1fr));
-      gap: clamp(4px, 0.45vw, 8px);
-    }
-
-    main:fullscreen .label {
-      font-size: clamp(36px, 5.4vw, 82px);
-      letter-spacing: 0.035em;
-      opacity: 0.78;
-    }
-
-    main:fullscreen .countdown {
-      gap: clamp(22px, 3.6vw, 42px);
-    }
-
-    main:fullscreen .remaining-section {
-      width: min(78vw, 980px);
-      gap: 10px;
-    }
-
-    main:fullscreen .remaining-labels {
-      font-size: clamp(14px, 1.8vw, 22px);
-    }
-
-    main:fullscreen .remaining-track {
-      height: 6px;
-    }
-
-    main:-webkit-full-screen {
-      width: 100vw;
-      height: 100dvh;
-      max-height: none;
-      aspect-ratio: auto;
-      border: 0;
-      border-radius: 0;
-      box-shadow: none;
-      padding: max(28px, env(safe-area-inset-top)) max(52px, env(safe-area-inset-right)) max(36px, env(safe-area-inset-bottom)) max(52px, env(safe-area-inset-left));
-      grid-template-rows: auto 1fr auto;
-      gap: clamp(24px, 3.4vw, 44px);
-    }
-
-    main:-webkit-full-screen #minutes {
-      font-size: clamp(230px, 38vw, 560px);
-      line-height: 0.68;
-      letter-spacing: -0.09em;
-    }
-
-    main:-webkit-full-screen #circleGrid {
-      width: min(82vw, 1120px);
-      max-height: min(54vh, 620px);
-      grid-template-columns: repeat(auto-fill, minmax(9px, 1fr));
-      gap: clamp(4px, 0.45vw, 8px);
-    }
-
-    main:-webkit-full-screen .label {
-      font-size: clamp(36px, 5.4vw, 82px);
-      letter-spacing: 0.035em;
-      opacity: 0.78;
-    }
-
-    main:-webkit-full-screen .countdown {
-      gap: clamp(22px, 3.6vw, 42px);
-    }
-
-    main:-webkit-full-screen .remaining-section {
-      width: min(78vw, 980px);
-      gap: 10px;
-    }
-
-    main:-webkit-full-screen .remaining-labels {
-      font-size: clamp(14px, 1.8vw, 22px);
-    }
-
-    main:-webkit-full-screen .remaining-track {
-      height: 6px;
-    }
-
-    
-    main:fullscreen .remaining-fill,
-    main:-webkit-full-screen .remaining-fill {
-      border-radius: 999px;
-    }
-
-    @media (orientation: landscape) and (max-height: 900px) {
-      main:fullscreen #minutes,
-      main:-webkit-full-screen #minutes {
-        font-size: clamp(210px, 34vw, 460px);
-      }
-
-      main:fullscreen .label,
-      main:-webkit-full-screen .label {
-        font-size: clamp(30px, 4.4vw, 64px);
-      }
-    }
-
-
-    /* Deep Forest theme: forest-green numbers with a calm moss background */
-    body.theme-forest-deep {
-      --bg: #0f1a12;
-      --fg: #2f7d43;
-      --muted: rgba(47, 125, 67, 0.62);
-      --line: rgba(120, 165, 105, 0.20);
-      --track: rgba(120, 165, 105, 0.13);
-      --orange: #4f8f59;
-      --yellow: #8a8b43;
-      --mint: #5f9f73;
-      --time-1000: #3f9b52;
-      --time-900: #4b9950;
-      --time-800: #5b934d;
-      --time-700: #718b49;
-      --time-600: #898047;
-      --time-500: #9a7144;
-      --time-400: #9a6140;
-      --time-300: #8d503b;
-      --time-200: #7c4036;
-      --time-100: #673231;
-      --time-0: #51272b;
-      background:
-        radial-gradient(circle at 18% 20%, rgba(95, 150, 82, 0.22), transparent 34%),
-        radial-gradient(circle at 82% 74%, rgba(40, 84, 50, 0.32), transparent 38%),
-        linear-gradient(135deg, #101d12 0%, #172917 48%, #0b150d 100%);
-    }
-
-    body.theme-forest-deep main {
-      background:
-        linear-gradient(135deg, rgba(255,255,255,0.026), rgba(255,255,255,0.006)),
-        rgba(13, 24, 15, 0.82);
-      border-color: rgba(89, 137, 78, 0.24);
-      box-shadow: 0 18px 70px rgba(0, 0, 0, 0.30);
-    }
-
-    body.theme-forest-deep #minutes {
-      color: #2f7d43;
-      text-shadow:
-        0 1px 0 rgba(195, 230, 180, 0.13),
-        0 8px 20px rgba(0, 0, 0, 0.24);
-    }
-
-    body.theme-forest-deep .label,
-    body.theme-forest-deep #clock,
-    body.theme-forest-deep #dateLabel,
-    body.theme-forest-deep #remainingPercent,
-    body.theme-forest-deep .remaining-labels,
-    body.theme-forest-deep .icon-button,
-    body.theme-forest-deep .designer-credit {
-      color: #5f9f73;
-    }
-
-    body.theme-forest-deep .remaining-fill {
-      background: #2f7d43 !important;
-      box-shadow: 0 0 9px rgba(47, 125, 67, 0.16);
-    }
-
-    body.theme-forest-deep .theme-dot {
-      background: #2f7d43;
-      box-shadow: 0 0 10px rgba(47, 125, 67, 0.18);
-    }
-
-
-    /* Ultramarine Orange theme: ultramarine numbers on luminous orange */
-    body.theme-ultramarine-orange {
-      --bg: #ff7a00;
-      --fg: #120a8f;
-      --muted: rgba(18, 10, 143, 0.58);
-      --line: rgba(18, 10, 143, 0.20);
-      --track: rgba(18, 10, 143, 0.14);
-      --orange: #120a8f;
-      --yellow: #2918b8;
-      --mint: #1c2fd1;
-      --time-1000: #1430c8;
-      --time-900: #1a28bd;
-      --time-800: #221fb0;
-      --time-700: #2b19a3;
-      --time-600: #341596;
-      --time-500: #3c1289;
-      --time-400: #45117d;
-      --time-300: #4f1271;
-      --time-200: #5a1465;
-      --time-100: #66175a;
-      --time-0: #731a50;
-      background:
-        radial-gradient(circle at 20% 18%, rgba(255, 213, 120, 0.34), transparent 30%),
-        radial-gradient(circle at 78% 76%, rgba(255, 112, 0, 0.45), transparent 36%),
-        linear-gradient(135deg, #ff9a1f 0%, #ff7a00 48%, #f05d00 100%);
-    }
-
-    body.theme-ultramarine-orange main {
-      background: rgba(255, 122, 0, 0.76);
-      border-color: rgba(18, 10, 143, 0.22);
-      box-shadow:
-        0 18px 70px rgba(86, 38, 0, 0.26),
-        inset 0 0 34px rgba(255, 236, 170, 0.055);
-    }
-
-    body.theme-ultramarine-orange #minutes {
-      color: #120a8f;
-      text-shadow:
-        0 1px 0 rgba(255, 239, 190, 0.22),
-        0 7px 20px rgba(53, 21, 0, 0.22);
-    }
-
-    body.theme-ultramarine-orange .label,
-    body.theme-ultramarine-orange #clock,
-    body.theme-ultramarine-orange #dateLabel,
-    body.theme-ultramarine-orange #remainingPercent,
-    body.theme-ultramarine-orange .remaining-labels,
-    body.theme-ultramarine-orange .icon-button,
-    body.theme-ultramarine-orange .designer-credit {
-      color: #120a8f;
-    }
-
-    body.theme-ultramarine-orange .remaining-fill {
-      background: #120a8f !important;
-      box-shadow: 0 0 10px rgba(18, 10, 143, 0.20);
-    }
-
-    body.theme-ultramarine-orange .theme-dot {
-      background: #120a8f;
-      box-shadow: 0 0 10px rgba(18, 10, 143, 0.20);
-    }
-
-
-    /* Slate Water theme: dark moving water + slate-stone numbers */
-    body.theme-slate-water {
-      --bg: #071015;
-      --fg: #d8ddd9;
-      --muted: rgba(216, 221, 217, 0.58);
-      --line: rgba(216, 221, 217, 0.18);
-      --track: rgba(216, 221, 217, 0.12);
-      --orange: #7f9ca7;
-      --yellow: #a7a48f;
-      --mint: #8aa9ad;
-      background:
-        radial-gradient(circle at 18% 22%, rgba(95, 148, 165, 0.24), transparent 32%),
-        radial-gradient(circle at 76% 72%, rgba(36, 83, 103, 0.30), transparent 38%),
-        linear-gradient(135deg, #061016 0%, #0a1c24 42%, #071116 100%);
-      background-size: 180% 180%, 160% 160%, 100% 100%;
-      animation: waterDrift 18s ease-in-out infinite alternate;
-    }
-
-    body.theme-slate-water main {
-      background:
-        linear-gradient(135deg, rgba(255,255,255,0.030), rgba(255,255,255,0.006)),
-        rgba(7, 16, 21, 0.78);
-      backdrop-filter: blur(7px);
-      -webkit-backdrop-filter: blur(7px);
-      box-shadow: 0 18px 70px rgba(0, 0, 0, 0.34);
-    }
-
-    body.theme-slate-water #minutes {
-      color: transparent !important;
-      background-image:
-        linear-gradient(135deg, #edf0ea 0%, #9ba39d 22%, #5e6869 43%, #d6dbd5 61%, #758084 78%, #f1f2ed 100%),
-        repeating-linear-gradient(22deg, rgba(255,255,255,0.22) 0 1px, rgba(0,0,0,0.20) 1px 4px);
-      background-size: 220% 220%, 34px 34px;
-      background-position: 50% 50%, 0 0;
-      -webkit-background-clip: text;
-      background-clip: text;
-      text-shadow:
-        0 1px 0 rgba(255,255,255,0.20),
-        0 5px 16px rgba(0,0,0,0.38),
-        0 14px 34px rgba(0,0,0,0.30);
-      filter: contrast(1.08) saturate(0.86);
-    }
-
-    body.theme-slate-water .label,
-    body.theme-slate-water #dateLabel,
-    body.theme-slate-water #clock,
-    body.theme-slate-water #remainingPercent,
-    body.theme-slate-water .remaining-labels,
-    body.theme-slate-water .icon-button,
-    body.theme-slate-water .designer-credit {
-      color: var(--fg);
-    }
-
-    body.theme-slate-water .remaining-fill {
-      background: linear-gradient(90deg, #5f7882, #9fb4b8) !important;
-    }
-
-    body.theme-slate-water .theme-dot {
-      background: #b9c2be;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.22), 0 0 12px rgba(154, 190, 201, 0.22);
-    }
-
-    @keyframes waterDrift {
-      0% { background-position: 0% 45%, 100% 50%, 0 0; }
-      50% { background-position: 68% 54%, 44% 68%, 0 0; }
-      100% { background-position: 100% 42%, 0% 52%, 0 0; }
-    }
-
-
-
-    @media (max-width: 520px) {
-      .calendar-popover {
-        left: clamp(18px, 6vw, 28px);
-        top: clamp(50px, 13vw, 62px);
-        width: min(58vw, 218px);
-        padding: 9px;
-      }
-
-      .calendar-weekday,
-      .calendar-day {
-        min-height: 17px;
-        font-size: 8px;
-      }
-
-      .calendar-grid {
-        gap: 2.5px;
-      }
-    }
-
-@media (max-width: 520px) {
-      main {
-        border-radius: 26px;
-      }
-
-  
-    #numberHitArea {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -58%);
-      width: min(78vw, 520px);
-      height: clamp(130px, 28vw, 260px);
-      border: 0;
-      background: transparent;
-      padding: 0;
-      margin: 0;
-      cursor: pointer;
-      z-index: 4;
-      appearance: none;
-      -webkit-appearance: none;
-    }
-
-    #numberHitArea:focus-visible {
-      outline: 1px solid var(--fg);
-      outline-offset: 6px;
-      border-radius: 18px;
-    }
-
-    .remaining-section {
-        width: min(88%, 390px);
-      }
-    }
-
-
-    /* Perceptual bar placement: move only the progress group upward; keep the main number fixed.
-       The width, height and distance are tuned so the number, unit and bar read as one object. */
-    .remaining-section {
-      width: min(68%, 500px);
-      gap: 7px;
-      transform: translateY(clamp(-70px, -8.9vw, -34px));
-    }
-
-    .remaining-labels {
-      font-size: clamp(9px, 1.36vw, 10.5px);
-      letter-spacing: 0.085em;
-      opacity: 0.88;
-    }
-
-    .remaining-track {
-      height: 8px;
-      border-radius: 999px;
-    }
-
-    .remaining-fill {
-      border-radius: 999px;
-    }
-
-    main:fullscreen .remaining-section,
-    main:-webkit-full-screen .remaining-section {
-      width: min(64vw, 860px);
-      gap: 10px;
-      transform: translateY(clamp(-118px, -7.8vw, -62px));
-    }
-
-    main:fullscreen .remaining-track,
-    main:-webkit-full-screen .remaining-track {
-      height: 9px;
-    }
-
-    @media (max-width: 520px) {
-      .remaining-section {
-        width: min(78%, 350px);
-        gap: 6px;
-        transform: translateY(clamp(-56px, -13.4vw, -30px));
-      }
-
-      .remaining-track {
-        height: 7px;
-      }
-    }
-
-  
-
-    /* Perceptual fullscreen balance for iPad landscape:
-       keep the number dominant, pull the bar into the same visual group. */
-    @media (orientation: landscape) and (min-width: 900px) and (max-width: 1400px) and (max-height: 1100px) {
-      main:fullscreen,
-      main:-webkit-full-screen,
-      body.fake-fullscreen main {
-        padding-top: max(28px, env(safe-area-inset-top));
-        padding-bottom: max(34px, env(safe-area-inset-bottom));
-        grid-template-rows: auto minmax(0, 1fr) auto;
-        gap: clamp(10px, 1.35vh, 18px);
-      }
-
-      main:fullscreen .top,
-      main:-webkit-full-screen .top,
-      body.fake-fullscreen main .top {
-        font-size: clamp(20px, 2.2vw, 32px);
-        letter-spacing: 0.12em;
-        line-height: 1.05;
-        align-items: flex-start;
-      }
-
-      main:fullscreen #dateLabel,
-      main:fullscreen #clock,
-      main:-webkit-full-screen #dateLabel,
-      main:-webkit-full-screen #clock,
-      body.fake-fullscreen main #dateLabel,
-      body.fake-fullscreen main #clock {
-        font-size: inherit;
-        font-weight: 520;
-      }
-
-      main:fullscreen .countdown,
-      main:-webkit-full-screen .countdown,
-      body.fake-fullscreen main .countdown {
-        align-self: center;
-        transform: translateY(1.8vh);
-        gap: clamp(12px, 1.65vh, 22px);
-      }
-
-      main:fullscreen #minutes,
-      main:-webkit-full-screen #minutes,
-      body.fake-fullscreen main #minutes {
-        font-size: clamp(230px, 29vw, 390px);
-        line-height: 0.70;
-        letter-spacing: -0.085em;
-      }
-
-      main:fullscreen .label,
-      main:-webkit-full-screen .label,
-      body.fake-fullscreen main .label {
-        font-size: clamp(24px, 3.1vw, 46px);
-        line-height: 1;
-        opacity: 0.72;
-        margin-top: clamp(4px, 0.55vh, 8px);
-      }
-
-      main:fullscreen .remaining-section,
-      main:-webkit-full-screen .remaining-section,
-      body.fake-fullscreen main .remaining-section {
-        width: min(58vw, 720px);
-        align-self: end;
-        transform: translateY(-8.5vh);
-        gap: clamp(8px, 1.05vh, 13px);
-      }
-
-      main:fullscreen .remaining-labels,
-      main:-webkit-full-screen .remaining-labels,
-      body.fake-fullscreen main .remaining-labels {
-        font-size: clamp(12px, 1.28vw, 17px);
-        letter-spacing: 0.08em;
-      }
-
-      main:fullscreen .remaining-track,
-      main:-webkit-full-screen .remaining-track,
-      body.fake-fullscreen main .remaining-track {
-        height: 8px;
-        border-width: 1px;
-      }
-    }
-
-    /* Keep corner date/time readable on smaller iPad landscape heights. */
-    /* Slightly tighter balance for 11-inch iPad landscape heights. */
-    @media (orientation: landscape) and (min-width: 900px) and (max-height: 860px) {
-      main:fullscreen .top,
-      main:-webkit-full-screen .top,
-      body.fake-fullscreen main .top {
-        font-size: clamp(18px, 2.05vw, 28px);
-      }
-
-      main:fullscreen #minutes,
-      main:-webkit-full-screen #minutes,
-      body.fake-fullscreen main #minutes {
-        font-size: clamp(210px, 27vw, 340px);
-      }
-
-      main:fullscreen .remaining-section,
-      main:-webkit-full-screen .remaining-section,
-      body.fake-fullscreen main .remaining-section {
-        width: min(56vw, 660px);
-        transform: translateY(-7.2vh);
-      }
-    }
-
-
-    /* Clean fast unified theme interpolation for the three-theme system.
-       All themes, including Night Red, transition with the same color logic:
-       direct variable interpolation, no overlay and no delayed digit glow. */
-    body,
-    main,
-    .top,
-    #dateLabel,
-    #clock,
-    #minutes,
-    .label,
-    .icon-button,
-    .theme-dot,
-    .fullscreen-button svg,
-    .sound-icon,
-    .calendar-popover,
-    .calendar-title,
-    .calendar-month,
-    .calendar-weekday,
-    .calendar-day,
-    .remaining-labels,
-    #remainingPercent,
-    .remaining-track,
-    .remaining-fill,
-    .designer-credit {
-      transition:
-        background-color 12ms cubic-bezier(0.12, 0.86, 0.14, 1),
-        background 12ms cubic-bezier(0.12, 0.86, 0.14, 1),
-        color 12ms cubic-bezier(0.12, 0.86, 0.14, 1),
-        border-color 12ms cubic-bezier(0.12, 0.86, 0.14, 1),
-        box-shadow 12ms cubic-bezier(0.12, 0.86, 0.14, 1),
-        text-shadow 12ms cubic-bezier(0.12, 0.86, 0.14, 1),
-        opacity 12ms cubic-bezier(0.12, 0.86, 0.14, 1),
-        fill 12ms cubic-bezier(0.12, 0.86, 0.14, 1),
-        stroke 12ms cubic-bezier(0.12, 0.86, 0.14, 1);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      body,
-      main,
-      .top,
-      #dateLabel,
-      #clock,
-      #minutes,
-      .label,
-      .icon-button,
-      .theme-dot,
-      .fullscreen-button svg,
-      .sound-icon,
-      .calendar-popover,
-      .calendar-title,
-      .calendar-month,
-      .calendar-weekday,
-      .calendar-day,
-      .remaining-labels,
-      #remainingPercent,
-      .remaining-track,
-      .remaining-fill,
-      .designer-credit {
-        transition: none !important;
-      }
-    }
-
-  
-
-    /* Refined red-theme transition: same logic as other themes, but with a soft dynamic red bloom. */
-    body,
-    main,
-    .top,
-    #dateLabel,
-    #clock,
-    #minutes,
-    .label,
-    .icon-button,
-    .theme-dot,
-    .fullscreen-button svg,
-    .sound-icon,
-    .calendar-popover,
-    .calendar-title,
-    .calendar-month,
-    .calendar-weekday,
-    .calendar-day,
-    .remaining-labels,
-    #remainingPercent,
-    .remaining-track,
-    .remaining-fill,
-    .designer-credit {
-      transition:
-        background-color 12ms cubic-bezier(0.12, 0.86, 0.14, 1),
-        background 12ms cubic-bezier(0.12, 0.86, 0.14, 1),
-        color 12ms cubic-bezier(0.12, 0.86, 0.14, 1),
-        border-color 12ms cubic-bezier(0.12, 0.86, 0.14, 1),
-        box-shadow 12ms cubic-bezier(0.12, 0.86, 0.14, 1),
-        text-shadow 12ms cubic-bezier(0.12, 0.86, 0.14, 1),
-        opacity 12ms cubic-bezier(0.12, 0.86, 0.14, 1),
-        fill 12ms cubic-bezier(0.12, 0.86, 0.14, 1),
-        stroke 12ms cubic-bezier(0.12, 0.86, 0.14, 1);
-    }
-
-
-    body.theme-red-bloom,
-    body.theme-red-bloom main,
-    body.theme-red-bloom .top,
-    body.theme-red-bloom #dateLabel,
-    body.theme-red-bloom #clock,
-    body.theme-red-bloom #minutes,
-    body.theme-red-bloom .label,
-    body.theme-red-bloom .icon-button,
-    body.theme-red-bloom .theme-dot,
-    body.theme-red-bloom .fullscreen-button svg,
-    body.theme-red-bloom .sound-icon,
-    body.theme-red-bloom .calendar-popover,
-    body.theme-red-bloom .calendar-title,
-    body.theme-red-bloom .calendar-month,
-    body.theme-red-bloom .calendar-weekday,
-    body.theme-red-bloom .calendar-day,
-    body.theme-red-bloom .remaining-labels,
-    body.theme-red-bloom #remainingPercent,
-    body.theme-red-bloom .remaining-track,
-    body.theme-red-bloom .remaining-fill,
-    body.theme-red-bloom .designer-credit {
-      transition-duration: 12ms !important;
-      transition-timing-function: cubic-bezier(0.12, 0.62, 0.16, 1) !important;
-    }
-
-    body.theme-red-bloom #minutes {
-      animation: redThemeBloom 12ms cubic-bezier(0.12, 0.86, 0.14, 1) both;
-    }
-
-    body.theme-red-bloom .label,
-    body.theme-red-bloom #clock,
-    body.theme-red-bloom #dateLabel,
-    body.theme-red-bloom #remainingPercent,
-    body.theme-red-bloom .remaining-labels,
-    body.theme-red-bloom .icon-button {
-      animation: redThemeBloomSmall 12ms cubic-bezier(0.12, 0.86, 0.14, 1) both;
-    }
-
-    @keyframes redThemeBloom {
-      0% { text-shadow: 0 0 0 rgba(183, 53, 45, 0); filter: brightness(0.86); }
-      62% { text-shadow: 0 0 3px rgba(183, 53, 45, 0.18), 0 0 10px rgba(183, 53, 45, 0.10); filter: brightness(1.015); }
-      100% { text-shadow: 0 0 2px rgba(183, 53, 45, 0.30), 0 0 8px rgba(183, 53, 45, 0.16); filter: brightness(1); }
-    }
-
-    @keyframes redThemeBloomSmall {
-      0% { text-shadow: 0 0 0 rgba(183, 53, 45, 0); filter: brightness(0.88); }
-      55% { text-shadow: 0 0 3px rgba(183, 53, 45, 0.15); filter: brightness(1.02); }
-      100% { text-shadow: none; filter: brightness(1); }
-    }
-
-    @media (orientation: landscape) and (min-width: 900px) and (max-width: 1400px) and (max-height: 1100px) {
-    }
-
-  
-
-    /* Near-instant dynamic white-to-black transition: animated, but completed in about one hundredth of a second. */
-    body.theme-transition-to-invert,
-    body.theme-transition-to-invert main,
-    body.theme-transition-to-invert #minutes,
-    body.theme-transition-to-invert .label,
-    body.theme-transition-to-invert #clock,
-    body.theme-transition-to-invert #dateLabel,
-    body.theme-transition-to-invert .icon-button,
-    body.theme-transition-to-invert .theme-dot,
-    body.theme-transition-to-invert .sound-icon,
-    body.theme-transition-to-invert .calendar-popover,
-    body.theme-transition-to-invert .calendar-day,
-    body.theme-transition-to-invert .remaining-labels,
-    body.theme-transition-to-invert #remainingPercent,
-    body.theme-transition-to-invert .remaining-track,
-    body.theme-transition-to-invert .remaining-fill,
-    body.theme-transition-to-invert .designer-credit {
-      transition-duration: 12ms !important;
-      transition-timing-function: cubic-bezier(0.16, 0.76, 0.18, 1) !important;
-    }
-
-
-    /* Near-instant dynamic black-to-red transition: same logic, completed in about one hundredth of a second. */
-    body.theme-transition-to-red,
-    body.theme-transition-to-red main,
-    body.theme-transition-to-red #minutes,
-    body.theme-transition-to-red .label,
-    body.theme-transition-to-red #clock,
-    body.theme-transition-to-red #dateLabel,
-    body.theme-transition-to-red .icon-button,
-    body.theme-transition-to-red .theme-dot,
-    body.theme-transition-to-red .sound-icon,
-    body.theme-transition-to-red .calendar-popover,
-    body.theme-transition-to-red .calendar-day,
-    body.theme-transition-to-red .remaining-labels,
-    body.theme-transition-to-red #remainingPercent,
-    body.theme-transition-to-red .remaining-track,
-    body.theme-transition-to-red .remaining-fill,
-    body.theme-transition-to-red .designer-credit,
-    body.theme-night-red,
-    body.theme-night-red main,
-    body.theme-night-red #minutes,
-    body.theme-night-red .label,
-    body.theme-night-red #clock,
-    body.theme-night-red #dateLabel,
-    body.theme-night-red .icon-button,
-    body.theme-night-red .theme-dot,
-    body.theme-night-red .sound-icon,
-    body.theme-night-red .calendar-popover,
-    body.theme-night-red .calendar-day,
-    body.theme-night-red .remaining-labels,
-    body.theme-night-red #remainingPercent,
-    body.theme-night-red .remaining-track,
-    body.theme-night-red .remaining-fill,
-    body.theme-night-red .designer-credit {
-      transition-duration: 12ms !important;
-      transition-timing-function: cubic-bezier(0.18, 0.82, 0.16, 1) !important;
-    }
-
-
-    /* Prevent the initial pre-JavaScript bar from appearing as a wrong/orange pseudo-theme.
-       The progress fill becomes visible only after render() has calculated the real time color. */
-    body:not(.app-ready) .remaining-fill {
-      opacity: 0;
-      background: transparent !important;
-      transition: none !important;
-    }
-
-    body.app-ready .remaining-fill {
-      opacity: 1;
-    }
-
-
-    /* iPhone battery-mode balance:
-       smaller battery visual and tighter label spacing so "battery" never runs into the progress bar. */
-    @media (max-width: 520px) {
-      body.glass-mode #glassVisual {
-        width: clamp(76px, 19vw, 96px);
-        height: clamp(120px, 30vw, 154px);
-        border-radius: 18px;
-        border-width: 1.5px;
-      }
-
-      body.glass-mode #glassVisual::before {
-        top: -10px;
-        height: 8px;
-        border-width: 1.5px;
-        border-bottom: 0;
-        border-radius: 8px 8px 0 0;
-      }
-
-      body.glass-mode #glassVisual::after {
-        inset: 7px;
-        border-radius: 12px;
-        border-width: 1px;
-      }
-
-      body.glass-mode .glass-fill {
-        left: 7px;
-        right: 7px;
-        bottom: 7px;
-        max-height: calc(100% - 14px);
-        border-radius: 10px;
-      }
-
-      body.glass-mode .glass-shine {
-        display: none;
-      }
-
-      body.glass-mode .countdown {
-        gap: 6px;
-        transform: translateY(-2px);
-      }
-
-      body.glass-mode .label {
-        font-size: 11px;
-        line-height: 1;
-        letter-spacing: 0.055em;
-        margin: 0;
-      }
-
-      body.glass-mode .remaining-section {
-        transform: translateY(clamp(-38px, -9vw, -20px));
-      }
-    }
-
-    @media (max-width: 390px) {
-      body.glass-mode #glassVisual {
-        width: 72px;
-        height: 116px;
-      }
-
-      body.glass-mode .label {
-        font-size: 10px;
-      }
-
-      body.glass-mode .remaining-section {
-        transform: translateY(-18px);
-      }
-    }
-
-
-    /* iPhone battery mode: keep the lower progress bar in exactly the same
-       position as all other modes. Only the battery visual/label is adjusted. */
-    @media (max-width: 520px) {
-      body.glass-mode .remaining-section {
-        transform: translateY(clamp(-56px, -13.4vw, -30px)) !important;
-      }
-
-      body.glass-mode .countdown {
-        gap: 5px;
-        transform: translateY(clamp(-10px, -2.8vw, -4px));
-      }
-
-      body.glass-mode .label {
-        font-size: 10px;
-        line-height: 0.95;
-        margin-top: -1px;
-      }
-    }
-
-    @media (max-width: 390px) {
-      body.glass-mode .remaining-section {
-        transform: translateY(clamp(-56px, -13.4vw, -30px)) !important;
-      }
-
-      body.glass-mode .countdown {
-        transform: translateY(-12px);
-      }
-
-      body.glass-mode .label {
-        font-size: 9.5px;
-      }
-    }
-
-
-    /* iPad landscape fullscreen: make the progress bar much more readable from distance. */
-    @media (orientation: landscape) and (min-width: 900px) and (max-width: 1400px) and (max-height: 1100px) {
-      main:fullscreen .remaining-section,
-      main:-webkit-full-screen .remaining-section,
-      body.fake-fullscreen main .remaining-section {
-        width: min(68vw, 880px) !important;
-        gap: clamp(12px, 1.45vh, 18px) !important;
-        transform: translateY(-7.8vh) !important;
-      }
-
-      main:fullscreen .remaining-track,
-      main:-webkit-full-screen .remaining-track,
-      body.fake-fullscreen main .remaining-track {
-        height: clamp(16px, 2.1vh, 24px) !important;
-        border-width: 1.5px !important;
-        box-shadow:
-          inset 0 0 0 1px color-mix(in srgb, var(--bg) 58%, transparent),
-          inset 0 2px 4px color-mix(in srgb, #000 18%, transparent),
-          0 0 0 1px color-mix(in srgb, var(--fg) 10%, transparent) !important;
-      }
-
-      main:fullscreen .remaining-fill,
-      main:-webkit-full-screen .remaining-fill,
-      body.fake-fullscreen main .remaining-fill {
-        border-left-width: 2px !important;
-      }
-
-      main:fullscreen .remaining-labels,
-      main:-webkit-full-screen .remaining-labels,
-      body.fake-fullscreen main .remaining-labels {
-        font-size: clamp(15px, 1.45vw, 21px) !important;
-      }
-    }
-
-    @media (orientation: landscape) and (min-width: 900px) and (max-height: 860px) {
-      main:fullscreen .remaining-track,
-      main:-webkit-full-screen .remaining-track,
-      body.fake-fullscreen main .remaining-track {
-        height: clamp(14px, 1.9vh, 20px) !important;
-      }
-
-      main:fullscreen .remaining-section,
-      main:-webkit-full-screen .remaining-section,
-      body.fake-fullscreen main .remaining-section {
-        width: min(66vw, 820px) !important;
-        transform: translateY(-7.0vh) !important;
-      }
-    }
-
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Hybrid Day Timer — Designed by Alex Weischer</title>
+<style>
+:root{
+  --bg:#000;
+  --fg:#f5f5f0;
+  --muted:rgba(245,245,240,.34);
+  --line:rgba(245,245,240,.17);
+  --soft:rgba(245,245,240,.09);
+  --day:rgba(245,245,240,.24);
+  --elapsed:rgba(245,245,240,.095);
+  --green:#2fc86d;
+  --yellow:#d2b845;
+  --orange:#cf7a35;
+  --red:#b83b32;
+  --ring-size:min(88vmin,780px);
+  --side-gap:34px;
+  --panel-width:116px;
+  --control-bottom:clamp(22px,4.8svh,48px);
+  --miniOutline:rgba(0,0,0,.92);
+  --miniHalo:rgba(0,0,0,.48);
+  --miniPlate:rgba(0,0,0,.42);
+  --miniPlateBorder:rgba(245,245,240,.20);
+  --glassText:#ffffff;
+  --glassHalo:rgba(0,0,0,.64);
+  --glassReferenceOutline:rgba(245,245,240,.34);
+}
+
+
+
+body.light{
+  --bg:#D7D5CB;
+  --fg:#0A0A0A;
+  --muted:rgba(10,10,10,.38);
+  --line:rgba(10,10,10,.18);
+  --soft:rgba(10,10,10,.075);
+  --day:rgba(10,10,10,.22);
+  --elapsed:rgba(10,10,10,.08);
+  --miniOutline:rgba(255,255,245,.96);
+  --miniHalo:rgba(255,255,245,.52);
+  --miniPlate:rgba(255,255,245,.48);
+  --miniPlateBorder:rgba(10,10,10,.14);
+  --glassText:#050505;
+  --glassHalo:rgba(255,255,255,.74);
+  --glassReferenceOutline:rgba(10,10,10,.26);
+}
+
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;transition:background .18s ease,color .18s ease}
+body{display:grid;place-items:center}
+.app{width:100vw;height:100svh;position:relative;display:grid;place-items:center;padding:24px;user-select:none}
+.topline{position:absolute;left:clamp(20px,3vw,40px);right:clamp(20px,3vw,40px);top:clamp(18px,2.8vw,34px);display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:clamp(10px,1.2vw,13px);letter-spacing:.15em;text-transform:uppercase;font-variant-numeric:tabular-nums;z-index:4;opacity:.86}
+.credit{position:absolute;left:50%;top:calc(50% - (var(--ring-size) / 2) - 30px);transform:translateX(-50%);display:grid;grid-template-columns:1fr auto 1fr;gap:1.28em;width:min(78vw,430px);font-size:11px;letter-spacing:.12em;color:var(--muted);opacity:0;transition:opacity .32s ease;z-index:6;pointer-events:none}.credit span:first-child{text-align:right}.credit span:nth-child(2){letter-spacing:.08em}.credit span:last-child{text-align:left}body.show-controls .credit{opacity:.45}
+/* Hide credit completely during timer mode to avoid overlap with the small day-left number. */
+body.timer-active .credit{display:none!important;opacity:0!important}
+
+.stage{position:relative;width:var(--ring-size);height:var(--ring-size);display:grid;place-items:center;transform:translateY(0);cursor:default}
+body.minuteclock .stage{cursor:default}
+.day-side{position:absolute;right:calc(50% + (var(--ring-size) / 2) + var(--side-gap));top:50%;transform:translateY(-50%);height:min(56svh,500px);width:var(--panel-width);z-index:7;display:grid;grid-template-rows:32px minmax(190px,1fr) 32px;justify-items:center;align-items:center;gap:16px;font-variant-numeric:tabular-nums;opacity:0;pointer-events:none;transition:opacity .32s ease}.day-side:hover{opacity:1}body.show-controls .day-side{opacity:.92;pointer-events:auto}.day-side-time{color:var(--fg);opacity:.78;font-size:clamp(11px,1.2vw,14px);letter-spacing:.085em;padding:3px 0;min-width:62px;white-space:nowrap;text-align:center;border:0;background:transparent}.day-side-boundary{display:grid;grid-template-columns:26px 62px 26px;align-items:center;justify-items:center;gap:6px;width:var(--panel-width)}.day-shift{width:24px;height:24px;min-width:24px;border-color:transparent;color:var(--muted);font-size:16px;line-height:1}.day-shift:hover{color:var(--fg);border-color:var(--line);background:var(--soft)}.day-side-track{position:relative;width:4px;height:100%;border-radius:999px;background:var(--elapsed);overflow:visible;align-self:stretch}.day-side-track::before,.day-side-track::after{content:"";position:absolute;left:50%;width:13px;height:1px;background:var(--muted);transform:translateX(-50%);opacity:.42}.day-side-track::before{top:0}.day-side-track::after{bottom:0}.day-side-fill{position:absolute;left:50%;bottom:0;width:4px;height:100%;border-radius:999px;background:var(--day);transform:translateX(-50%) scaleY(1);transform-origin:bottom;transition:transform .25s linear,background .18s ease}.day-side-thumb{position:absolute;left:50%;bottom:100%;width:10px;height:10px;border-radius:50%;background:var(--fg);transform:translate(-50%,50%);opacity:.72;transition:bottom .25s linear,background .18s ease}.day-side-min,.day-side-label{display:none}
+.day-mini{position:absolute;left:50%;top:8.15%;transform:translate(-50%,-50%);z-index:30;color:var(--dayNumColor,var(--fg));font-size:clamp(26px,5.25vw,76px);line-height:.72;letter-spacing:-.08em;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap;pointer-events:auto;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;height:.75em;opacity:.96;-webkit-text-stroke:1.75px var(--miniOutline);paint-order:stroke fill;text-shadow:0 1px 3px var(--miniHalo),0 0 7px var(--miniHalo),0 0 14px var(--miniHalo);transition:color .18s ease,opacity .18s ease,-webkit-text-stroke-color .18s ease,text-shadow .18s ease}.day-mini::before{content:"";position:absolute;left:50%;top:50%;width:calc(100% + .36em);height:calc(100% + .20em);transform:translate(-50%,-50%);border-radius:999px;background:var(--miniPlate);border:1px solid var(--miniPlateBorder);box-shadow:0 0 0 1px var(--miniHalo),0 2px 12px var(--miniHalo);backdrop-filter:blur(1.5px);z-index:-1;opacity:.74}.day-mini *{pointer-events:none}.mini-digit{display:inline-flex;align-items:center;justify-content:center;min-width:.56em;height:.75em}.day-mini.is-low{color:var(--dayNumColor,var(--fg));opacity:1}
+.day-ring,.timer-ring{position:absolute;inset:0;width:100%;height:100%;overflow:visible;transform:rotate(-90deg)}
+.day-bg{fill:none;stroke:var(--elapsed);stroke-width:1.35}
+.day-left{fill:none;stroke:var(--day);stroke-width:2.35;stroke-linecap:round;transition:stroke-dashoffset .25s linear,stroke .18s ease}
+.day-tick{display:none}
+
+/* Timer mode: keep only the outlined number, no glass/pill backing. */
+body.timer-active .day-mini::before{display:none}
+body.timer-active .day-mini{ -webkit-text-stroke:0 transparent !important; paint-order:normal !important; text-shadow:none !important; filter:none !important; }
+/* In timer funnel mode, place the small day-left minutes outside above the outer circle. */
+body.timer-active.mode-funnel .day-mini{
+  top:-3.2%;
+  transform:translate(-50%,-100%);
+}
+@media(max-width:760px){
+  body.timer-active.mode-funnel .day-mini{
+    top:-2.6%;
+    transform:translate(-50%,-100%);
+  }
+}
+
+.timer-ring{inset:10.8%;width:78.4%;height:78.4%;left:10.8%;top:10.8%}
+/* Timer is glass-only: never show the old inner/outer ring timer. */
+body.timer-active .timer-ring{opacity:0!important;pointer-events:none!important}
+body.timer-active .day-ring{opacity:0!important;pointer-events:none!important}
+
+.timer-bg{fill:none;stroke:var(--line);stroke-width:1.1}
+.timer-left{fill:none;stroke:var(--fg);stroke-width:1.55;stroke-linecap:round;transition:stroke-dashoffset .06s linear}
+.time{position:relative;z-index:3;font-size:clamp(52px,11.4vw,164px);color:var(--numColor,var(--fg));transition:color .18s ease;line-height:.72;letter-spacing:-.08em;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap;pointer-events:none;display:inline-flex;align-items:center;justify-content:center;height:.75em}.colon{display:inline-flex;align-items:center;justify-content:center;min-width:.20em;height:.75em;margin:0 .035em;opacity:.88}.digit{display:inline-flex;align-items:center;justify-content:center;min-width:.56em;height:.75em}.digit.percent-symbol{min-width:.32em;margin-left:.035em;letter-spacing:-.02em}
+.dot-canvas{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity .22s ease;pointer-events:none}
+body.minuteclock .dot-canvas{inset:0;width:100%;height:100%}
+.container-viz{position:absolute;width:43%;height:63%;border:1.65px solid var(--line);border-radius:999px;overflow:hidden;background:rgba(150,150,150,.16);opacity:0;transition:opacity .22s ease;pointer-events:none}.container-elapsed{position:absolute;left:0;right:0;top:0;height:100%;background:repeating-linear-gradient(-45deg, rgba(155,155,155,.16) 0 6px, rgba(155,155,155,.06) 6px 12px);transform-origin:top}.container-fill{position:absolute;left:0;right:0;bottom:0;height:100%;background:var(--green);transform-origin:bottom;opacity:.82;transition:background .14s linear}
+body.timer-active.mode-ring .container-viz,body.timer-active.mode-ring .dot-canvas{opacity:0}
+body.timer-active.mode-container .time,body.timer-active.mode-dots .time,body.timer-active.mode-shrink .time,body.timer-active.mode-fullshrink .time{opacity:0}
+body.timer-active.mode-funnel .time{opacity:1;color:var(--glassText)!important;text-shadow:0 1px 2px var(--glassHalo),0 0 6px var(--glassHalo);z-index:4}
+body.timer-active.mode-container .timer-ring,body.timer-active.mode-dots .timer-ring,body.timer-active.mode-shrink .timer-ring,body.timer-active.mode-funnel .timer-ring,body.timer-active.mode-fullshrink .timer-ring{opacity:0;pointer-events:none}
+body.timer-active.mode-container .container-viz{opacity:1}
+body.timer-active.mode-dots .dot-canvas,body.timer-active.mode-shrink .dot-canvas,body.timer-active.mode-funnel .dot-canvas,body.timer-active.mode-fullshrink .dot-canvas{opacity:1}
+body.timer-active.mode-funnel .day-ring{opacity:0;pointer-events:none}
+body.timer-active.mode-funnel .dot-canvas{z-index:2}
+body.timer-active .stage{cursor:default}
+body.minuteclock .timer-ring{opacity:0;pointer-events:none}
+body.minuteclock .day-mini{opacity:0;pointer-events:none}
+body.minuteclock .time{font-size:clamp(68px,15.6vw,224px);letter-spacing:-.085em}
+body.minuteclock.mode-minutes .time{opacity:1}
+body.minuteclock.mode-container .time,body.minuteclock.mode-dots .time,body.minuteclock.mode-shrink .time,body.minuteclock.mode-funnel .time,body.minuteclock.mode-fullshrink .time{opacity:0}
+body.minuteclock.mode-glass .time{opacity:1;color:var(--glassText)!important;text-shadow:0 1px 2px var(--glassHalo),0 0 6px var(--glassHalo);z-index:4}
+body.minuteclock.mode-container .container-viz{opacity:1;width:36%;height:60%;border-radius:999px}
+body.minuteclock.mode-dots .dot-canvas,body.minuteclock.mode-shrink .dot-canvas,body.minuteclock.mode-funnel .dot-canvas,body.minuteclock.mode-glass .dot-canvas,body.minuteclock.mode-fullshrink .dot-canvas{opacity:1}
+body.minuteclock.mode-funnel .day-ring,body.minuteclock.mode-glass .day-ring,body.minuteclock.mode-fullshrink .day-ring{opacity:0}
+body.minuteclock.mode-funnel .dot-canvas,body.minuteclock.mode-glass .dot-canvas,body.minuteclock.mode-fullshrink .dot-canvas{z-index:2}
+body.minuteclock.mode-container .timer-ring,body.minuteclock.mode-dots .timer-ring,body.minuteclock.mode-shrink .timer-ring,body.minuteclock.mode-funnel .timer-ring,body.minuteclock.mode-glass .timer-ring,body.minuteclock.mode-fullshrink .timer-ring{opacity:0}
+.day-info{position:absolute;bottom:14.5%;left:50%;transform:translateX(-50%);display:flex;gap:16px;color:var(--muted);font-size:clamp(10px,1.2vw,13px);letter-spacing:.12em;text-transform:uppercase;opacity:.0;transition:opacity .25s ease;z-index:4}.day-info strong{font-weight:500;color:var(--fg)}body.show-controls .day-info{opacity:0;display:none}
+.controls{position:absolute;left:50%;bottom:var(--control-bottom);transform:translateX(-50%);display:flex;gap:12px;opacity:0;transition:opacity .32s ease;z-index:8;padding:5px 7px;border-radius:999px;background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(6px)}body.show-controls .controls{opacity:1}
+.preset{position:absolute;left:calc(50% + (var(--ring-size) / 2) + var(--side-gap));top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:9px;opacity:0;transition:opacity .32s ease;z-index:8}body.show-controls .preset{opacity:1}
+button{appearance:none;border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:999px;padding:0;display:grid;place-items:center;cursor:pointer;font:inherit;transition:background .14s ease,border-color .14s ease,transform .1s ease,color .14s ease}button:hover{background:var(--soft)}button:active{transform:scale(.96)}.icon-btn{width:48px;height:42px;min-width:48px;font-size:18px}.lang-btn{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:500}.pause{width:56px;min-width:56px}.preset button{min-width:54px;height:31px;color:var(--muted);font-size:11px;letter-spacing:.10em}.preset button.active{color:var(--fg);background:var(--soft);border-color:var(--line)}.preset .min-jump{margin-bottom:3px;text-transform:lowercase;font-size:10px;letter-spacing:.08em;color:var(--fg);background:var(--soft);border-color:var(--line)}.theme-dot{width:17px;height:17px;border-radius:50%;border:1.15px solid currentColor;background:linear-gradient(90deg,currentColor 0 50%,transparent 50%)}.full-icon{width:18px;height:18px;position:relative}.full-icon::before{content:"";position:absolute;inset:0;background:linear-gradient(currentColor,currentColor) left top/7px 1.2px no-repeat,linear-gradient(currentColor,currentColor) left top/1.2px 7px no-repeat,linear-gradient(currentColor,currentColor) right top/7px 1.2px no-repeat,linear-gradient(currentColor,currentColor) right top/1.2px 7px no-repeat,linear-gradient(currentColor,currentColor) left bottom/7px 1.2px no-repeat,linear-gradient(currentColor,currentColor) left bottom/1.2px 7px no-repeat,linear-gradient(currentColor,currentColor) right bottom/7px 1.2px no-repeat,linear-gradient(currentColor,currentColor) right bottom/1.2px 7px no-repeat}
+.modehint{display:none!important}
+
+/* In timer mode, move the credit above the small day-left number so it no longer sits in the tight gap between number and circle. */
+body.timer-active .credit{
+  top:calc(50% - (var(--ring-size) / 2) - 78px);
+  opacity:0;
+}
+body.timer-active.show-controls .credit{opacity:.38}
+@media(max-width:760px){
+  body.timer-active .credit{top:calc(50% - (var(--ring-size) / 2) - 52px);}
+}
+@media(max-width:560px){
+  body.timer-active .credit{top:calc(50% - (var(--ring-size) / 2) - 42px);}
+}
+@media(max-width:760px){:root{--ring-size:min(80vmin,560px);--side-gap:16px;--panel-width:104px;--control-bottom:clamp(16px,3.4svh,28px)}.stage{transform:translateY(0)}.preset{left:calc(50% + (var(--ring-size) / 2) + var(--side-gap));gap:7px}.preset button{min-width:46px;height:30px}.controls{gap:8px;padding:4px 6px}.icon-btn{width:44px;min-width:44px;height:40px}.lang-btn{font-size:10px}.pause{width:52px;min-width:52px}.topline{font-size:10px}.credit{top:calc(50% - (var(--ring-size) / 2) - 24px);font-size:9px}.day-info{bottom:13%}.day-side{right:calc(50% + (var(--ring-size) / 2) + var(--side-gap));height:min(50svh,410px);width:var(--panel-width);grid-template-rows:30px minmax(150px,1fr) 30px;gap:10px}.day-side-time{font-size:10px;min-width:54px;padding:2px 0}.day-side-boundary{grid-template-columns:23px 54px 23px;gap:4px;width:var(--panel-width)}.day-shift{width:22px;height:22px;min-width:22px;font-size:15px}.day-mini{top:8.35%;font-size:clamp(22px,5.2vw,54px)}}
+@media(max-width:560px){:root{--ring-size:min(76vmin,430px);--side-gap:10px;--panel-width:88px}.preset{gap:5px}.preset button{min-width:40px;height:27px;font-size:10px}.day-side{height:min(44svh,330px);grid-template-rows:28px minmax(120px,1fr) 28px}.day-side-boundary{grid-template-columns:18px 50px 18px;width:88px}.day-side-time{min-width:50px;font-size:9px;padding:2px 0}.day-shift{width:20px;height:20px;min-width:20px}.controls{bottom:clamp(12px,2.5svh,22px)}}
+
+@media(max-width:760px){.day-mini{top:8.35%;font-size:clamp(22px,5.4vw,46px)}}
+
+@media(max-width:760px){.day-mini{-webkit-text-stroke:1.35px var(--miniOutline);text-shadow:0 1px 3px var(--miniHalo),0 0 7px var(--miniHalo),0 0 12px var(--miniHalo)}.day-mini::before{width:calc(100% + .42em);height:calc(100% + .24em);opacity:.80}}
+
+/* Day mode credit position: align with the small timer-mode day-left number slot. */
+body:not(.timer-active) .credit{
+  top:calc(50% - (var(--ring-size) * .4185)) !important;
+  transform:translate(-50%,-50%) !important;
+}
+body.timer-active .credit{display:none!important;opacity:0!important}
+
+
+/* Credit sits outside the circle at the top center, never inside the ring area. */
+.credit{
+  top:clamp(18px,2.8vw,34px)!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
+  width:min(54vw,430px)!important;
+  z-index:5!important;
+}
+body.timer-active .credit{
+  display:grid!important;
+  opacity:0!important;
+}
+body.show-controls .credit,
+body.timer-active.show-controls .credit{opacity:.42!important}
+body:not(.timer-active) .credit{top:clamp(18px,2.8vw,34px)!important}
+.mute-btn{font-size:15px;letter-spacing:0}
+.mute-btn.is-muted{color:var(--muted);background:var(--soft)}
+@media(max-width:760px){.credit{top:clamp(16px,2.4vw,26px)!important;width:min(50vw,360px)!important}.mute-btn{font-size:14px}}
+
+
+
+/* Final: stable credit position and minimal classic mute icon */
+.credit{
+  top:calc(50% - (var(--ring-size) / 2) - 46px)!important;
+  width:min(78vw,430px)!important;
+}
+body.timer-active .credit{display:none!important;opacity:0!important;}
+body:not(.timer-active).show-controls .credit{opacity:.45!important;}
+@media(max-width:760px){
+  .credit{top:calc(50% - (var(--ring-size) / 2) - 34px)!important;width:min(66vw,360px)!important;}
+}
+@media(max-width:560px){
+  .credit{top:calc(50% - (var(--ring-size) / 2) - 28px)!important;width:min(70vw,320px)!important;}
+}
+.mute-btn{position:relative;font-size:0;letter-spacing:0;overflow:hidden;}
+.mute-icon{position:relative;width:23px;height:18px;display:block;}
+.mute-icon::before{content:"";position:absolute;left:1px;top:5px;width:7px;height:8px;border-radius:2px;background:currentColor;}
+.mute-icon::after{content:"";position:absolute;left:7px;top:2px;width:11px;height:14px;background:currentColor;clip-path:polygon(0 35%,100% 0,100% 100%,0 65%);}
+.mute-wave{position:absolute;left:17px;top:3px;width:8px;height:12px;border:1.6px solid currentColor;border-left:none;border-top-color:transparent;border-bottom-color:transparent;border-radius:0 999px 999px 0;opacity:.82;}
+.mute-btn.is-muted .mute-wave{display:none;}
+.mute-btn.is-muted .mute-icon::before,.mute-btn.is-muted .mute-icon::after{opacity:.55;}
+.mute-btn.is-muted .mute-x{display:block;}
+.mute-x{display:none;position:absolute;left:16px;top:2px;width:10px;height:14px;}
+.mute-x::before,.mute-x::after{content:"";position:absolute;left:4px;top:0;width:1.5px;height:15px;border-radius:999px;background:currentColor;}
+.mute-x::before{transform:rotate(45deg)}.mute-x::after{transform:rotate(-45deg)}
+
+
+
+/* Refined unified control language: calmer capsules, consistent sizing, better readability */
+:root{
+  --button-h:38px;
+  --button-w:50px;
+  --button-bg:color-mix(in srgb,var(--bg) 88%,var(--fg) 12%);
+  --button-bg-hover:color-mix(in srgb,var(--bg) 78%,var(--fg) 22%);
+  --button-border:color-mix(in srgb,var(--fg) 22%,transparent);
+  --button-text:color-mix(in srgb,var(--fg) 88%,var(--muted) 12%);
+}
+.controls{
+  gap:8px!important;
+  padding:7px!important;
+  border:1px solid color-mix(in srgb,var(--fg) 10%,transparent)!important;
+  background:color-mix(in srgb,var(--bg) 84%,transparent)!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.10)!important;
+}
+button{
+  border-color:var(--button-border)!important;
+  background:color-mix(in srgb,var(--bg) 94%,transparent)!important;
+  color:var(--button-text)!important;
+  box-shadow:none!important;
+}
+button:hover{
+  background:var(--button-bg-hover)!important;
+  border-color:color-mix(in srgb,var(--fg) 34%,transparent)!important;
+  color:var(--fg)!important;
+}
+.icon-btn{
+  width:var(--button-w)!important;
+  min-width:var(--button-w)!important;
+  height:var(--button-h)!important;
+  font-size:16px!important;
+}
+.pause{
+  width:var(--button-w)!important;
+  min-width:var(--button-w)!important;
+}
+.lang-btn{
+  font-size:10.5px!important;
+  letter-spacing:.10em!important;
+  font-weight:600!important;
+}
+.preset{
+  gap:7px!important;
+  padding:7px!important;
+  border-radius:999px!important;
+  background:color-mix(in srgb,var(--bg) 84%,transparent)!important;
+  border:1px solid color-mix(in srgb,var(--fg) 9%,transparent)!important;
+  backdrop-filter:blur(6px)!important;
+}
+.preset button{
+  min-width:52px!important;
+  height:30px!important;
+  font-size:10.5px!important;
+  letter-spacing:.11em!important;
+  color:color-mix(in srgb,var(--fg) 65%,transparent)!important;
+  background:transparent!important;
+  border-color:transparent!important;
+}
+.preset button:hover,
+.preset button.active,
+.preset .min-jump{
+  color:var(--fg)!important;
+  background:var(--soft)!important;
+  border-color:var(--button-border)!important;
+}
+.preset .min-jump{
+  text-transform:uppercase!important;
+  font-size:9.5px!important;
+  letter-spacing:.13em!important;
+  margin-bottom:4px!important;
+}
+.day-side{
+  gap:12px!important;
+  padding:8px 7px!important;
+  border-radius:999px!important;
+  background:color-mix(in srgb,var(--bg) 84%,transparent)!important;
+  border:1px solid color-mix(in srgb,var(--fg) 9%,transparent)!important;
+  backdrop-filter:blur(6px)!important;
+}
+.day-side-time{
+  min-width:66px!important;
+  height:29px!important;
+  display:grid!important;
+  place-items:center!important;
+  opacity:.86!important;
+  font-size:12px!important;
+  color:var(--fg)!important;
+  background:var(--soft)!important;
+  border-color:var(--button-border)!important;
+}
+.day-side-boundary{
+  grid-template-columns:25px 66px 25px!important;
+  gap:5px!important;
+}
+.day-shift{
+  width:25px!important;
+  height:25px!important;
+  min-width:25px!important;
+  font-size:15px!important;
+  color:color-mix(in srgb,var(--fg) 62%,transparent)!important;
+  background:transparent!important;
+}
+.day-shift:hover{
+  color:var(--fg)!important;
+  border-color:var(--button-border)!important;
+}
+.theme-dot{width:16px!important;height:16px!important;}
+.mute-icon{transform:scale(.92);}
+.full-icon{transform:scale(.92);}
+@media(max-width:760px){
+  :root{--button-h:37px;--button-w:44px;}
+  .controls{gap:6px!important;padding:6px!important;}
+  .preset{gap:5px!important;padding:6px!important;}
+  .preset button{min-width:43px!important;height:28px!important;font-size:9.5px!important;}
+  .day-side{padding:6px 5px!important;gap:9px!important;}
+  .day-side-time{min-width:56px!important;height:27px!important;font-size:10px!important;}
+  .day-side-boundary{grid-template-columns:21px 56px 21px!important;gap:4px!important;}
+  .day-shift{width:21px!important;height:21px!important;min-width:21px!important;}
+}
+@media(max-width:560px){
+  .preset button{min-width:39px!important;height:26px!important;font-size:9px!important;}
+  .day-side-time{min-width:50px!important;font-size:9px!important;}
+  .day-side-boundary{grid-template-columns:18px 50px 18px!important;}
+}
+
+
+/* Ultra-minimal left day control: no capsule shell, no thumb, no grey outline. */
+.day-side{
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  backdrop-filter:none!important;
+  border-radius:0!important;
+  gap:12px!important;
+}
+.day-side-track{
+  width:2px!important;
+  background:color-mix(in srgb,var(--fg) 11%,transparent)!important;
+  border:0!important;
+  box-shadow:none!important;
+  border-radius:999px!important;
+  overflow:hidden!important;
+}
+.day-side-fill{
+  width:2px!important;
+  border:0!important;
+  box-shadow:none!important;
+  border-radius:999px!important;
+}
+.day-side-thumb{display:none!important;}
+.day-side-track::before,
+.day-side-track::after{
+  width:7px!important;
+  height:1px!important;
+  opacity:.36!important;
+  background:color-mix(in srgb,var(--fg) 42%,transparent)!important;
+}
+.day-side-time{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  height:auto!important;
+  padding:2px 0!important;
+  opacity:.78!important;
+  color:var(--fg)!important;
+}
+.day-side-boundary{
+  gap:5px!important;
+}
+.day-shift{
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  opacity:.68!important;
+}
+.day-shift:hover{
+  opacity:1!important;
+  background:var(--soft)!important;
+  border:0!important;
+}
+
+
+/* Final control refinement: round, symmetric bottom icons. */
+:root{
+  --button-h:44px;
+  --button-w:44px;
+}
+.controls{
+  gap:9px!important;
+  padding:7px!important;
+  border-radius:999px!important;
+}
+.icon-btn,
+.pause{
+  width:44px!important;
+  min-width:44px!important;
+  height:44px!important;
+  border-radius:50%!important;
+  padding:0!important;
+  display:grid!important;
+  place-items:center!important;
+  aspect-ratio:1/1!important;
+}
+.mute-icon{
+  width:22px!important;
+  height:18px!important;
+  transform:scale(.88)!important;
+}
+.theme-dot{width:16px!important;height:16px!important;}
+.full-icon{transform:scale(.90)!important;}
+@media(max-width:760px){
+  :root{--button-h:40px;--button-w:40px;}
+  .icon-btn,.pause{width:40px!important;min-width:40px!important;height:40px!important;}
+  .controls{gap:7px!important;padding:6px!important;}
+}
+
+
+
+/* Cleaner minimal mute icon: balanced speaker, soft waves, no distorted geometry. */
+.mute-btn{
+  font-size:0!important;
+  overflow:visible!important;
+}
+.mute-svg{
+  width:23px;
+  height:23px;
+  display:block;
+  overflow:visible;
+}
+.mute-svg .speaker-body{
+  fill:currentColor;
+  opacity:.92;
+}
+.mute-svg .speaker-wave,
+.mute-svg .speaker-slash{
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.65;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  opacity:.86;
+}
+.mute-svg .wave-two{opacity:.58;}
+.mute-svg .speaker-slash{
+  opacity:0;
+  stroke-width:1.9;
+}
+.mute-btn.is-muted .speaker-wave{opacity:0;}
+.mute-btn.is-muted .speaker-body{opacity:.72;}
+.mute-btn.is-muted .speaker-slash{opacity:.95;}
+@media(max-width:760px){.mute-svg{width:21px;height:21px;}}
+
+</style>
 </head>
-<body>
-  <main aria-label="Minutes left today">
-    <div class="settings" aria-label="Settings">
-      <button id="toggleTheme" class="icon-button theme-button" type="button" aria-label="Toggle light and dark mode" title="Toggle theme">
-        <span class="theme-dot" aria-hidden="true"></span>
-      </button>
-<button id="toggleFullscreen" class="icon-button fullscreen-button" type="button" aria-label="Enter fullscreen" title="Fullscreen">
-        <svg class="fullscreen-enter" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>
-        </svg>
-        <svg class="fullscreen-exit" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>
-        </svg>
-      </button>
-      <button id="toggleSound" class="icon-button sound-button" type="button" aria-label="Turn sound on" title="Sound">
-        <svg class="sound-icon sound-off" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M4.5 9.5v5h4l5.5 4.2V5.3L8.5 9.5h-4z"/>
-          <path d="M18 9l4 6"/>
-          <path d="M22 9l-4 6"/>
-        </svg>
-        <svg class="sound-icon sound-on" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M4.5 9.5v5h4l5.5 4.2V5.3L8.5 9.5h-4z"/>
-          <path d="M17 9.5c1.1 1.3 1.1 3.7 0 5"/>
-          <path d="M19.5 7c2.2 2.6 2.2 7.4 0 10"/>
-        </svg>
-      </button>
+<body class="mode-glass fixed-timer minuteclock">
+<main class="app">
+  <div class="topline"><span id="dateLabel">JUN 9</span><span id="clock">00:00</span></div>
+  <div class="credit"><span>Designed</span><span>by</span><span>Alex Weischer</span></div>
+  <aside class="day-side" aria-label="day start and end adjustment">
+    <div class="day-side-boundary" aria-label="adjust start time">
+      <button id="dayStartMinus" class="day-shift" aria-label="start time 30 minutes earlier">−</button>
+      <span id="dayStartBtn" class="day-side-time" aria-label="day start time">08:00</span>
+      <button id="dayStartPlus" class="day-shift" aria-label="start time 30 minutes later">+</button>
     </div>
-
-    <div class="top">
-      <div id="dateLabel" role="button" tabindex="0" aria-expanded="false" aria-controls="calendarPopover" title="Kalender anzeigen">1 JUN</div>
-      <div id="clock">--:--</div>
+    <div class="day-side-track" aria-hidden="true">
+      <div id="daySideFill" class="day-side-fill"></div>
+      <div id="daySideThumb" class="day-side-thumb"></div>
+      <span id="daySideMin" class="day-side-min">000 min</span>
+      <span class="day-side-label">day left</span>
     </div>
-
-    <div id="calendarPopover" class="calendar-popover" aria-label="Calendar for current month" aria-hidden="true">
-      <div class="calendar-title">
-        <span id="calendarMonth" class="calendar-month">jun 2026</span>
-      </div>
-      <div id="calendarGrid" class="calendar-grid"></div>
+    <div class="day-side-boundary" aria-label="adjust end time">
+      <button id="dayEndMinus" class="day-shift" aria-label="end time 30 minutes earlier">−</button>
+      <span id="dayEndBtn" class="day-side-time" aria-label="day end time">24:00</span>
+      <button id="dayEndPlus" class="day-shift" aria-label="end time 30 minutes later">+</button>
     </div>
-
-    <section class="countdown">
-      <div id="minutes">1440</div>
-      <div id="circleGrid" aria-hidden="true"></div>
-      <div id="glassVisual" aria-hidden="true">
-        <div id="glassFill" class="glass-fill"></div>
-        <div class="glass-shine"></div>
-      </div>
-      <button id="numberHitArea" type="button" aria-label="Toggle between min, percent, and battery view"></button>
-      <div id="mainLabel" class="label">min</div>
-    </section>
-
-    <section class="remaining-section" aria-label="Remaining time from 8:00 to 24:00">
-      <div class="remaining-labels">
-        <span id="barStartLabel" role="button" tabindex="0" title="Startzeit +1 Stunde">8:00</span>
-        <span id="remainingPercent">100%</span>
-        <span id="barEndLabel" role="button" tabindex="0" title="Endzeit +1 Stunde">24:00</span>
-      </div>
-      <div class="remaining-track">
-        <div id="remainingFill" class="remaining-fill"></div>
-      </div>
-    </section>
-
-    <div class="designer-credit">Designed by Alex Weischer</div>
+  </aside>
+  <section id="stage" class="stage" aria-label="hybrid day timer">
+    <svg class="day-ring" viewBox="0 0 100 100" aria-hidden="true">
+      <circle class="day-bg" cx="50" cy="50" r="48"></circle>
+      <g id="dayTicks"></g>
+      <circle id="dayLeft" class="day-left" cx="50" cy="50" r="48"></circle>
+    </svg>
+    <div id="dayMini" class="day-mini" role="button" tabindex="0" aria-label="show time left today and speak minutes" title="Show time left today"></div>
+    <svg class="timer-ring" viewBox="0 0 100 100" aria-hidden="true">
+      <circle class="timer-bg" cx="50" cy="50" r="47"></circle>
+      <circle id="timerLeft" class="timer-left" cx="50" cy="50" r="47"></circle>
+    </svg>
+    <canvas id="dotCanvas" class="dot-canvas" aria-hidden="true"></canvas>
+    <div class="container-viz" aria-hidden="true"><div id="containerElapsed" class="container-elapsed"></div><div id="containerFill" class="container-fill"></div></div>
+    <div id="time" class="time"></div>
+    <div class="day-info"><span>day <strong id="dayPercent">0%</strong></span><span><strong id="dayMinutes">000</strong> min</span></div>
+  </section>
+  <div class="preset" aria-label="presets">
+    <button id="minuteJump" class="min-jump" aria-label="show time left today">time</button><button data-min="1">01</button><button data-min="2">02</button><button data-min="5">05</button><button data-min="10">10</button><button data-min="15">15</button><button data-min="20" class="active">20</button><button data-min="30">30</button><button data-min="45">45</button><button data-min="60">60</button><button data-min="90">90</button><button data-min="120">120</button>
+  </div>
+  <div class="controls">
+    <button id="theme" class="icon-btn" aria-label="theme"><span class="theme-dot"></span></button>
+    <button id="muteBtn" class="icon-btn mute-btn" aria-label="mute speech" title="Mute speech">
+      <svg class="mute-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path class="speaker-body" d="M4.75 9.25h3.45l4.55-3.9c.38-.33.97-.06.97.45v12.4c0 .51-.59.78-.97.45l-4.55-3.9H4.75a1 1 0 0 1-1-1v-3.5a1 1 0 0 1 1-1Z"/>
+        <path class="speaker-wave wave-one" d="M16.1 9.15c.72.78 1.08 1.72 1.08 2.85s-.36 2.07-1.08 2.85"/>
+        <path class="speaker-wave wave-two" d="M18.35 7.05c1.2 1.33 1.8 2.98 1.8 4.95s-.6 3.62-1.8 4.95"/>
+        <path class="speaker-slash" d="M17.05 8.25 21 15.75"/>
+      </svg>
+    </button>
+    <button id="full" class="icon-btn" aria-label="fullscreen"><span class="full-icon"></span></button>
+  </div>
 </main>
+<script>
+(()=>{
+const timeEl=document.getElementById('time'), timerLeft=document.getElementById('timerLeft'), dayLeft=document.getElementById('dayLeft'), dotCanvas=document.getElementById('dotCanvas'), containerFill=document.getElementById('containerFill'), containerElapsed=document.getElementById('containerElapsed');
+const pauseBtn=null, themeBtn=document.getElementById('theme'), langBtn=null, muteBtn=document.getElementById('muteBtn'), fullBtn=document.getElementById('full'), presets=[...document.querySelectorAll('.preset button[data-min]')], minuteJump=document.getElementById('minuteJump'), stage=document.getElementById('stage'), modehint=document.getElementById('modehint');
+const dateLabel=document.getElementById('dateLabel'), clock=document.getElementById('clock'), dayPercent=document.getElementById('dayPercent'), dayMinutes=document.getElementById('dayMinutes'), dayTicks=document.getElementById('dayTicks'), dayStartBtn=document.getElementById('dayStartBtn'), dayEndBtn=document.getElementById('dayEndBtn'), dayStartMinus=document.getElementById('dayStartMinus'), dayStartPlus=document.getElementById('dayStartPlus'), dayEndMinus=document.getElementById('dayEndMinus'), dayEndPlus=document.getElementById('dayEndPlus'), daySideFill=document.getElementById('daySideFill'), daySideThumb=document.getElementById('daySideThumb'), daySideMin=document.getElementById('daySideMin'), dayMini=document.getElementById('dayMini');
+const tr=47, tc=2*Math.PI*tr, dr=48, dc=2*Math.PI*dr; timerLeft.style.strokeDasharray=tc; dayLeft.style.strokeDasharray=dc;
+let initialSeconds=20*60, remaining=initialSeconds, running=false, raf=null, last=0, hide=null, displayMode=localStorage.getItem('hybridTimerMode')||'funnel', minuteDisplayMode='glass', appMode='minuteclock', themeIndex=Number(localStorage.getItem('hybridTheme')||0);
+const timerModes=['funnel'];
+const minuteModes=['glass'];
+if(!timerModes.includes(displayMode)) displayMode='funnel';
+minuteDisplayMode='glass';
+let dayStartMin=Number(localStorage.getItem('hybridDayStartMin')||480), dayEndMin=Number(localStorage.getItem('hybridDayEndMin')||1440);
+const themes=['','light'];
+const speechLanguages=[
+  {code:'EN',lang:'en-US',voice:/english|en[-_]?us|en[-_]?gb|google.*english|microsoft.*english/i}
+];
+// English only: natural male voice for timer presets, natural female voice for day-left/exit.
+let speechLangIndex=0;
+let speechMuted=localStorage.getItem('hybridSpeechMuted')==='1';
+function currentSpeechLang(){return speechLanguages[0];}
+function updateLangButton(){ /* language selector removed: English only */ }
+function updateMuteButton(){ if(!muteBtn)return; muteBtn.classList.toggle('is-muted',speechMuted); muteBtn.setAttribute('aria-label',speechMuted?'unmute speech':'mute speech'); muteBtn.setAttribute('title',speechMuted?'Unmute speech':'Mute speech'); localStorage.setItem('hybridSpeechMuted',speechMuted?'1':'0'); }
+updateLangButton();
+updateMuteButton();
+function renderDayTicks(){
+  // Kerben/Markierungen bewusst entfernt: nur saubere Kreislinien und Farbflächen bleiben sichtbar.
+  if(dayTicks) dayTicks.innerHTML='';
+}
+function setTheme(){themeIndex=themeIndex%themes.length;document.body.classList.remove('light'); if(themes[themeIndex])document.body.classList.add(themes[themeIndex]); localStorage.setItem('hybridTheme',themeIndex)} setTheme();
+function colorForProgress(p){
+  // Smooth color movement, but always one flat uniform color per active surface.
+  // No linear/radial gradients are used inside the shapes.
+  p=Math.max(0,Math.min(1,p));
+  const stops=[
+    {t:0.00,c:[184,59,50]},   // red
+    {t:0.28,c:[207,122,53]},  // orange
+    {t:0.58,c:[210,184,69]},  // yellow
+    {t:1.00,c:[47,200,109]}   // green
+  ];
+  let a=stops[0], b=stops[stops.length-1];
+  for(let i=0;i<stops.length-1;i++){
+    if(p>=stops[i].t && p<=stops[i+1].t){a=stops[i];b=stops[i+1];break;}
+  }
+  const k=(p-a.t)/Math.max(.0001,b.t-a.t);
+  const mix=(x,y)=>Math.round(x+(y-x)*k);
+  return `rgb(${mix(a.c[0],b.c[0])}, ${mix(a.c[1],b.c[1])}, ${mix(a.c[2],b.c[2])})`;
+}
+function part(s){s=Math.max(0,Math.ceil(s)); const m=Math.floor(s/60), sec=s%60; return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0')}
+function renderDigits(str, target=timeEl, digitClass='digit'){ target.innerHTML=''; [...String(str)].forEach(ch=>{const span=document.createElement('span');span.textContent=ch;span.className=ch===':'?'colon':(ch==='%'?'digit percent-symbol':digitClass);target.appendChild(span);}); }
+function renderTime(){ renderDigits(part(remaining), timeEl, 'digit'); }
+function renderMainText(str){ renderDigits(str, timeEl, 'digit'); }
+function renderDayMini(mins){ const str=String(Math.max(0,mins)); dayMini.innerHTML=''; [...str].forEach(ch=>{const span=document.createElement('span');span.textContent=ch;span.className='mini-digit';dayMini.appendChild(span);}); dayMini.classList.toggle('is-low',mins<=120); }
+function clampDay(){ if(!Number.isFinite(dayStartMin))dayStartMin=480; if(!Number.isFinite(dayEndMin))dayEndMin=1440; dayStartMin=Math.max(0,Math.min(1439,Math.round(dayStartMin))); dayEndMin=Math.max(dayStartMin+1,Math.min(1440,Math.round(dayEndMin))); localStorage.setItem('hybridDayStartMin',dayStartMin); localStorage.setItem('hybridDayEndMin',dayEndMin); }
+function hmFromMin(min){ min=Math.max(0,Math.min(1440,Math.round(min))); if(min===1440)return '24:00'; return String(Math.floor(min/60)).padStart(2,'0')+':'+String(min%60).padStart(2,'0'); }
+function minFromHm(value){ const m=String(value||'').trim().match(/^(\d{1,2})(?::|\.)(\d{2})$/); if(!m)return null; const h=Number(m[1]), mi=Number(m[2]); if(h===24&&mi===0)return 1440; if(h<0||h>23||mi<0||mi>59)return null; return h*60+mi; }
+function dayData(){ clampDay(); const now=new Date(); const start=new Date(now); start.setHours(Math.floor(dayStartMin/60),dayStartMin%60,0,0); const end=new Date(now); if(dayEndMin===1440)end.setHours(24,0,0,0); else end.setHours(Math.floor(dayEndMin/60),dayEndMin%60,0,0); const nowMin=now.getHours()*60+now.getMinutes()+now.getSeconds()/60+now.getMilliseconds()/60000; const total=(dayEndMin-dayStartMin)*60; let left=(dayEndMin-nowMin)*60; if(nowMin<dayStartMin)left=total; else if(nowMin>=dayEndMin)left=0; const p=Math.max(0,Math.min(1,left/total)); return{p,left,now,start,end}; }
+function adjustDayBoundary(which,delta){ if(which==='start'){dayStartMin+=delta; dayStartMin=Math.max(0,Math.min(dayEndMin-30,dayStartMin));}else{dayEndMin+=delta; dayEndMin=Math.max(dayStartMin+30,Math.min(1440,dayEndMin));} clampDay(); paperClick(); render(); showControls(); }
+function updateTop(){ const now=new Date(); dateLabel.textContent=now.toLocaleDateString('en-US',{month:'short',day:'numeric'}).toUpperCase(); clock.textContent=now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}); renderDayTicks(); const d=dayData(); const dayColor=colorForProgress(d.p); document.documentElement.style.setProperty('--dayNumColor',dayColor); dayLeft.style.strokeDashoffset=dc*(1-d.p); dayLeft.style.stroke=dayColor; dayPercent.textContent=Math.round(d.p*100)+'%'; const mins=Math.max(0,Math.ceil(d.left/60)); dayMinutes.textContent=String(mins).padStart(3,'0'); renderDayMini(mins); dayStartBtn.textContent=hmFromMin(dayStartMin); dayEndBtn.textContent=hmFromMin(dayEndMin); daySideMin.textContent=String(mins).padStart(3,'0')+' min'; daySideFill.style.transform=`translateX(-50%) scaleY(${d.p})`; daySideFill.style.background=dayColor; daySideThumb.style.bottom=(d.p*100)+'%'; }
+function drawDots(progress,totalOverride){
+  const activeMode=appMode==='timer'?displayMode:minuteDisplayMode;
+  const isDots=activeMode==='dots';
+  const isShrink=activeMode==='shrink';
+  const isFunnel=activeMode==='funnel' || activeMode==='glass';
+  const isFullShrink=activeMode==='fullshrink';
+  if(!isDots && !isShrink && !isFunnel && !isFullShrink)return;
+  const rect=dotCanvas.getBoundingClientRect(), dpr=Math.max(1,devicePixelRatio||1), w=Math.floor(rect.width*dpr), h=Math.floor(rect.height*dpr);
+  if(dotCanvas.width!==w||dotCanvas.height!==h){dotCanvas.width=w;dotCanvas.height=h}
+  const ctx=dotCanvas.getContext('2d'); ctx.clearRect(0,0,w,h);
+  const cx=w/2, cy=h/2;
+  const p=Math.max(0,Math.min(1,progress));
+  const dotColor=colorForProgress(p);
+  const styles=getComputedStyle(document.body), line=styles.getPropertyValue('--line').trim();
+  const baseR=Math.min(w,h)*(appMode==='timer'?0.465:0.468);
 
-  <script>
-    const minutesEl = document.getElementById("minutes");
-    const circleGridEl = document.getElementById("circleGrid");
-    const glassVisualEl = document.getElementById("glassVisual");
-    const glassFillEl = document.getElementById("glassFill");
-    const mainLabelEl = document.getElementById("mainLabel");
-    const numberHitAreaEl = document.getElementById("numberHitArea");
-    const clockEl = document.getElementById("clock");
-    const dateLabelEl = document.getElementById("dateLabel");
-    const calendarPopoverEl = document.getElementById("calendarPopover");
-    const calendarMonthEl = document.getElementById("calendarMonth");
-    const calendarGridEl = document.getElementById("calendarGrid");
-    const remainingFillEl = document.getElementById("remainingFill");
-    const remainingPercentEl = document.getElementById("remainingPercent");
-    const barStartLabelEl = document.getElementById("barStartLabel");
-    const barEndLabelEl = document.getElementById("barEndLabel");
-    const toggleTheme = document.getElementById("toggleTheme");
-    const toggleFullscreen = document.getElementById("toggleFullscreen");
-    const toggleSound = document.getElementById("toggleSound");
-    const mainEl = document.querySelector("main");
+  if(isFunnel || isFullShrink){
+    // Area modes: in MinuteClock, the whole former day-ring zone becomes the circle field,
+    // so the old ring/ticks disappear underneath this new full disc.
+    const r=Math.min(w,h)*0.498;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.clip();
 
-    const themeModes = ["default", "invert", "night-red"];
-    const themeNames = {
-      default: "RAL 9002 / RAL 9005",
-      invert: "RAL 9005 / RAL 9002",
-      "night-red": "Night red"
-    };
-    let currentTheme = localStorage.getItem("dayLeftTheme") || "default";
-    if (!themeModes.includes(currentTheme)) currentTheme = "default";
-    let displayMode = localStorage.getItem("dayLeftDisplayMode") || "minutes";
-    if (!["minutes", "percent", "glass"].includes(displayMode)) {
-      displayMode = "minutes";
+    // Grey reference field stays visible behind the active value.
+    ctx.fillStyle=styles.getPropertyValue('--elapsed').trim() || line;
+    ctx.fillRect(cx-r,cy-r,r*2,r*2);
+
+    // In glass modes, add the same subtle contour so the full circle remains readable
+    // even when the fill is partly drained. The contour is drawn inside the clipped circle.
+    if(appMode==='minuteclock' || appMode==='timer'){
+      ctx.save();
+      ctx.globalAlpha=1;
+      ctx.strokeStyle=styles.getPropertyValue('--glassReferenceOutline').trim() || line;
+      ctx.lineWidth=Math.max(1.25*dpr, Math.min(3.4*dpr, r*.009));
+      ctx.beginPath();
+      ctx.arc(cx,cy,r-ctx.lineWidth*.55,0,Math.PI*2);
+      ctx.stroke();
+      ctx.strokeStyle=styles.getPropertyValue('--glassReferenceInner').trim() || line;
+      ctx.lineWidth=Math.max(.75*dpr, Math.min(2.2*dpr, r*.0055));
+      ctx.beginPath();
+      ctx.arc(cx,cy,r-Math.max(5*dpr,r*.018),0,Math.PI*2);
+      ctx.stroke();
+      ctx.restore();
     }
 
-    let dayStartHour = Number(localStorage.getItem("dayLeftStartHour") || 8);
-    let dayEndHour = Number(localStorage.getItem("dayLeftEndHour") || 24);
-
-    if (!Number.isInteger(dayStartHour) || dayStartHour < 0 || dayStartHour > 23) {
-      dayStartHour = 8;
+    if(isFunnel){
+      // Circular funnel/container: the whole circular field drains downward.
+      const fillTop=cy+r-(2*r*p);
+      ctx.fillStyle=dotColor;
+      ctx.fillRect(cx-r,fillTop,r*2,2*r*p);
+    } else {
+      // Full smooth shrink: grey full circle + colored circle shrinking toward center.
+      const activeR=r*Math.sqrt(p);
+      ctx.fillStyle=dotColor;
+      ctx.beginPath();
+      ctx.arc(cx,cy,activeR,0,Math.PI*2);
+      ctx.fill();
     }
+    ctx.restore();
+    return;
+  }
 
-    if (!Number.isInteger(dayEndHour) || dayEndHour < 1 || dayEndHour > 24) {
-      dayEndHour = 24;
+  const maxR=Math.min(w,h)*(appMode==='timer'?0.492:0.494);
+  const dotR=Math.max(1.0*dpr,Math.min(appMode==='timer'?2.95*dpr:2.75*dpr,maxR/(appMode==='timer'?92:98)));
+  const gap=dotR*(appMode==='timer'?2.02:2.08);
+  const cap=appMode==='timer'?5600:5200;
+  let pos=[];
+  outer:for(let r=dotR*1.15;r<=maxR;r+=gap){
+    const per=Math.max(14,Math.floor(2*Math.PI*r/gap));
+    for(let j=0;j<per;j++){
+      const a=-Math.PI/2+(j/per)*Math.PI*2;
+      pos.push([cx+Math.cos(a)*r,cy+Math.sin(a)*r,r]);
+      if(pos.length>=cap)break outer;
     }
-
-    let animationId = null;
-    let lastCircleCount = -1;
-    let calendarOpen = false;
-    let audioContext = null;
-    let masterGain = null;
-    let soundUnlocked = false;
-    const soundModes = [
-      { id: "mute", name: "Stumm" },
-      { id: "paper", name: "Papierflip" }
-    ];
-    let soundMode = localStorage.getItem("dayLeftSoundMode") || "mute";
-    if (!soundModes.some((mode) => mode.id === soundMode)) {
-      soundMode = "mute";
-    }
-    let soundEnabled = soundMode !== "mute";
-    let lastVisibleNumberText = "";
-
-    function pad(n) {
-      return String(n).padStart(2, "0");
-    }
-
-    function formatDateShort(date) {
-      const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-      return `${date.getDate()} ${months[date.getMonth()]}`;
-    }
-
-    function formatCalendarDay(date) {
-      const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-      return `${months[date.getMonth()]} ${date.getDate()}`;
-    }
-
-    function setCalendarOpen(open) {
-      calendarOpen = open;
-      mainEl.classList.toggle("calendar-open", calendarOpen);
-      dateLabelEl.setAttribute("aria-expanded", calendarOpen ? "true" : "false");
-      calendarPopoverEl.setAttribute("aria-hidden", calendarOpen ? "false" : "true");
-
-      if (calendarOpen) {
-        renderCalendar(new Date());
-        showControlsBriefly();
-      }
-    }
-
-    function toggleCalendar(event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      setCalendarOpen(!calendarOpen);
-    }
-
-    function renderCalendar(now) {
-      if (!calendarGridEl) return;
-
-      const monthsLong = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-      const weekdays = ["mo", "tu", "we", "th", "fr", "sa", "su"];
-      const year = now.getFullYear();
-      const month = now.getMonth();
-      const first = new Date(year, month, 1);
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const mondayOffset = (first.getDay() + 6) % 7;
-
-      calendarMonthEl.textContent = `${monthsLong[month]} ${year}`;
-      calendarGridEl.innerHTML = "";
-
-      const fragment = document.createDocumentFragment();
-
-      weekdays.forEach((weekday) => {
-        const el = document.createElement("div");
-        el.className = "calendar-weekday";
-        el.textContent = weekday;
-        fragment.appendChild(el);
-      });
-
-      for (let i = 0; i < mondayOffset; i += 1) {
-        const empty = document.createElement("div");
-        empty.className = "calendar-day is-empty";
-        empty.textContent = "·";
-        fragment.appendChild(empty);
-      }
-
-      for (let day = 1; day <= daysInMonth; day += 1) {
-        const date = new Date(year, month, day);
-        const el = document.createElement("div");
-        el.className = "calendar-day";
-        el.textContent = String(day);
-
-        if (day === now.getDate()) {
-          el.classList.add("is-today");
-        }
-
-        fragment.appendChild(el);
-      }
-
-      calendarGridEl.appendChild(fragment);
-    }
-
-    function updateTheme() {
-      document.body.classList.remove(
-        "light",
-        "theme-invert",
-        "theme-night-red",
-        "theme-graphite",
-        "theme-nightlight",
-        "theme-ultramarine-orange",
-        "theme-sand",
-        "theme-forest-deep",
-        "theme-sage",
-        "theme-slate-water",
-        "theme-midnight",
-        "theme-lilac"
-      );
-
-      if (currentTheme === "invert") {
-        document.body.classList.add("theme-invert");
-      } else if (currentTheme === "night-red") {
-        document.body.classList.add("theme-night-red");
-      }
-
-      const currentIndex = themeModes.indexOf(currentTheme);
-      const nextTheme = themeModes[(currentIndex + 1) % themeModes.length];
-      toggleTheme.title = themeNames[currentTheme];
-      toggleTheme.setAttribute("aria-label", `Theme: ${themeNames[currentTheme]}. Switch to ${themeNames[nextTheme]}.`);
-      localStorage.setItem("dayLeftTheme", currentTheme);
-    }
-
-    function cycleTheme() {
-      const currentIndex = themeModes.indexOf(currentTheme);
-      const previousTheme = currentTheme;
-      currentTheme = themeModes[(currentIndex + 1) % themeModes.length];
-
-      document.body.classList.remove("theme-red-bloom", "theme-transition-to-invert", "theme-transition-to-red");
-
-      if (previousTheme === "default" && currentTheme === "invert") {
-        document.body.classList.add("theme-transition-to-invert");
-        window.setTimeout(() => {
-          document.body.classList.remove("theme-transition-to-invert");
-        }, 18);
-      }
-
-      if (currentTheme === "night-red" && previousTheme !== "night-red") {
-        document.body.classList.add("theme-transition-to-red");
-      }
-
-      updateTheme();
-
-      if (currentTheme === "night-red" && previousTheme !== "night-red") {
-        void document.body.offsetWidth;
-        document.body.classList.add("theme-red-bloom");
-        window.setTimeout(() => {
-          document.body.classList.remove("theme-red-bloom", "theme-transition-to-red");
-        }, 18);
-      }
-
-      render();
-      showControlsBriefly();
-    }
-
-
-    function ensureAudioContext() {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return null;
-
-      audioContext = audioContext || new AudioCtx();
-
-      if (!masterGain) {
-        masterGain = audioContext.createGain();
-        masterGain.gain.value = 0.82;
-        masterGain.connect(audioContext.destination);
-      }
-
-      return audioContext;
-    }
-
-    async function unlockSound() {
-      try {
-        const ctx = ensureAudioContext();
-        if (!ctx) return false;
-
-        if (ctx.state === "suspended") {
-          await ctx.resume();
-        }
-
-        const now = ctx.currentTime;
-
-        // Silent unlock only. The audible confirmation below uses the same
-        // playDigitFlipTick() function as every visible digit change.
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(880, now);
-        gain.gain.setValueAtTime(0.00001, now);
-        gain.gain.exponentialRampToValueAtTime(0.00001, now + 0.025);
-        osc.connect(gain);
-        gain.connect(masterGain);
-        osc.start(now);
-        osc.stop(now + 0.030);
-
-        soundUnlocked = true;
-        return true;
-      } catch (error) {
-        soundUnlocked = false;
-        return false;
-      }
-    }
-
-    function getSoundModeName(modeId) {
-      const match = soundModes.find((mode) => mode.id === modeId);
-      return match ? match.name : "Stumm";
-    }
-
-    function setSoundMode(modeId) {
-      if (!soundModes.some((mode) => mode.id === modeId)) {
-        modeId = "mute";
-      }
-
-      soundMode = modeId;
-      soundEnabled = soundMode !== "mute";
-      localStorage.setItem("dayLeftSoundMode", soundMode);
-      document.body.classList.toggle("sound-enabled", soundEnabled);
-
-      if (toggleSound) {
-        const currentIndex = soundModes.findIndex((mode) => mode.id === soundMode);
-        const nextMode = soundModes[(currentIndex + 1) % soundModes.length];
-        const currentName = getSoundModeName(soundMode);
-        toggleSound.title = soundEnabled ? currentName : "Sound off";
-        toggleSound.setAttribute("aria-label", soundEnabled
-          ? `Sound: ${currentName}. Weiter zu ${nextMode.name}.`
-          : `Sound ist stumm. Weiter zu ${nextMode.name}.`);
-      }
-    }
-
-    async function toggleTickSound(event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-
-      /*
-        Reliable first-tap sound behavior:
-        - If the app visually remembers Papierflip but the browser audio context is not unlocked yet,
-          the first tap now unlocks audio and keeps Papierflip active instead of cycling back to mute.
-        - If muted, the first tap switches directly to Papierflip, unlocks audio, and plays the sample.
-        - If Papierflip is already unlocked, the next tap mutes as expected.
-      */
-      const currentlyAudible = soundMode !== "mute" && soundUnlocked;
-
-      if (soundMode !== "mute" && !soundUnlocked) {
-        const ok = await unlockSound();
-        if (!ok) {
-          setSoundMode("mute");
-          showControlsBriefly();
-          return;
-        }
-
-        setSoundMode(soundMode);
-        lastVisibleNumberText = String(minutesEl.textContent || "");
-        playDigitFlipTick(1.0);
-        showControlsBriefly();
-        return;
-      }
-
-      if (currentlyAudible) {
-        setSoundMode("mute");
-        showControlsBriefly();
-        return;
-      }
-
-      const nextMode = soundModes.find((mode) => mode.id !== "mute") || soundModes[0];
-
-      const ok = await unlockSound();
-      if (!ok || nextMode.id === "mute") {
-        setSoundMode("mute");
-        showControlsBriefly();
-        return;
-      }
-
-      setSoundMode(nextMode.id);
-      lastVisibleNumberText = String(minutesEl.textContent || "");
-      playDigitFlipTick(1.0);
-      showControlsBriefly();
-    }
-
-    function makeNoiseBuffer(ctx, duration, decayPower = 8) {
-      const bufferSize = Math.max(1, Math.floor(ctx.sampleRate * duration));
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-
-      for (let i = 0; i < bufferSize; i += 1) {
-        const t = i / bufferSize;
-        const envelope = Math.pow(1 - t, decayPower);
-        data[i] = (Math.random() * 2 - 1) * envelope;
-      }
-
-      return buffer;
-    }
-
-    function addNoiseHit(ctx, output, start, options) {
-      const noise = ctx.createBufferSource();
-      noise.buffer = makeNoiseBuffer(ctx, options.duration || 0.02, options.decay || 8);
-
-      let node = noise;
-
-      if (options.highpass) {
-        const highpass = ctx.createBiquadFilter();
-        highpass.type = "highpass";
-        highpass.frequency.setValueAtTime(options.highpass, start);
-        node.connect(highpass);
-        node = highpass;
-      }
-
-      if (options.bandpass) {
-        const bandpass = ctx.createBiquadFilter();
-        bandpass.type = "bandpass";
-        bandpass.frequency.setValueAtTime(options.bandpass, start);
-        if (options.bandpassEnd) {
-          bandpass.frequency.exponentialRampToValueAtTime(options.bandpassEnd, start + (options.duration || 0.02));
-        }
-        bandpass.Q.setValueAtTime(options.q || 2, start);
-        node.connect(bandpass);
-        node = bandpass;
-      }
-
-      if (options.lowpass) {
-        const lowpass = ctx.createBiquadFilter();
-        lowpass.type = "lowpass";
-        lowpass.frequency.setValueAtTime(options.lowpass, start);
-        node.connect(lowpass);
-        node = lowpass;
-      }
-
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.linearRampToValueAtTime(options.gain || 0.08, start + (options.attack || 0.0015));
-      gain.gain.exponentialRampToValueAtTime(0.0001, start + (options.release || options.duration || 0.03));
-      node.connect(gain);
-      gain.connect(output);
-
-      noise.start(start);
-      noise.stop(start + (options.duration || 0.03) + 0.006);
-    }
-
-    function addToneHit(ctx, output, start, options) {
-      const osc = ctx.createOscillator();
-      const filter = ctx.createBiquadFilter();
-      const gain = ctx.createGain();
-
-      osc.type = options.type || "sine";
-      osc.frequency.setValueAtTime(options.freq || 900, start);
-      if (options.endFreq) {
-        osc.frequency.exponentialRampToValueAtTime(options.endFreq, start + (options.duration || 0.04));
-      }
-
-      filter.type = options.filterType || "bandpass";
-      filter.frequency.setValueAtTime(options.filterFreq || options.freq || 900, start);
-      filter.Q.setValueAtTime(options.q || 1.4, start);
-
-      gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.linearRampToValueAtTime(options.gain || 0.03, start + (options.attack || 0.004));
-      gain.gain.exponentialRampToValueAtTime(0.0001, start + (options.release || options.duration || 0.05));
-
-      osc.connect(filter);
-      filter.connect(gain);
-      gain.connect(output);
-      osc.start(start);
-      osc.stop(start + (options.duration || 0.055) + 0.01);
-    }
-
-    function playDigitFlipTick(intensity = 0.78) {
-      if (soundMode === "mute" || !soundUnlocked) return;
-
-      try {
-        const ctx = ensureAudioContext();
-        if (!ctx) return;
-
-        if (ctx.state === "suspended") {
-          ctx.resume();
-        }
-
-        const start = ctx.currentTime;
-        const output = ctx.createGain();
-        output.gain.setValueAtTime(Math.max(0.45, intensity), start);
-        output.connect(masterGain);
-
-        if (soundMode === "paper") {
-          addNoiseHit(ctx, output, start, {
-            duration: 0.045,
-            highpass: 900,
-            bandpass: 2600,
-            q: 0.9,
-            gain: 0.070,
-            decay: 3.5,
-            release: 0.052
-          });
-          addNoiseHit(ctx, output, start + 0.022, {
-            duration: 0.020,
-            highpass: 1200,
-            bandpass: 3200,
-            q: 1.2,
-            gain: 0.040,
-            decay: 5.2,
-            release: 0.035
-          });
-        }
-      } catch (error) {
-        // Sound is optional.
-      }
-    }
-
-    function playTickOnVisibleNumberChange(nextText) {
-      const value = String(nextText);
-
-      if (lastVisibleNumberText === "") {
-        lastVisibleNumberText = value;
-        return;
-      }
-
-      if (value !== lastVisibleNumberText) {
-        lastVisibleNumberText = value;
-        playDigitFlipTick(0.78);
-      }
-    }
-
-    function formatHourLabel(hour) {
-      return hour === 24 ? "24:00" : `${hour}:00`;
-    }
-
-    function minutesSinceMidnight(date) {
-      return date.getHours() * 60 + date.getMinutes() + date.getSeconds() / 60 + date.getMilliseconds() / 60000;
-    }
-
-    function buildWindowForNow(now) {
-      const startMinutes = dayStartHour * 60;
-      const endMinutes = dayEndHour * 60;
-      const nowMinutes = minutesSinceMidnight(now);
-      const crossesMidnight = endMinutes <= startMinutes;
-
-      const start = new Date(now);
-      const end = new Date(now);
-
-      if (!crossesMidnight) {
-        start.setHours(dayStartHour, 0, 0, 0);
-        end.setHours(dayEndHour, 0, 0, 0);
-
-        if (nowMinutes < startMinutes) {
-          return { start, end, active: false, nextStart: start };
-        }
-
-        if (nowMinutes >= endMinutes) {
-          const nextStart = new Date(start);
-          nextStart.setDate(nextStart.getDate() + 1);
-          return { start, end, active: false, nextStart };
-        }
-
-        return { start, end, active: true, nextStart: start };
-      }
-
-      if (nowMinutes >= startMinutes) {
-        start.setHours(dayStartHour, 0, 0, 0);
-        end.setDate(end.getDate() + 1);
-        end.setHours(dayEndHour, 0, 0, 0);
-        return { start, end, active: true, nextStart: start };
-      }
-
-      if (nowMinutes < endMinutes) {
-        start.setDate(start.getDate() - 1);
-        start.setHours(dayStartHour, 0, 0, 0);
-        end.setHours(dayEndHour, 0, 0, 0);
-        return { start, end, active: true, nextStart: start };
-      }
-
-      start.setHours(dayStartHour, 0, 0, 0);
-      end.setDate(end.getDate() + 1);
-      end.setHours(dayEndHour, 0, 0, 0);
-      return { start, end, active: false, nextStart: start };
-    }
-
-    function getState(now) {
-      const hour = now.getHours();
-      const minute = now.getMinutes();
-      const currentWindow = buildWindowForNow(now);
-      const activeMode = currentWindow.active;
-
-      const fullWindowMs = Math.max(1, currentWindow.end.getTime() - currentWindow.start.getTime());
-      const remainingInWindowMs = Math.max(0, currentWindow.end.getTime() - now.getTime());
-      const elapsedInWindowMs = Math.min(fullWindowMs, Math.max(0, now.getTime() - currentWindow.start.getTime()));
-
-      const remainingTargetMs = activeMode
-        ? remainingInWindowMs
-        : Math.max(0, currentWindow.nextStart.getTime() - now.getTime());
-
-      const minutesLeft = Math.max(0, Math.ceil(remainingTargetMs / 60000));
-      const secondsLeft = Math.max(0, Math.ceil(remainingTargetMs / 1000));
-
-      const dayRemainingPercent = activeMode
-        ? Math.min(100, Math.max(0, (remainingInWindowMs / fullWindowMs) * 100))
-        : 100;
-
-      let sleepProgressPercent = 0;
-      if (!activeMode) {
-        const previousEnd = new Date(currentWindow.nextStart);
-        const endMinutes = dayEndHour * 60;
-        const startMinutes = dayStartHour * 60;
-        const crossesMidnight = endMinutes <= startMinutes;
-
-        if (crossesMidnight) {
-          previousEnd.setHours(dayEndHour, 0, 0, 0);
-        } else {
-          previousEnd.setDate(previousEnd.getDate() - 1);
-          previousEnd.setHours(dayEndHour, 0, 0, 0);
-        }
-
-        const sleepWindowMs = Math.max(1, currentWindow.nextStart.getTime() - previousEnd.getTime());
-        const sleepElapsedMs = Math.min(sleepWindowMs, Math.max(0, now.getTime() - previousEnd.getTime()));
-        sleepProgressPercent = Math.min(100, Math.max(0, (sleepElapsedMs / sleepWindowMs) * 100));
-      }
-
-      const displayPercent = activeMode
-        ? Math.round(dayRemainingPercent)
-        : Math.round(100 - sleepProgressPercent);
-
-      return {
-        minutesLeft,
-        secondsLeft,
-        dayRemainingPercent,
-        sleepProgressPercent,
-        displayPercent,
-        sleepMode: !activeMode,
-        hour,
-        minute
-      };
-    }
-
-    function getTimeColor(minutesLeft) {
-      // Fixed progress-bar scale, independent of the active theme:
-      // clear green when much time is left, then yellow/orange, then red.
-      if (minutesLeft >= 900) return "#2FA84F";
-      if (minutesLeft >= 800) return "#4FB34B";
-      if (minutesLeft >= 700) return "#7DBB3F";
-      if (minutesLeft >= 600) return "#A9BE35";
-      if (minutesLeft >= 500) return "#D0B533";
-      if (minutesLeft >= 400) return "#E59B2E";
-      if (minutesLeft >= 300) return "#E27727";
-      if (minutesLeft >= 200) return "#D95328";
-      if (minutesLeft >= 100) return "#CC382D";
-      if (minutesLeft >= 1) return "#B9252B";
-      return "#9D1B24";
-    }
-
-    function renderMinuteCircles(count) {
-      if (!circleGridEl || lastCircleCount === count) return;
-
-      lastCircleCount = count;
-      circleGridEl.innerHTML = "";
-
-      const fragment = document.createDocumentFragment();
-      const safeCount = Math.max(0, Math.min(1440, count));
-
-      for (let i = 0; i < safeCount; i += 1) {
-        const dot = document.createElement("span");
-        dot.className = "minute-dot";
-        fragment.appendChild(dot);
-      }
-
-      circleGridEl.appendChild(fragment);
-      circleGridEl.setAttribute("aria-label", `${safeCount} remaining minutes shown as circles`);
-    }
-
-
-    function ordinalFractionWord(denominator) {
-      const words = {
-        1: "whole",
-        2: "half",
-        3: "third",
-        4: "fourth",
-        5: "fifth",
-        6: "sixth",
-        7: "seventh",
-        8: "eighth",
-        9: "ninth",
-        10: "tenth",
-        11: "eleventh",
-        12: "twelfth",
-        13: "thirteenth",
-        14: "fourteenth",
-        15: "fifteenth",
-        16: "sixteenth",
-        17: "seventeenth",
-        18: "eighteenth",
-        19: "nineteenth",
-        20: "twentieth",
-        24: "twenty-fourth",
-        30: "thirtieth",
-        36: "thirty-sixth",
-        48: "forty-eighth",
-        60: "sixtieth"
-      };
-      return words[denominator] || `${denominator}th`;
-    }
-
-    function cardinalWord(number) {
-      const words = {
-        0: "zero",
-        1: "one",
-        2: "two",
-        3: "three",
-        4: "four",
-        5: "five",
-        6: "six",
-        7: "seven",
-        8: "eight",
-        9: "nine",
-        10: "ten",
-        11: "eleven",
-        12: "twelve",
-        13: "thirteen",
-        14: "fourteen",
-        15: "fifteen",
-        16: "sixteen",
-        17: "seventeen",
-        18: "eighteen",
-        19: "nineteen",
-        20: "twenty"
-      };
-      return words[number] || String(number);
-    }
-
-    function greatestCommonDivisor(a, b) {
-      let x = Math.abs(a);
-      let y = Math.abs(b);
-
-      while (y) {
-        const t = y;
-        y = x % y;
-        x = t;
-      }
-
-      return x || 1;
-    }
-
-    function getRemainingUnitFraction(state) {
-      const percent = Math.max(0, Math.min(100, Math.round(state.displayPercent)));
-
-      if (percent <= 0) {
-        return { symbol: "0", words: "none" };
-      }
-
-      if (percent >= 100) {
-        return { symbol: "1/1", words: "one whole" };
-      }
-
-      const divisor = greatestCommonDivisor(percent, 100);
-      const numerator = percent / divisor;
-      const denominator = 100 / divisor;
-      const denominatorWord = ordinalFractionWord(denominator);
-      const pluralSuffix = numerator === 1 ? "" : "s";
-
-      return {
-        symbol: `${numerator}/${denominator}`,
-        words: `${cardinalWord(numerator)} ${denominatorWord}${pluralSuffix}`
-      };
-    }
-
-
-    function render() {
-      const now = new Date();
-      const state = getState(now);
-
-      document.body.classList.remove("circles-mode", "glass-mode");
-
-      const timeColor = currentTheme === "night-red" ? "#B7352D" : getTimeColor(state.minutesLeft);
-
-      let nextNumberText = "";
-
-      if (displayMode === "blocks5") {
-        nextNumberText = String(Math.ceil(state.minutesLeft / 5));
-        mainLabelEl.textContent = "5 min";
-        minutesEl.style.color = "";
-        remainingFillEl.style.background = timeColor;
-      } else if (displayMode === "blocks15") {
-        nextNumberText = String(Math.ceil(state.minutesLeft / 15));
-        mainLabelEl.textContent = "15 min";
-        minutesEl.style.color = "";
-        remainingFillEl.style.background = timeColor;
-      } else if (displayMode === "blocks30") {
-        nextNumberText = String(Math.ceil(state.minutesLeft / 30));
-        mainLabelEl.textContent = "30 min";
-        minutesEl.style.color = "";
-        remainingFillEl.style.background = timeColor;
-      } else if (displayMode === "percent") {
-        nextNumberText = String(state.displayPercent);
-        mainLabelEl.textContent = "%";
-        minutesEl.style.color = timeColor;
-        remainingFillEl.style.background = timeColor;
-      } else if (displayMode === "glass") {
-        const fillPercent = Math.max(0, Math.min(100, state.displayPercent));
-        nextNumberText = String(fillPercent);
-        document.body.classList.add("glass-mode");
-        mainLabelEl.textContent = "battery";
-        minutesEl.style.color = "";
-        remainingFillEl.style.background = timeColor;
-        if (glassFillEl) {
-          glassFillEl.style.height = `${fillPercent}%`;
-          glassFillEl.style.setProperty("--glass-color", timeColor);
-        }
-      } else {
-        nextNumberText = String(state.minutesLeft);
-        mainLabelEl.textContent = "min";
-        minutesEl.style.color = "";
-        remainingFillEl.style.background = timeColor;
-      }
-
-      if (minutesEl.textContent !== nextNumberText) {
-        minutesEl.textContent = nextNumberText;
-      }
-
-      playTickOnVisibleNumberChange(nextNumberText);
-
-      dateLabelEl.textContent = formatDateShort(now);
-      if (calendarOpen) {
-        renderCalendar(now);
-      }
-      clockEl.textContent = `${pad(state.hour)}:${pad(state.minute)}`;
-
-      barStartLabelEl.textContent = formatHourLabel(dayStartHour);
-      barEndLabelEl.textContent = formatHourLabel(dayEndHour);
-      barStartLabelEl.setAttribute("aria-label", `Startzeit ist ${formatHourLabel(dayStartHour)}. Klicken für plus eine Stunde.`);
-      barEndLabelEl.setAttribute("aria-label", `Endzeit ist ${formatHourLabel(dayEndHour)}. Klicken für plus eine Stunde.`);
-
-      remainingFillEl.style.left = "auto";
-      remainingFillEl.style.right = "0";
-
-      if (state.sleepMode) {
-        remainingFillEl.style.width = `${state.sleepProgressPercent}%`;
-        remainingPercentEl.textContent = displayMode === "percent"
-          ? `${state.minutesLeft} minutes left`
-          : `${Math.round(state.sleepProgressPercent)}%`;
-      } else {
-        remainingFillEl.style.width = `${state.dayRemainingPercent}%`;
-        remainingPercentEl.textContent = displayMode === "percent"
-          ? `${state.minutesLeft} minutes left`
-          : `${Math.round(state.dayRemainingPercent)}%`;
-      }
-
-      if (!document.body.classList.contains("app-ready")) {
-        document.body.classList.add("app-ready");
-      }
-    }
-
-    function liveLoop() {
-      render();
-      animationId = window.requestAnimationFrame(liveLoop);
-    }
-
-    function startLiveLoop() {
-      if (animationId) {
-        window.cancelAnimationFrame(animationId);
-      }
-      render();
-      animationId = window.requestAnimationFrame(liveLoop);
-    }
-
-    function isFakeFullscreen() {
-      return document.body.classList.contains("fake-fullscreen");
-    }
-
-    function setFullscreenButtonState(active) {
-      toggleFullscreen.title = active ? "Exit fullscreen" : "Enter fullscreen";
-      toggleFullscreen.setAttribute("aria-label", active ? "Exit fullscreen" : "Enter fullscreen");
-    }
-
-    async function toggleFullScreenMode() {
-      try {
-        if (isFakeFullscreen()) {
-          document.body.classList.remove("fake-fullscreen");
-          setFullscreenButtonState(false);
-          return;
-        }
-
-        if (document.fullscreenElement) {
-          await document.exitFullscreen();
-          setFullscreenButtonState(false);
-          return;
-        }
-
-        const target = document.querySelector("main");
-
-        if (target.requestFullscreen) {
-          await target.requestFullscreen();
-          setFullscreenButtonState(true);
-          return;
-        }
-
-        if (target.webkitRequestFullscreen) {
-          target.webkitRequestFullscreen();
-          setFullscreenButtonState(true);
-          return;
-        }
-
-        document.body.classList.add("fake-fullscreen");
-        setFullscreenButtonState(true);
-      } catch (error) {
-        document.body.classList.add("fake-fullscreen");
-        setFullscreenButtonState(true);
-      }
-    }
-
-    document.addEventListener("fullscreenchange", () => {
-      setFullscreenButtonState(Boolean(document.fullscreenElement) || isFakeFullscreen());
+  }
+
+  // Reference field: the complete original circle remains visible in grey.
+  ctx.fillStyle=line;
+  pos.forEach(([x,y])=>{ctx.beginPath();ctx.arc(x,y,dotR,0,Math.PI*2);ctx.fill()});
+
+  ctx.fillStyle=dotColor;
+  if(isShrink){
+    // Dot shrink mode: the colored dot field contracts toward the center.
+    const activeR=maxR*Math.sqrt(p);
+    pos.forEach(([x,y,r])=>{
+      if(r<=activeR){ctx.beginPath();ctx.arc(x,y,dotR,0,Math.PI*2);ctx.fill()}
     });
+  } else {
+    // Classic CircleDot: dots disappear one by one while the whole field stays grey underneath.
+    const visible=Math.round(pos.length*p);
+    for(let i=0;i<visible;i++){const [x,y]=pos[i];ctx.beginPath();ctx.arc(x,y,dotR,0,Math.PI*2);ctx.fill()}
+  }
+}
+function setBodyMode(){
+  document.body.classList.toggle('timer-active',appMode==='timer');
+  document.body.classList.toggle('minuteclock',appMode==='minuteclock');
+  document.body.classList.remove('mode-ring','mode-minutes','mode-percent','mode-container','mode-dots','mode-shrink','mode-funnel','mode-glass','mode-fullshrink');
+  if(appMode==='timer'){
+    document.body.classList.add('mode-'+displayMode);
+    localStorage.setItem('hybridTimerMode',displayMode);
+  } else {
+    document.body.classList.add('mode-'+minuteDisplayMode);
+    localStorage.setItem('hybridMinuteMode',minuteDisplayMode);
+  }
+  if(modehint) modehint.textContent=appMode==='timer'?'timer · glass':'minuteclock · click center: minutes · funnel · glass';
+}
+function renderMinuteClock(){
+  const d=dayData();
+  const mins=Math.max(0,Math.ceil(d.left/60));
+  const p=d.p;
+  timeEl.style.color=colorForProgress(p);
+  if(minuteDisplayMode==='minutes' || minuteDisplayMode==='glass'){ renderMainText(String(mins)); }
+  timerLeft.style.strokeDashoffset=tc;
+  containerFill.style.transform=`scaleY(${p})`;
+  containerElapsed.style.transform=`scaleY(${1-p})`;
+  containerFill.style.background=colorForProgress(p);
+  drawDots(p, Math.max(1,(dayEndMin-dayStartMin)*60));
+}
+function renderTimer(){
+  const p=initialSeconds>0?Math.max(0,Math.min(1,remaining/initialSeconds)):0;
+  const c=colorForProgress(p);
+  timeEl.style.color=c;
+  timerLeft.style.stroke=c;
+  renderTime();
+  timerLeft.style.strokeDashoffset=tc*(1-p);
+  containerFill.style.transform=`scaleY(${p})`;
+  containerElapsed.style.transform=`scaleY(${1-p})`;
+  containerFill.style.background=colorForProgress(p);
+  drawDots(p, initialSeconds);
+}
+function render(){
+  setBodyMode();
+  if(appMode==='minuteclock') renderMinuteClock(); else renderTimer();
+  if(pauseBtn) pauseBtn.textContent=running?'Ⅱ':'▶';
+  presets.forEach(b=>b.classList.toggle('active',appMode==='timer' && Number(b.dataset.min)*60===initialSeconds));
+  updateTop();
+}
+function restoreLastMinuteMode(){
+  minuteDisplayMode='glass';
+  localStorage.setItem('hybridMinuteMode','glass');
+}
+function switchToMinuteClock(){ running=false; if(raf)cancelAnimationFrame(raf); raf=null; last=0; appMode='minuteclock'; minuteDisplayMode='glass'; render(); speakMinutesLeft(); }
+function jumpToMinutesDayLeft(){ running=false; if(raf)cancelAnimationFrame(raf); raf=null; last=0; appMode='minuteclock'; restoreLastMinuteMode(); paperClick(); render(); speakMinutesLeft(); showControls(); }
+function tick(now){ if(!running)return; if(!last)last=now; const e=(now-last)/1000; last=now; remaining=Math.max(0,remaining-e); render(); if(remaining<=0){switchToMinuteClock(); return} raf=requestAnimationFrame(tick); }
+function start(){ if(appMode==='minuteclock'){ appMode='timer'; } if(remaining<=0)remaining=initialSeconds; running=true; last=performance.now(); if(raf)cancelAnimationFrame(raf); raf=requestAnimationFrame(tick); render(); }
+function pause(){ running=false; if(raf)cancelAnimationFrame(raf); raf=null; last=0; render(); }
+function setSeconds(sec,auto=true){
+  const keepMode = appMode==='timer' ? displayMode : (timerModes.includes(minuteDisplayMode) ? minuteDisplayMode : displayMode);
+  appMode='timer';
+  displayMode = timerModes.includes(keepMode) ? keepMode : 'funnel';
+  initialSeconds=Math.max(1,sec);
+  remaining=initialSeconds;
+  if(auto)start(); else {pause(); render();}
+}
+function reset(){ appMode='timer'; displayMode='funnel'; remaining=initialSeconds; pause(); }
+function paperClick(){ try{const AC=AudioContext||webkitAudioContext,ctx=new AC(),t=ctx.currentTime; const buf=ctx.createBuffer(1,ctx.sampleRate*.055,ctx.sampleRate),data=buf.getChannelData(0); for(let i=0;i<data.length;i++){data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,2.8)} const src=ctx.createBufferSource();src.buffer=buf; const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=720; const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=3300; const g=ctx.createGain();g.gain.setValueAtTime(.038,t);g.gain.exponentialRampToValueAtTime(.0001,t+.06);src.connect(hp).connect(lp).connect(g).connect(ctx.destination);src.start(t);src.stop(t+.065);setTimeout(()=>ctx.close(),160)}catch(e){} }
+function warmSpeechVoices(){try{ if('speechSynthesis' in window) window.speechSynthesis.getVoices(); }catch(e){}}
+if('speechSynthesis' in window){ window.speechSynthesis.onvoiceschanged=warmSpeechVoices; warmSpeechVoices(); }
+function speakableMinuteNumber(n){
+  n=Math.max(0,Math.round(n));
+  const ones=['zero','one','two','three','four','five','six','seven','eight','nine'];
+  const teens=['ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+  const tens=['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+  function twoDigits(x){
+    x=Math.max(0,Math.min(99,Math.round(x)));
+    if(x<10) return ones[x];
+    if(x<20) return teens[x-10];
+    const t=Math.floor(x/10), o=x%10;
+    return tens[t]+(o?' '+ones[o]:'');
+  }
+  if(n<100) return twoDigits(n);
+  const s=String(n);
+  const prefix=s.slice(0,-2).split('').map(ch=>ones[Number(ch)]).join(' ');
+  const last=Number(s.slice(-2));
+  if(last===0) return prefix+' zero zero';
+  if(last<10) return prefix+' oh '+ones[last];
+  return prefix+' '+twoDigits(last);
+}
 
-    document.addEventListener("webkitfullscreenchange", () => {
-      setFullscreenButtonState(Boolean(document.webkitFullscreenElement) || isFakeFullscreen());
-    });
+function speakableCardinalNoAnd(n){
+  n=Math.max(0,Math.round(n));
+  const ones=['zero','one','two','three','four','five','six','seven','eight','nine'];
+  const teens=['ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+  const tens=['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+  function under100(x){
+    x=Math.max(0,Math.min(99,Math.round(x)));
+    if(x<10) return ones[x];
+    if(x<20) return teens[x-10];
+    const t=Math.floor(x/10), o=x%10;
+    return tens[t]+(o?' '+ones[o]:'');
+  }
+  function under1000(x){
+    if(x<100) return under100(x);
+    const h=Math.floor(x/100), rest=x%100;
+    return ones[h]+' hundred'+(rest?' '+under100(rest):'');
+  }
+  if(n<1000) return under1000(n);
+  const th=Math.floor(n/1000), rest=n%1000;
+  return under1000(th)+' thousand'+(rest?' '+under1000(rest):'');
+}
+function robotSpeechText(text){
+  return String(text).trim().replace(/\s+/g,' ');
+}
 
-    function shiftStartHour(event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      dayStartHour = (dayStartHour + 1) % 24;
-      localStorage.setItem("dayLeftStartHour", String(dayStartHour));
-      playDigitFlipTick(0.90);
-      render();
-      showControlsBriefly();
+function pickVoiceForCurrentLanguage(preferFemale=false){
+  try{
+    const voices=window.speechSynthesis.getVoices();
+    const clean=v=>!/whisper|hysterical|bells|organ|cellos|bad news|boing|trinoids|zarvox|junior|novelty|robot/i.test(v.name);
+    const english=v=>/^en([-_]|$)/i.test(v.lang||'') || /english/i.test(v.name||'');
+    const female=/\b(samantha|victoria|karen|serena|ava|susan|zira|hazel|allison|joanna|jenny|aria|natasha|moira|fiona|tessa|salli|female|woman)\b/i;
+    const male=/\b(alex|daniel|david|tom|george|oliver|aaron|fred|ralph|albert|bruce|reed|eddy|gordon|thomas|arthur|matthew|ryan|guy|male|man)\b/i;
+    const role=preferFemale?female:male;
+    const opposite=preferFemale?male:female;
+    return voices.find(v=>english(v)&&role.test(v.name)&&clean(v))
+      || voices.find(v=>english(v)&&!opposite.test(v.name)&&clean(v))
+      || voices.find(v=>english(v)&&clean(v))
+      || voices.find(v=>clean(v));
+  }catch(e){return null}
+}
+
+function pickMaleRobotVoice(){ return pickVoiceForCurrentLanguage(false); }
+function pickFemaleRobotVoice(){ return pickVoiceForCurrentLanguage(true); }
+function pickRobotVoice(){ return pickMaleRobotVoice(); }
+
+function speakRobotPhrase(text, volume=.34, onDone=null, cancelCurrent=true, opts={}){
+  try{
+    if(speechMuted) return;
+    if(!('speechSynthesis' in window)) return;
+    if(cancelCurrent) window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(robotSpeechText(text));
+    u.lang=currentSpeechLang().lang;
+    u.rate=opts.rate ?? .84;
+    u.pitch=opts.pitch ?? .82;
+    u.volume=opts.volume ?? volume;
+    const voice=(opts.voicePicker||pickRobotVoice)();
+    if(voice){
+      u.voice=voice;
+      // Keep utterance language aligned with the selected voice so browsers do not silently
+      // switch back to their default, often female, system voice.
+      if(voice.lang) u.lang=voice.lang;
     }
+    if(onDone) u.onend=()=>setTimeout(onDone,opts.pause ?? 250);
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+function speakableChineseNumber(n){
+  n=Math.max(0,Math.round(n));
+  const d=['零','一','二','三','四','五','六','七','八','九'];
+  function under100(x){
+    if(x<10) return d[x];
+    const t=Math.floor(x/10), o=x%10;
+    let out=(t===1?'十':d[t]+'十');
+    if(o) out+=d[o];
+    return out;
+  }
+  function under1000(x){
+    if(x<100) return under100(x);
+    const h=Math.floor(x/100), rest=x%100;
+    let out=d[h]+'百';
+    if(rest===0) return out;
+    if(rest<10) return out+'零'+d[rest];
+    return out+under100(rest);
+  }
+  if(n<1000) return under1000(n);
+  const th=Math.floor(n/1000), rest=n%1000;
+  let out=under100(th)+'千';
+  if(rest===0) return out;
+  if(rest<100) return out+'零'+under100(rest);
+  return out+under1000(rest);
+}
 
-    function shiftEndHour(event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      dayEndHour = dayEndHour >= 24 ? 1 : dayEndHour + 1;
-      localStorage.setItem("dayLeftEndHour", String(dayEndHour));
-      playDigitFlipTick(0.90);
-      render();
-      showControlsBriefly();
+function speakableMalayalamNumber(n){
+  n=Math.max(0,Math.round(n));
+  const ones=['പൂജ്യം','ഒന്ന്','രണ്ട്','മൂന്ന്','നാല്','അഞ്ച്','ആറ്','ഏഴ്','എട്ട്','ഒൻപത്'];
+  const teens=['പത്ത്','പതിനൊന്ന്','പന്ത്രണ്ട്','പതിമൂന്ന്','പതിനാല്','പതിനഞ്ച്','പതിനാറ്','പതിനേഴ്','പതിനെട്ട്','പത്തൊൻപത്'];
+  const tens=['','','ഇരുപത്','മുപ്പത്','നാൽപ്പത്','അമ്പത്','അറുപത്','എഴുപത്','എൺപത്','തൊണ്ണൂറ്'];
+  function under100(x){
+    x=Math.max(0,Math.min(99,Math.round(x)));
+    if(x<10) return ones[x];
+    if(x<20) return teens[x-10];
+    const t=Math.floor(x/10), o=x%10;
+    return tens[t]+(o?' '+ones[o]:'');
+  }
+  function under1000(x){
+    if(x<100) return under100(x);
+    const h=Math.floor(x/100), rest=x%100;
+    // Use an explicit “three hundred four” style so Malayalam TTS says the hundred unit,
+    // instead of reading the value as separated digits.
+    return ones[h]+' നൂറ്'+(rest?' '+under100(rest):'');
+  }
+  if(n<1000) return under1000(n);
+  const th=Math.floor(n/1000), rest=n%1000;
+  return under100(th)+' ആയിരം'+(rest?' '+under1000(rest):'');
+}
+
+function speakableGermanNumber(n){
+  n=Math.max(0,Math.round(n));
+  const ones=['null','eins','zwei','drei','vier','fünf','sechs','sieben','acht','neun'];
+  const onesCompound=['','ein','zwei','drei','vier','fünf','sechs','sieben','acht','neun'];
+  const teens=['zehn','elf','zwölf','dreizehn','vierzehn','fünfzehn','sechzehn','siebzehn','achtzehn','neunzehn'];
+  const tens=['','','zwanzig','dreißig','vierzig','fünfzig','sechzig','siebzig','achtzig','neunzig'];
+  function under100(x){
+    x=Math.max(0,Math.min(99,Math.round(x)));
+    if(x<10) return ones[x];
+    if(x<20) return teens[x-10];
+    const t=Math.floor(x/10), o=x%10;
+    if(!o) return tens[t];
+    return onesCompound[o]+'und'+tens[t];
+  }
+  function under1000(x){
+    if(x<100) return under100(x);
+    const h=Math.floor(x/100), rest=x%100;
+    const prefix=(h===1?'ein':onesCompound[h])+'hundert';
+    return prefix+(rest?' '+under100(rest):'');
+  }
+  if(n<1000) return under1000(n);
+  const th=Math.floor(n/1000), rest=n%1000;
+  const prefix=(th===1?'eintausend':under1000(th)+'tausend');
+  return prefix+(rest?' '+under1000(rest):'');
+}
+
+function speechTextForNumber(n,{preset=false}={}){
+  return preset ? speakableMinuteNumber(n) : speakableCardinalNoAnd(n);
+}
+
+function speakPresetNumber(mins){
+  // Preset start cue: only the selected number, in the selected speech language.
+  speakRobotPhrase(speechTextForNumber(mins,{preset:true}), .58, null, true, {rate:.96,pitch:.92,volume:.58,voicePicker:pickMaleRobotVoice});
+}
+
+function speakMinutesLeft(){
+  const d=dayData();
+  const mins=Math.max(0,Math.ceil(d.left/60));
+  // Timer-end / exit cue: remaining day minutes in selected language; female-leaning when available.
+  speakRobotPhrase(speechTextForNumber(mins), .40, null, true, {rate:.94,pitch:1.02,volume:.40,voicePicker:pickFemaleRobotVoice});
+}
+dayStartMinus.addEventListener('click',(e)=>{e.stopPropagation(); adjustDayBoundary('start',-30);});
+dayStartPlus.addEventListener('click',(e)=>{e.stopPropagation(); adjustDayBoundary('start',30);});
+dayEndMinus.addEventListener('click',(e)=>{e.stopPropagation(); adjustDayBoundary('end',-30);});
+dayEndPlus.addEventListener('click',(e)=>{e.stopPropagation(); adjustDayBoundary('end',30);});
+if(minuteJump) minuteJump.addEventListener('click',(e)=>{e.stopPropagation(); jumpToMinutesDayLeft();});
+function handleDayMiniExit(e){
+  if(e){
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+  }
+  if(appMode==='timer') jumpToMinutesDayLeft();
+}
+if(dayMini) {
+  ['pointerdown','mousedown','touchstart','click'].forEach(ev=>{
+    dayMini.addEventListener(ev,handleDayMiniExit,{capture:true,passive:false});
+  });
+  dayMini.addEventListener('keydown',(e)=>{
+    if((e.key==='Enter'||e.key===' ') && appMode==='timer') handleDayMiniExit(e);
+  },{capture:true});
+}
+presets.forEach(b=>b.addEventListener('click',()=>{const mins=Number(b.dataset.min); paperClick(); setSeconds(mins*60,true); speakPresetNumber(mins);}));
+
+if(stage) {
+  stage.addEventListener('click',(e)=>{
+    if(appMode==='timer'){
+      e.preventDefault();
+      e.stopPropagation();
+      paperClick();
+      running ? pause() : start();
+      showControls();
     }
+  });
+}
 
-    function handleHourLabelKey(event, action) {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        action();
-      }
-    }
-
-    function toggleDisplayMode() {
-      const modes = ["minutes", "percent", "glass"];
-      const currentIndex = modes.indexOf(displayMode);
-      displayMode = modes[(currentIndex + 1 + modes.length) % modes.length];
-      localStorage.setItem("dayLeftDisplayMode", displayMode);
-      render();
-    }
-
-    numberHitAreaEl.addEventListener("click", toggleDisplayMode);
-    numberHitAreaEl.addEventListener("touchend", function (event) {
-      event.preventDefault();
-      toggleDisplayMode();
-    }, { passive: false });
-
-    let lastCalendarPointerToggle = 0;
-
-    dateLabelEl.addEventListener("pointerdown", function (event) {
-      event.preventDefault();
-      event.stopPropagation();
-      lastCalendarPointerToggle = Date.now();
-      toggleCalendar();
-    });
-
-    dateLabelEl.addEventListener("click", function (event) {
-      event.preventDefault();
-      event.stopPropagation();
-
-      // Prevent a second toggle after touch/pointer devices synthesize a click.
-      if (Date.now() - lastCalendarPointerToggle > 450) {
-        toggleCalendar();
-      }
-    });
-
-    dateLabelEl.addEventListener("keydown", function (event) {
-      if (event.key === "Enter" || event.key === " ") {
-        toggleCalendar(event);
-      }
-    });
-
-    calendarPopoverEl.addEventListener("pointerdown", function (event) {
-      event.stopPropagation();
-    });
-
-    calendarPopoverEl.addEventListener("click", function (event) {
-      event.stopPropagation();
-    });
-
-    document.addEventListener("pointerdown", function () {
-      if (calendarOpen) {
-        setCalendarOpen(false);
-      }
-    });
-
-    barStartLabelEl.addEventListener("click", shiftStartHour);
-    barEndLabelEl.addEventListener("click", shiftEndHour);
-    barStartLabelEl.addEventListener("touchend", shiftStartHour, { passive: false });
-    barEndLabelEl.addEventListener("touchend", shiftEndHour, { passive: false });
-    barStartLabelEl.addEventListener("keydown", (event) => handleHourLabelKey(event, shiftStartHour));
-    barEndLabelEl.addEventListener("keydown", (event) => handleHourLabelKey(event, shiftEndHour));
-
-    toggleTheme.addEventListener("click", cycleTheme);
-
-    toggleFullscreen.addEventListener("click", toggleFullScreenMode);
-
-    if (toggleSound) {
-      let lastSoundPointerToggle = 0;
-      toggleSound.addEventListener("pointerdown", function (event) {
-        lastSoundPointerToggle = Date.now();
-        toggleTickSound(event);
-      });
-      toggleSound.addEventListener("click", function (event) {
-        if (Date.now() - lastSoundPointerToggle > 450) {
-          toggleTickSound(event);
-        } else {
-          event.preventDefault();
-          event.stopPropagation();
-        }
-      });
-    }
-
-    document.addEventListener("visibilitychange", () => {
-      if (!document.hidden) startLiveLoop();
-    });
-
-    window.addEventListener("focus", startLiveLoop);
-    window.addEventListener("pageshow", startLiveLoop);
-
-    let controlsTimer = null;
-    function showControlsBriefly() {
-      const settings = document.querySelector(".settings");
-      settings.classList.add("is-visible");
-      mainEl.classList.add("controls-visible");
-      clearTimeout(controlsTimer);
-      controlsTimer = setTimeout(() => {
-        settings.classList.remove("is-visible");
-        mainEl.classList.remove("controls-visible");
-      }, 1800);
-    }
-
-    window.addEventListener("mousemove", showControlsBriefly);
-    window.addEventListener("touchstart", showControlsBriefly, { passive: true });
-
-    updateTheme();
-    setSoundMode(soundMode);
-    startLiveLoop();
-  </script>
+themeBtn.addEventListener('click',()=>{paperClick(); themeIndex=(themeIndex+1)%themes.length; setTheme(); render()}); if(muteBtn) muteBtn.addEventListener('click',()=>{paperClick(); speechMuted=!speechMuted; if(speechMuted && 'speechSynthesis' in window) window.speechSynthesis.cancel(); updateMuteButton(); showControls();}); fullBtn.addEventListener('click',async()=>{paperClick(); try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();else await document.exitFullscreen()}catch(e){}});
+function showControls(){document.body.classList.add('show-controls'); clearTimeout(hide); hide=setTimeout(()=>document.body.classList.remove('show-controls'),2300)} ['mousemove','touchstart','pointerdown','keydown'].forEach(ev=>window.addEventListener(ev,()=>{showControls();warmSpeechVoices();},{passive:true}));
+// Always open in Day-Left glass mode, regardless of prior timer state.
+appMode='minuteclock';
+minuteDisplayMode='glass';
+running=false;
+if(raf) cancelAnimationFrame(raf);
+setInterval(updateTop,1000); window.addEventListener('resize',render); render(); showControls();
+})();
+</script>
 </body>
 </html>
