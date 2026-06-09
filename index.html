@@ -1653,5 +1653,69 @@ setInterval(updateTop,1000); window.addEventListener('resize',render); render();
   syncVoiceMutedClass();
 })();
 </script>
+
+
+<script id="screen-wake-lock-ipad-fullscreen">
+(function(){
+  let wakeLock = null;
+  let wakeRetry = null;
+
+  function isVisible(){ return document.visibilityState === 'visible'; }
+  function isLikelyRunningApp(){
+    return isVisible() && (document.fullscreenElement || true);
+  }
+
+  async function requestScreenWakeLock(){
+    if(!isLikelyRunningApp()) return;
+    if(!('wakeLock' in navigator) || !navigator.wakeLock || !navigator.wakeLock.request) return;
+    try{
+      if(wakeLock && !wakeLock.released) return;
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', function(){
+        wakeLock = null;
+        if(isVisible()) scheduleWakeLockRetry(650);
+      });
+    }catch(e){
+      scheduleWakeLockRetry(1800);
+    }
+  }
+
+  function scheduleWakeLockRetry(delay){
+    clearTimeout(wakeRetry);
+    wakeRetry = setTimeout(requestScreenWakeLock, delay || 800);
+  }
+
+  function releaseWakeLock(){
+    try{
+      if(wakeLock && !wakeLock.released) wakeLock.release();
+    }catch(e){}
+    wakeLock = null;
+  }
+
+  function activateWakeLockFromUserGesture(){
+    requestScreenWakeLock();
+  }
+
+  document.addEventListener('visibilitychange', function(){
+    if(isVisible()) scheduleWakeLockRetry(250);
+    else releaseWakeLock();
+  });
+  window.addEventListener('pageshow', function(){ scheduleWakeLockRetry(250); });
+  window.addEventListener('focus', function(){ scheduleWakeLockRetry(250); });
+  document.addEventListener('fullscreenchange', function(){ scheduleWakeLockRetry(250); });
+  ['pointerdown','touchend','click','keydown'].forEach(function(ev){
+    window.addEventListener(ev, activateWakeLockFromUserGesture, {passive:true});
+  });
+
+  // Keep re-acquiring because iPadOS/Safari may release wake locks after fullscreen changes,
+  // app switches, low-power state, or viewport changes.
+  setInterval(function(){
+    if(isVisible()) requestScreenWakeLock();
+  }, 30000);
+
+  requestScreenWakeLock();
+})();
+</script>
+
 </body>
 </html>
