@@ -696,7 +696,232 @@ body:not(.timer-active).show-controls .credit{opacity:.45!important;}
   body:not(.timer-active) .credit{top:calc(50% - (var(--ring-size) / 2) - 18px)!important;width:min(44vw,280px)!important;font-size:8px!important;}
 }
 
+
+/* Final override: keep the credit on the exact same horizontal line as date/time. */
+.credit{
+  top:clamp(18px,2.8vw,34px)!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
+  width:min(44vw,430px)!important;
+  height:auto!important;
+  align-items:center!important;
+  z-index:5!important;
+}
+body:not(.timer-active).show-controls .credit{opacity:.45!important;}
+body.timer-active .credit{display:none!important;opacity:0!important;}
+@media(max-width:760px){
+  .credit{top:clamp(16px,2.4vw,26px)!important;width:min(42vw,320px)!important;font-size:8.5px!important;}
+}
+@media(max-width:560px){
+  .credit{top:max(8px, env(safe-area-inset-top))!important;width:min(38vw,240px)!important;font-size:7.5px!important;letter-spacing:.09em!important;}
+}
+
 </style>
+
+
+<!-- Final safety override: keep the small day-left minute number fully visible in window/iOS modes. -->
+<style>
+/* The day-mini number must never sit outside the visible viewport.
+   In timer glass/funnel mode it used to be placed above the circle; this keeps the same hierarchy
+   but pulls it inside a safe top band when the window is short. */
+.day-mini{
+  max-width:78vw;
+  overflow:visible!important;
+}
+body.timer-active.mode-funnel .day-mini{
+  top:4.25%!important;
+  transform:translate(-50%,-50%)!important;
+  font-size:clamp(24px,4.9vw,64px)!important;
+}
+@media(max-height:760px){
+  body.timer-active.mode-funnel .day-mini{
+    top:5.4%!important;
+    font-size:clamp(22px,4.35vw,52px)!important;
+  }
+}
+@media(max-height:620px){
+  body.timer-active.mode-funnel .day-mini{
+    top:6.4%!important;
+    font-size:clamp(19px,3.9vw,42px)!important;
+  }
+}
+@media(max-width:760px){
+  body.timer-active.mode-funnel .day-mini{
+    top:5.3%!important;
+    font-size:clamp(20px,5.0vw,46px)!important;
+  }
+}
+@media(max-width:560px){
+  body.timer-active.mode-funnel .day-mini{
+    top:6.1%!important;
+    font-size:clamp(18px,5.2vw,38px)!important;
+  }
+}
+@supports(height:100dvh){
+  @media(max-height:700px){
+    body.timer-active.mode-funnel .day-mini{top:6.2%!important;}
+  }
+}
+</style>
+
+
+<style id="centered-all-devices-fix">
+:root{
+  --safe-top: max(env(safe-area-inset-top,0px), 0px);
+  --safe-bottom: max(env(safe-area-inset-bottom,0px), 0px);
+}
+.app{
+  display:grid !important;
+  place-items:center !important;
+  padding-top:calc(44px + var(--safe-top)) !important;
+  padding-bottom:calc(86px + var(--safe-bottom)) !important;
+}
+.stage{
+  position:absolute !important;
+  left:50% !important;
+  top:50% !important;
+  transform:translate(-50%,-50%) !important;
+  margin:0 !important;
+}
+.credit{
+  top:clamp(18px,2.8vw,34px) !important;
+}
+.controls{
+  bottom:calc(clamp(16px,3.6svh,38px) + var(--safe-bottom)) !important;
+}
+@media (max-height: 760px){
+  :root{--ring-size:min(72vmin, calc(100svh - 168px));}
+  .stage{top:49.5% !important;}
+}
+@media (max-height: 640px){
+  :root{--ring-size:min(66vmin, calc(100svh - 150px));}
+  .stage{top:48.5% !important;}
+  .controls{bottom:calc(10px + var(--safe-bottom)) !important;}
+}
+@media (max-width:760px){
+  :root{--ring-size:min(76vmin, calc(100svh - 172px));}
+  .stage{top:50% !important;}
+}
+@media (max-width:560px){
+  :root{--ring-size:min(72vmin, calc(100svh - 168px));}
+  .stage{top:49.25% !important;}
+}
+@media (orientation: landscape) and (max-height: 560px){
+  :root{--ring-size:min(62vmin, calc(100svh - 112px));}
+  .stage{top:50% !important;}
+  .controls{bottom:calc(8px + var(--safe-bottom)) !important;}
+  .topline{top:calc(10px + var(--safe-top)) !important;}
+  .credit{top:calc(10px + var(--safe-top)) !important;}
+}
+</style>
+
+
+<!-- Final patch: keep the small day-left minute number visible above the circle in timer mode. -->
+<style id="daymini-safe-top-final">
+:root{
+  --safe-top-final: max(env(safe-area-inset-top, 0px), 0px);
+}
+/* Timer mode: day-left minutes are a viewport-level element above the glass circle,
+   not inside the circle and never outside the visible top edge. */
+body.timer-active .day-mini,
+body.timer-active.mode-funnel .day-mini{
+  position:fixed!important;
+  left:50vw!important;
+  top:max(calc(var(--safe-top-final) + 44px), calc(50vh - (var(--ring-size) / 2) - 18px))!important;
+  transform:translateX(-50%)!important;
+  z-index:40!important;
+  max-width:min(82vw, 520px)!important;
+  overflow:visible!important;
+  line-height:.78!important;
+  height:auto!important;
+  font-size:clamp(24px, 5vw, 66px)!important;
+  white-space:nowrap!important;
+}
+@media(max-height:760px){
+  body.timer-active .day-mini,
+  body.timer-active.mode-funnel .day-mini{
+    top:max(calc(var(--safe-top-final) + 38px), calc(50vh - (var(--ring-size) / 2) - 12px))!important;
+    font-size:clamp(22px, 4.5vw, 54px)!important;
+  }
+}
+@media(max-height:620px){
+  body.timer-active .day-mini,
+  body.timer-active.mode-funnel .day-mini{
+    top:max(calc(var(--safe-top-final) + 32px), calc(50vh - (var(--ring-size) / 2) - 8px))!important;
+    font-size:clamp(19px, 4vw, 44px)!important;
+  }
+}
+@media(max-width:560px){
+  body.timer-active .day-mini,
+  body.timer-active.mode-funnel .day-mini{
+    top:max(calc(var(--safe-top-final) + 34px), calc(50vh - (var(--ring-size) / 2) - 8px))!important;
+    font-size:clamp(18px, 5.2vw, 40px)!important;
+    max-width:74vw!important;
+  }
+}
+@media(orientation:landscape) and (max-height:560px){
+  body.timer-active .day-mini,
+  body.timer-active.mode-funnel .day-mini{
+    top:max(calc(var(--safe-top-final) + 22px), calc(50vh - (var(--ring-size) / 2) - 4px))!important;
+    font-size:clamp(17px, 3.4vw, 34px)!important;
+  }
+}
+</style>
+
+
+<!-- Final correction: anchor the small day-left minute number to the circle itself.
+     It stays horizontally centered above the upper circle edge instead of using viewport positioning. -->
+<style id="daymini-centered-above-ring-final">
+body.timer-active .stage{overflow:visible!important;}
+body.timer-active .day-mini,
+body.timer-active.mode-funnel .day-mini{
+  position:absolute!important;
+  left:50%!important;
+  right:auto!important;
+  top:-10px!important;
+  bottom:auto!important;
+  transform:translate(-50%,-100%)!important;
+  z-index:40!important;
+  max-width:min(78vw,520px)!important;
+  overflow:visible!important;
+  text-align:center!important;
+  justify-content:center!important;
+  line-height:.78!important;
+  height:auto!important;
+  font-size:clamp(24px,4.85vw,64px)!important;
+  white-space:nowrap!important;
+}
+@media(max-height:760px){
+  body.timer-active .day-mini,
+  body.timer-active.mode-funnel .day-mini{
+    top:-6px!important;
+    font-size:clamp(21px,4.25vw,52px)!important;
+  }
+}
+@media(max-height:620px){
+  body.timer-active .day-mini,
+  body.timer-active.mode-funnel .day-mini{
+    top:-2px!important;
+    font-size:clamp(18px,3.75vw,42px)!important;
+  }
+}
+@media(max-width:560px){
+  body.timer-active .day-mini,
+  body.timer-active.mode-funnel .day-mini{
+    top:-4px!important;
+    font-size:clamp(18px,5vw,38px)!important;
+    max-width:74vw!important;
+  }
+}
+@media(orientation:landscape) and (max-height:560px){
+  body.timer-active .day-mini,
+  body.timer-active.mode-funnel .day-mini{
+    top:0!important;
+    font-size:clamp(16px,3.2vw,32px)!important;
+  }
+}
+</style>
+
 </head>
 <body class="mode-glass fixed-timer minuteclock">
 <main class="app">
