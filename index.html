@@ -1636,7 +1636,24 @@ appMode='minuteclock';
 minuteDisplayMode='glass';
 running=false;
 if(raf) cancelAnimationFrame(raf);
-setInterval(updateTop,1000); window.addEventListener('resize',render); render(); showControls();
+
+// Reliable day-minute updater: the remaining-day display must keep changing even
+// when no timer animation is running. iPad/Safari can throttle animation frames,
+// so day-left rendering is driven by wall-clock time on an interval as well.
+let dayClockInterval=null;
+function reliableDayClockUpdate(){
+  if(appMode==='minuteclock'){
+    render();
+  }else{
+    updateTop();
+  }
+}
+if(dayClockInterval) clearInterval(dayClockInterval);
+dayClockInterval=setInterval(reliableDayClockUpdate,1000);
+window.addEventListener('resize',render);
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') render(); });
+window.addEventListener('pageshow',render);
+render(); showControls();
 })();
 </script>
 
