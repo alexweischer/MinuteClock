@@ -765,7 +765,6 @@ body.timer-active.mode-funnel .day-mini{
 </style>
 
 
-/* FINAL CENTERING SAFETY PATCH: keep the main circle optically centered across desktop, windowed, iPad/iPhone Safari. */
 <style id="centered-all-devices-fix">
 :root{
   --safe-top: max(env(safe-area-inset-top,0px), 0px);
@@ -817,47 +816,325 @@ body.timer-active.mode-funnel .day-mini{
 </style>
 
 
-<style id="iphone-safari-ground-reset">
-/* iPhone Safari ground-up layout reset: no crossed side controls, safe toolbar spacing, stable circle. */
-:root{--ios-safe-top:env(safe-area-inset-top,0px);--ios-safe-bottom:env(safe-area-inset-bottom,0px);}
-@media (max-width:700px){
-  html,body{height:100dvh!important;min-height:100dvh!important;overflow:hidden!important;}
-  .app{height:100dvh!important;width:100vw!important;padding:0!important;overflow:hidden!important;display:block!important;}
-  .topline{position:fixed!important;top:calc(10px + var(--ios-safe-top))!important;left:16px!important;right:16px!important;font-size:9px!important;z-index:40!important;}
-  .credit{display:none!important;}
-  :root{--ring-size:min(78vw,calc(100dvh - 246px),390px)!important;--side-gap:0px!important;--panel-width:0px!important;}
-  .stage{position:fixed!important;left:50%!important;top:48%!important;width:var(--ring-size)!important;height:var(--ring-size)!important;transform:translate(-50%,-50%)!important;margin:0!important;z-index:10!important;}
-  body.timer-active.mode-funnel .day-mini{left:50%!important;top:-7px!important;transform:translate(-50%,-100%)!important;font-size:clamp(20px,7vw,36px)!important;max-width:88vw!important;}
-  .controls{position:fixed!important;left:50%!important;right:auto!important;bottom:calc(12px + var(--ios-safe-bottom))!important;transform:translateX(-50%)!important;z-index:50!important;display:flex!important;gap:9px!important;padding:7px!important;max-width:92vw!important;}
-  .icon-btn{width:42px!important;height:42px!important;min-width:42px!important;border-radius:50%!important;}
-  .preset{position:fixed!important;left:50%!important;right:auto!important;top:auto!important;bottom:calc(70px + var(--ios-safe-bottom))!important;transform:translateX(-50%)!important;z-index:48!important;display:flex!important;flex-direction:row!important;gap:6px!important;max-width:92vw!important;overflow-x:auto!important;overflow-y:hidden!important;padding:6px!important;border-radius:999px!important;scrollbar-width:none!important;-webkit-overflow-scrolling:touch!important;}
-  .preset::-webkit-scrollbar{display:none!important;}
-  .preset button{flex:0 0 auto!important;min-width:42px!important;height:28px!important;font-size:9px!important;}
-  .preset .min-jump{min-width:48px!important;margin:0 4px 0 0!important;}
-  .day-side{display:none!important;}
+<!-- Final patch: keep the small day-left minute number visible above the circle in timer mode. -->
+<style id="daymini-safe-top-final">
+:root{
+  --safe-top-final: max(env(safe-area-inset-top, 0px), 0px);
 }
-@media (max-width:700px) and (orientation:portrait) and (max-height:740px){
-  :root{--ring-size:min(74vw,calc(100dvh - 232px),340px)!important;}
-  .stage{top:47%!important;}
-  .preset{bottom:calc(64px + var(--ios-safe-bottom))!important;}
-  .controls{bottom:calc(9px + var(--ios-safe-bottom))!important;}
-  .icon-btn{width:39px!important;height:39px!important;min-width:39px!important;}
-  body.timer-active.mode-funnel .day-mini{top:-4px!important;font-size:clamp(18px,6.6vw,32px)!important;}
+/* Timer mode: day-left minutes are a viewport-level element above the glass circle,
+   not inside the circle and never outside the visible top edge. */
+body.timer-active .day-mini,
+body.timer-active.mode-funnel .day-mini{
+  position:fixed!important;
+  left:50vw!important;
+  top:max(calc(var(--safe-top-final) + 44px), calc(50vh - (var(--ring-size) / 2) - 18px))!important;
+  transform:translateX(-50%)!important;
+  z-index:40!important;
+  max-width:min(82vw, 520px)!important;
+  overflow:visible!important;
+  line-height:.78!important;
+  height:auto!important;
+  font-size:clamp(24px, 5vw, 66px)!important;
+  white-space:nowrap!important;
 }
-@media (max-width:700px) and (orientation:landscape){
-  :root{--ring-size:min(58dvh,44vw,330px)!important;}
-  .topline{top:calc(6px + var(--ios-safe-top))!important;font-size:8px!important;}
-  .stage{top:50%!important;left:50%!important;}
-  .controls{bottom:calc(7px + var(--ios-safe-bottom))!important;gap:7px!important;padding:5px!important;}
-  .icon-btn{width:34px!important;height:34px!important;min-width:34px!important;}
-  .preset{left:auto!important;right:calc(8px + env(safe-area-inset-right,0px))!important;top:50%!important;bottom:auto!important;transform:translateY(-50%)!important;flex-direction:column!important;max-height:82dvh!important;max-width:none!important;overflow-y:auto!important;overflow-x:hidden!important;padding:5px!important;gap:4px!important;}
-  .preset button{min-width:36px!important;height:22px!important;font-size:8px!important;}
-  .preset .min-jump{min-width:36px!important;margin:0 0 3px 0!important;}
-  body.timer-active.mode-funnel .day-mini{top:-3px!important;font-size:clamp(16px,4.8dvh,28px)!important;}
-  .day-side{display:none!important;}
+@media(max-height:760px){
+  body.timer-active .day-mini,
+  body.timer-active.mode-funnel .day-mini{
+    top:max(calc(var(--safe-top-final) + 38px), calc(50vh - (var(--ring-size) / 2) - 12px))!important;
+    font-size:clamp(22px, 4.5vw, 54px)!important;
+  }
 }
-body.ios-pseudo-fullscreen .topline{top:calc(8px + var(--ios-safe-top))!important;}
-body.ios-pseudo-fullscreen .controls{bottom:calc(10px + var(--ios-safe-bottom))!important;}
+@media(max-height:620px){
+  body.timer-active .day-mini,
+  body.timer-active.mode-funnel .day-mini{
+    top:max(calc(var(--safe-top-final) + 32px), calc(50vh - (var(--ring-size) / 2) - 8px))!important;
+    font-size:clamp(19px, 4vw, 44px)!important;
+  }
+}
+@media(max-width:560px){
+  body.timer-active .day-mini,
+  body.timer-active.mode-funnel .day-mini{
+    top:max(calc(var(--safe-top-final) + 34px), calc(50vh - (var(--ring-size) / 2) - 8px))!important;
+    font-size:clamp(18px, 5.2vw, 40px)!important;
+    max-width:74vw!important;
+  }
+}
+@media(orientation:landscape) and (max-height:560px){
+  body.timer-active .day-mini,
+  body.timer-active.mode-funnel .day-mini{
+    top:max(calc(var(--safe-top-final) + 22px), calc(50vh - (var(--ring-size) / 2) - 4px))!important;
+    font-size:clamp(17px, 3.4vw, 34px)!important;
+  }
+}
+</style>
+
+
+<!-- Final correction: anchor the small day-left minute number to the circle itself.
+     It stays horizontally centered above the upper circle edge instead of using viewport positioning. -->
+<style id="daymini-centered-above-ring-final">
+body.timer-active .stage{overflow:visible!important;}
+body.timer-active .day-mini,
+body.timer-active.mode-funnel .day-mini{
+  position:absolute!important;
+  left:50%!important;
+  right:auto!important;
+  top:-10px!important;
+  bottom:auto!important;
+  transform:translate(-50%,-100%)!important;
+  z-index:40!important;
+  max-width:min(78vw,520px)!important;
+  overflow:visible!important;
+  text-align:center!important;
+  justify-content:center!important;
+  line-height:.78!important;
+  height:auto!important;
+  font-size:clamp(24px,4.85vw,64px)!important;
+  white-space:nowrap!important;
+}
+@media(max-height:760px){
+  body.timer-active .day-mini,
+  body.timer-active.mode-funnel .day-mini{
+    top:-6px!important;
+    font-size:clamp(21px,4.25vw,52px)!important;
+  }
+}
+@media(max-height:620px){
+  body.timer-active .day-mini,
+  body.timer-active.mode-funnel .day-mini{
+    top:-2px!important;
+    font-size:clamp(18px,3.75vw,42px)!important;
+  }
+}
+@media(max-width:560px){
+  body.timer-active .day-mini,
+  body.timer-active.mode-funnel .day-mini{
+    top:-4px!important;
+    font-size:clamp(18px,5vw,38px)!important;
+    max-width:74vw!important;
+  }
+}
+@media(orientation:landscape) and (max-height:560px){
+  body.timer-active .day-mini,
+  body.timer-active.mode-funnel .day-mini{
+    top:0!important;
+    font-size:clamp(16px,3.2vw,32px)!important;
+  }
+}
+</style>
+
+
+
+<!-- iPhone Safari / iOS layout final patch: stable portrait, landscape and fullscreen positioning -->
+<style id="iphone-safari-final-positioning">
+:root{
+  --ios-top: env(safe-area-inset-top, 0px);
+  --ios-bottom: env(safe-area-inset-bottom, 0px);
+}
+@supports (height: 100dvh){
+  html, body, .app{height:100dvh!important;min-height:100dvh!important;}
+}
+
+/* Default: keep the central circle visually centered while reserving bottom controls. */
+.app{
+  padding-top:max(42px, calc(var(--ios-top) + 34px))!important;
+  padding-bottom:max(96px, calc(var(--ios-bottom) + 92px))!important;
+}
+.stage{
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  transform:translate(-50%,-50%)!important;
+}
+.controls{
+  bottom:max(14px, calc(var(--ios-bottom) + 14px))!important;
+}
+
+/* Timer day-minute number: always centered over the top of the circle, never clipped. */
+body.timer-active.mode-funnel .day-mini{
+  left:50%!important;
+  top:calc(50% - (var(--ring-size) / 2) - clamp(12px,2.2svh,24px))!important;
+  transform:translate(-50%,-100%)!important;
+  max-width:80vw!important;
+  overflow:visible!important;
+  z-index:30!important;
+  font-size:clamp(24px,4.8vw,64px)!important;
+}
+
+/* iPhone portrait Safari: shrink enough for controls, keep circle central. */
+@media (max-width: 560px) and (orientation: portrait){
+  :root{
+    --ring-size:min(78vw, calc(100dvh - 232px), 390px)!important;
+    --side-gap:8px!important;
+    --panel-width:76px!important;
+  }
+  .app{
+    padding-top:max(48px, calc(var(--ios-top) + 38px))!important;
+    padding-bottom:max(116px, calc(var(--ios-bottom) + 108px))!important;
+  }
+  .stage{top:50%!important;}
+  .topline{
+    top:max(10px, calc(var(--ios-top) + 8px))!important;
+    font-size:9px!important;
+  }
+  .credit{
+    top:max(10px, calc(var(--ios-top) + 8px))!important;
+    width:min(38vw,240px)!important;
+    font-size:7.5px!important;
+  }
+  body.timer-active.mode-funnel .day-mini{
+    top:calc(50% - (var(--ring-size) / 2) - 10px)!important;
+    font-size:clamp(19px,5vw,38px)!important;
+  }
+  .controls{
+    bottom:max(12px, calc(var(--ios-bottom) + 12px))!important;
+    gap:7px!important;
+    padding:6px!important;
+  }
+  .icon-btn{
+    width:40px!important;
+    height:40px!important;
+    min-width:40px!important;
+  }
+  .preset{
+    left:calc(50% + (var(--ring-size) / 2) + 8px)!important;
+    gap:5px!important;
+  }
+  .preset button{
+    min-width:38px!important;
+    height:26px!important;
+    font-size:9px!important;
+  }
+  .day-side{
+    right:calc(50% + (var(--ring-size) / 2) + 8px)!important;
+    width:76px!important;
+    height:min(38dvh,290px)!important;
+    gap:8px!important;
+  }
+  .day-side-boundary{
+    grid-template-columns:16px 44px 16px!important;
+    width:76px!important;
+    gap:2px!important;
+  }
+  .day-side-time{min-width:44px!important;font-size:8.5px!important;letter-spacing:.055em!important;}
+  .day-shift{width:18px!important;height:18px!important;min-width:18px!important;font-size:13px!important;}
+}
+
+/* Small iPhone / short Safari toolbar states. */
+@media (max-width: 560px) and (max-height: 720px){
+  :root{--ring-size:min(72vw, calc(100dvh - 214px), 340px)!important;}
+  .stage{top:49.5%!important;}
+  body.timer-active.mode-funnel .day-mini{
+    top:calc(50% - (var(--ring-size) / 2) - 8px)!important;
+    font-size:clamp(18px,4.8vw,34px)!important;
+  }
+  .icon-btn{width:38px!important;height:38px!important;min-width:38px!important;}
+}
+
+/* iPhone landscape: compact, centered, no collision with bottom controls or side controls. */
+@media (max-height: 560px) and (orientation: landscape){
+  :root{
+    --ring-size:min(58dvh, 42vw, calc(100dvh - 104px), 360px)!important;
+    --side-gap:12px!important;
+    --panel-width:84px!important;
+  }
+  .app{
+    padding-top:max(24px, calc(var(--ios-top) + 12px))!important;
+    padding-bottom:max(62px, calc(var(--ios-bottom) + 58px))!important;
+  }
+  .stage{top:50%!important;}
+  .topline{top:max(8px, var(--ios-top))!important;font-size:9px!important;}
+  .credit{top:max(8px, var(--ios-top))!important;width:min(42vw,280px)!important;font-size:8px!important;}
+  body.timer-active.mode-funnel .day-mini{
+    top:calc(50% - (var(--ring-size) / 2) - 7px)!important;
+    font-size:clamp(17px,3.5vw,32px)!important;
+  }
+  .controls{bottom:max(8px, calc(var(--ios-bottom) + 8px))!important;padding:4px!important;gap:7px!important;}
+  .icon-btn{width:36px!important;height:36px!important;min-width:36px!important;}
+  .preset{left:calc(50% + (var(--ring-size) / 2) + 12px)!important;gap:4px!important;}
+  .preset button{height:23px!important;min-width:37px!important;font-size:8.5px!important;}
+  .day-side{right:calc(50% + (var(--ring-size) / 2) + 12px)!important;height:min(56dvh,260px)!important;}
+}
+
+/* iOS standalone/fullscreen: use the extra height without pushing the number into the top edge. */
+@media (display-mode: standalone), (display-mode: fullscreen){
+  .controls{bottom:max(18px, calc(var(--ios-bottom) + 18px))!important;}
+  body.timer-active.mode-funnel .day-mini{
+    top:calc(50% - (var(--ring-size) / 2) - clamp(12px,2svh,22px))!important;
+  }
+}
+</style>
+
+
+
+<style id="ipad-fullscreen-safe-final">
+/* iPad fullscreen / standalone final safety: center the glass circle and reserve a real bottom control zone. */
+@media (min-width: 768px) and (max-width: 1180px) and (min-height: 700px){
+  :root{
+    --ipad-bottom-zone: calc(104px + env(safe-area-inset-bottom, 0px));
+    --ipad-top-zone: calc(72px + env(safe-area-inset-top, 0px));
+    --ring-size: min(72vmin, 68vw, calc(100dvh - var(--ipad-bottom-zone) - var(--ipad-top-zone)), 690px) !important;
+  }
+  .app{
+    padding-top: var(--ipad-top-zone) !important;
+    padding-bottom: var(--ipad-bottom-zone) !important;
+    display:grid !important;
+    place-items:center !important;
+  }
+  .stage{
+    position:absolute !important;
+    left:50% !important;
+    top:50% !important;
+    transform:translate(-50%,-50%) !important;
+    width:var(--ring-size) !important;
+    height:var(--ring-size) !important;
+    margin:0 !important;
+  }
+  .controls{
+    bottom:calc(22px + env(safe-area-inset-bottom, 0px)) !important;
+    z-index:40 !important;
+  }
+  .preset{
+    left:calc(50% + (var(--ring-size) / 2) + 24px) !important;
+  }
+  .day-side{
+    right:calc(50% + (var(--ring-size) / 2) + 24px) !important;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1180px) and (orientation: portrait){
+  :root{
+    --ipad-bottom-zone: calc(116px + env(safe-area-inset-bottom, 0px));
+    --ipad-top-zone: calc(82px + env(safe-area-inset-top, 0px));
+    --ring-size: min(76vw, calc(100dvh - var(--ipad-bottom-zone) - var(--ipad-top-zone)), 660px) !important;
+  }
+  .stage{top:50% !important;}
+}
+
+@media (min-width: 768px) and (max-width: 1180px) and (orientation: landscape){
+  :root{
+    --ipad-bottom-zone: calc(92px + env(safe-area-inset-bottom, 0px));
+    --ipad-top-zone: calc(58px + env(safe-area-inset-top, 0px));
+    --ring-size: min(70dvh, 58vw, calc(100dvh - var(--ipad-bottom-zone) - var(--ipad-top-zone)), 650px) !important;
+  }
+  .stage{top:50% !important;}
+  .controls{bottom:calc(16px + env(safe-area-inset-bottom, 0px)) !important;}
+}
+
+@media (display-mode: fullscreen), (display-mode: standalone){
+  @media (min-width: 768px) and (max-width: 1180px){
+    :root{
+      --ipad-bottom-zone: calc(120px + env(safe-area-inset-bottom, 0px));
+      --ring-size: min(72vmin, calc(100dvh - var(--ipad-bottom-zone) - 76px), 690px) !important;
+    }
+    .stage{
+      top:50% !important;
+      transform:translate(-50%,-50%) !important;
+    }
+    .controls{
+      bottom:calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+  }
+}
 </style>
 
 </head>
@@ -1352,69 +1629,14 @@ if(stage) {
   });
 }
 
-themeBtn.addEventListener('click',()=>{paperClick(); themeIndex=(themeIndex+1)%themes.length; setTheme(); render()}); if(muteBtn) muteBtn.addEventListener('click',()=>{paperClick(); speechMuted=!speechMuted; if(speechMuted && 'speechSynthesis' in window) window.speechSynthesis.cancel(); updateMuteButton(); showControls();}); fullBtn.addEventListener('click',async()=>{
-  paperClick();
-  try{
-    const root=document.documentElement;
-    const doc=document;
-    if(doc.fullscreenElement || doc.webkitFullscreenElement){
-      if(doc.exitFullscreen) await doc.exitFullscreen();
-      else if(doc.webkitExitFullscreen) await doc.webkitExitFullscreen();
-      document.body.classList.remove('ios-pseudo-fullscreen');
-    } else if(root.requestFullscreen){
-      await root.requestFullscreen();
-    } else if(root.webkitRequestFullscreen){
-      await root.webkitRequestFullscreen();
-    } else {
-      document.body.classList.toggle('ios-pseudo-fullscreen');
-      window.scrollTo(0,1);
-    }
-  }catch(e){
-    document.body.classList.toggle('ios-pseudo-fullscreen');
-    window.scrollTo(0,1);
-  }
-  showControls();
-});
+themeBtn.addEventListener('click',()=>{paperClick(); themeIndex=(themeIndex+1)%themes.length; setTheme(); render()}); if(muteBtn) muteBtn.addEventListener('click',()=>{paperClick(); speechMuted=!speechMuted; if(speechMuted && 'speechSynthesis' in window) window.speechSynthesis.cancel(); updateMuteButton(); showControls();}); fullBtn.addEventListener('click',async()=>{paperClick(); try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();else await document.exitFullscreen()}catch(e){}});
 function showControls(){document.body.classList.add('show-controls'); clearTimeout(hide); hide=setTimeout(()=>document.body.classList.remove('show-controls'),2300)} ['mousemove','touchstart','pointerdown','keydown'].forEach(ev=>window.addEventListener(ev,()=>{showControls();warmSpeechVoices();},{passive:true}));
 // Always open in Day-Left glass mode, regardless of prior timer state.
 appMode='minuteclock';
 minuteDisplayMode='glass';
 running=false;
 if(raf) cancelAnimationFrame(raf);
-
-
-// Keep iPad/iPhone screens awake while the app is visible/running where supported.
-let wakeLock = null;
-let wakeLockRequested = false;
-async function requestWakeLock(){
-  wakeLockRequested = true;
-  try{
-    if(!('wakeLock' in navigator) || !navigator.wakeLock || document.visibilityState !== 'visible') return;
-    if(wakeLock && !wakeLock.released) return;
-    wakeLock = await navigator.wakeLock.request('screen');
-    wakeLock.addEventListener('release',()=>{ wakeLock = null; });
-  }catch(e){
-    wakeLock = null;
-  }
-}
-async function releaseWakeLock(){
-  wakeLockRequested = false;
-  try{
-    if(wakeLock && !wakeLock.released) await wakeLock.release();
-  }catch(e){}
-  wakeLock = null;
-}
-function maintainWakeLock(){
-  if(document.visibilityState === 'visible') requestWakeLock();
-}
-document.addEventListener('visibilitychange',()=>{
-  if(document.visibilityState === 'visible' && wakeLockRequested) requestWakeLock();
-});
-['pointerdown','touchstart','click','keydown'].forEach(ev=>{
-  window.addEventListener(ev,()=>requestWakeLock(),{passive:true});
-});
-
-setInterval(updateTop,1000); window.addEventListener('resize',render); render(); showControls(); requestWakeLock();
+setInterval(updateTop,1000); window.addEventListener('resize',render); render(); showControls();
 })();
 </script>
 
