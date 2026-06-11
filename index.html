@@ -1436,6 +1436,224 @@
     }
   }
 
+
+
+  /* FINAL FIX — reliable iPhone/iPad fake fullscreen and balanced iPhone landscape layout. */
+  html.fake-fullscreen,
+  body.fake-fullscreen {
+    width: 100vw !important;
+    height: var(--app-height, 100svh) !important;
+    min-height: var(--app-height, 100svh) !important;
+    max-height: var(--app-height, 100svh) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    position: fixed !important;
+    inset: 0 !important;
+    background: var(--bg) !important;
+  }
+
+  html.fake-fullscreen .app,
+  body.fake-fullscreen .app {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: var(--app-height, 100svh) !important;
+    min-height: var(--app-height, 100svh) !important;
+    max-height: var(--app-height, 100svh) !important;
+    overflow: hidden !important;
+    background: var(--bg) !important;
+    z-index: 999999 !important;
+  }
+
+  @media (orientation: landscape) and (max-height: 540px) and (max-width: 1200px) {
+    .app,
+    html.fake-fullscreen .app,
+    body.fake-fullscreen .app,
+    .app:fullscreen,
+    .app:-webkit-full-screen {
+      padding: max(8px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(70px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)) !important;
+      display: grid !important;
+      place-items: center !important;
+      overflow: hidden !important;
+    }
+
+    .top { display: none !important; }
+
+    .corner-date,
+    .corner-time {
+      top: max(8px, env(safe-area-inset-top)) !important;
+      font-size: 8.5px !important;
+      letter-spacing: .12em !important;
+      opacity: 0 !important;
+    }
+    body.show-controls .corner-date,
+    body.show-controls .corner-time { opacity: .46 !important; }
+    .corner-date { left: max(12px, env(safe-area-inset-left)) !important; }
+    .corner-time { right: max(12px, env(safe-area-inset-right)) !important; }
+
+    .center,
+    html.fake-fullscreen .center,
+    body.fake-fullscreen .center,
+    .app:fullscreen .center,
+    .app:-webkit-full-screen .center {
+      width: min(55svh, 42vw, 245px) !important;
+      height: min(55svh, 42vw, 245px) !important;
+      transform: translateY(-2px) !important;
+      z-index: 5 !important;
+    }
+
+    .unit-number,
+    html.fake-fullscreen .unit-number,
+    body.fake-fullscreen .unit-number,
+    .app:fullscreen .unit-number,
+    .app:-webkit-full-screen .unit-number {
+      font-size: clamp(58px, 12.2vw, 108px) !important;
+      letter-spacing: -.075em !important;
+    }
+
+    .unit-label,
+    html.fake-fullscreen .unit-label,
+    body.fake-fullscreen .unit-label,
+    .app:fullscreen .unit-label,
+    .app:-webkit-full-screen .unit-label {
+      top: calc(50% + clamp(31px, 5.6vw, 49px)) !important;
+      font-size: 7.8px !important;
+      letter-spacing: .14em !important;
+    }
+
+    .daybar-panel,
+    html.fake-fullscreen .daybar-panel,
+    body.fake-fullscreen .daybar-panel,
+    .app:fullscreen .daybar-panel,
+    .app:-webkit-full-screen .daybar-panel {
+      left: 50% !important;
+      right: auto !important;
+      top: max(30px, calc(env(safe-area-inset-top) + 22px)) !important;
+      transform: translateX(-50%) !important;
+      width: min(78vw, 540px) !important;
+      height: 28px !important;
+      display: grid !important;
+      grid-template-columns: auto minmax(132px, 1fr) auto !important;
+      grid-template-rows: 1fr !important;
+      align-items: center !important;
+      justify-items: center !important;
+      gap: 8px !important;
+      z-index: 14 !important;
+    }
+
+    .daybar-panel .time-control {
+      grid-template-columns: 13px 34px 13px !important;
+      width: 62px !important;
+      gap: 1px !important;
+    }
+    .daybar-panel .time-value {
+      width: 34px !important;
+      font-size: 8px !important;
+      letter-spacing: .04em !important;
+    }
+    .daybar-panel .mini-arrow {
+      min-width: 13px !important;
+      width: 13px !important;
+      height: 17px !important;
+      font-size: 10px !important;
+    }
+    .daybar-panel .daybar {
+      width: 100% !important;
+      height: 6px !important;
+      border-radius: 999px !important;
+    }
+    .daybar-panel .daybar-fill {
+      left: 0 !important;
+      right: auto !important;
+      top: 0 !important;
+      bottom: 0 !important;
+      height: 100% !important;
+      width: var(--daybar-width, 100%) !important;
+      border-radius: 999px !important;
+    }
+    .daybar-panel .daybar-now {
+      top: 50% !important;
+      bottom: auto !important;
+      left: var(--daybar-now-left, 0%) !important;
+      transform: translate(-50%, -50%) !important;
+      width: 1px !important;
+      height: 15px !important;
+    }
+    .daybar-caption { display: none !important; }
+
+    .intervals,
+    html.fake-fullscreen .intervals,
+    body.fake-fullscreen .intervals,
+    .app:fullscreen .intervals,
+    .app:-webkit-full-screen .intervals {
+      left: 50% !important;
+      right: auto !important;
+      top: auto !important;
+      bottom: max(44px, calc(env(safe-area-inset-bottom) + 38px)) !important;
+      transform: translateX(-50%) !important;
+      width: min(92vw, 680px) !important;
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 4px !important;
+      padding: 0 4px !important;
+      overflow: visible !important;
+      z-index: 12 !important;
+    }
+    .intervals button {
+      min-width: 34px !important;
+      height: 22px !important;
+      padding: 0 5px !important;
+      font-size: 7.7px !important;
+      letter-spacing: .035em !important;
+      flex: 0 0 auto !important;
+    }
+
+    .controls,
+    html.fake-fullscreen .controls,
+    body.fake-fullscreen .controls,
+    .app:fullscreen .controls,
+    .app:-webkit-full-screen .controls {
+      left: 50% !important;
+      top: auto !important;
+      bottom: max(6px, env(safe-area-inset-bottom)) !important;
+      transform: translateX(-50%) !important;
+      gap: 8px !important;
+      z-index: 15 !important;
+    }
+    .icon-btn {
+      width: 38px !important;
+      min-width: 38px !important;
+      height: 32px !important;
+    }
+    .volume-panel {
+      bottom: calc(100% + 8px) !important;
+      width: 148px !important;
+      height: 32px !important;
+    }
+  }
+
+  @media (orientation: landscape) and (max-height: 360px) and (max-width: 950px) {
+    .center,
+    html.fake-fullscreen .center,
+    body.fake-fullscreen .center,
+    .app:fullscreen .center,
+    .app:-webkit-full-screen .center {
+      width: min(50svh, 38vw, 208px) !important;
+      height: min(50svh, 38vw, 208px) !important;
+      transform: translateY(-1px) !important;
+    }
+    .unit-number { font-size: clamp(50px, 10.8vw, 92px) !important; }
+    .unit-label { top: calc(50% + clamp(27px, 5vw, 42px)) !important; }
+    .daybar-panel { top: max(26px, calc(env(safe-area-inset-top) + 18px)) !important; height: 25px !important; }
+    .intervals { bottom: max(40px, calc(env(safe-area-inset-bottom) + 34px)) !important; }
+    .intervals button { min-width: 31px !important; height: 20px !important; font-size: 7.1px !important; padding: 0 4px !important; }
+    .controls { bottom: max(5px, env(safe-area-inset-bottom)) !important; }
+    .icon-btn { width: 36px !important; min-width: 36px !important; height: 30px !important; }
+  }
+
 </style>
 </head>
 <body>
@@ -1737,8 +1955,10 @@
     const dayHue = dayLeft * 120;
     daybarFill.style.background = `hsl(${dayHue} 100% 45%)`;
     const nowPosition = Math.max(0, Math.min(1, elapsed / dayLength));
-    const mobileHorizontalDaybar = window.matchMedia('(max-width: 520px)').matches;
-    if (mobileHorizontalDaybar) {
+    const horizontalDaybar = window.matchMedia('(max-width: 720px), (orientation: landscape) and (max-height: 540px) and (max-width: 1200px)').matches;
+    daybarFill.style.setProperty('--daybar-width', `${dayLeft * 100}%`);
+    daybarNow.style.setProperty('--daybar-now-left', `${nowPosition * 100}%`);
+    if (horizontalDaybar) {
       daybarFill.style.height = '100%';
       daybarFill.style.width = `${dayLeft * 100}%`;
       daybarNow.style.bottom = 'auto';
@@ -1746,13 +1966,8 @@
     } else {
       daybarFill.style.width = '100%';
       daybarFill.style.height = `${dayLeft * 100}%`;
-    daybarFill.style.width = `${dayLeft * 100}%`;
-    daybarFill.style.setProperty('--daybar-width', `${dayLeft * 100}%`);
       daybarNow.style.left = '50%';
       daybarNow.style.bottom = `${(1 - nowPosition) * 100}%`;
-    daybarNow.style.setProperty('--daybar-now-left', `${nowPosition * 100}%`);
-    daybarNow.style.left = `${nowPosition * 100}%`;
-    daybarNow.style.setProperty('--daybar-now-left', `${nowPosition * 100}%`);
     }
 
     startTimeEl.textContent = formatHour(startHour);
@@ -1865,10 +2080,9 @@
   }
 
   async function enterFullscreen() {
-    // iPhone Safari does not provide reliable element fullscreen for normal webpages.
-    // iPad may support native fullscreen in some contexts, so we try native there first
-    // and fall back to the viewport-locked fake fullscreen if it fails.
-    if (isIPhoneDevice) {
+    // iPhone/iPad Safari can be inconsistent with the Fullscreen API for normal pages.
+    // On Apple touch devices we use the reliable viewport-locked fake fullscreen.
+    if (isAppleTouchDevice) {
       enterFakeFullscreen();
       updateFullscreenButton();
       return;
@@ -1893,7 +2107,7 @@
           setAppHeight();
         }
         updateFullscreenButton();
-      }, isAppleTouchDevice ? 260 : 160);
+      }, 160);
       return;
     } catch (_) {
       enterFakeFullscreen();
