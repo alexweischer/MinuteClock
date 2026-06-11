@@ -275,7 +275,7 @@
   const radius=47, circumference=2*Math.PI*radius; ringLeft.style.strokeDasharray=circumference;
   let startHour=Number(localStorage.getItem('dayUnitsStartHour')||8), endHour=Number(localStorage.getItem('dayUnitsEndHour')||24), intervalMinutes=Number(localStorage.getItem('dayUnitsInterval')||1);
   if(![1,5,10,15,20,30,45,60,90,120].includes(intervalMinutes)) intervalMinutes=1;
-  const SOUND_DEFAULT_VERSION = 'sound100_no_mobile_fullscreen_v1';
+  const SOUND_DEFAULT_VERSION = 'sound100_flash_reliable_interval_v2';
   if (localStorage.getItem('dayUnitsBuildDefault') !== SOUND_DEFAULT_VERSION) {
     localStorage.setItem('dayUnitsSoundVolume', '100');
     localStorage.setItem('dayUnitsSound', 'on');
@@ -283,6 +283,7 @@
   }
   let soundVolume=Number(localStorage.getItem('dayUnitsSoundVolume')||100)/100; if(!Number.isFinite(soundVolume)) soundVolume=1; soundVolume=Math.max(0,Math.min(1,soundVolume));
   let soundEnabled=soundVolume>0, audioCtx=null, lastCompletedSlot=null, flashTimer=null, hideTimer=null, frameHandle=null, volumeWasOpened=false;
+  let flashPulseTimers=[];
   let resumeSuppressUntil=0;
   const BASE_FREQS=[440,554.37,659.25];
   function setViewportHeight(){document.documentElement.style.setProperty('--app-h',`${window.innerHeight}px`)}
@@ -299,39 +300,53 @@
     const elapsed=Math.max(0,Math.min(end-start,current-start));
     return Math.floor(elapsed/intervalMinutes);
   }
+  function clearVisualSignal(){
+    clearTimeout(flashTimer);
+    flashPulseTimers.forEach(clearTimeout);
+    flashPulseTimers=[];
+    document.body.classList.remove('interval-flash','flash-pulse');
+  }
   function syncIntervalWithoutSignal(){
     lastCompletedSlot=currentCompletedSlot();
-    document.body.classList.remove('interval-flash');
-    clearTimeout(flashTimer);
+    clearVisualSignal();
     resumeSuppressUntil=performance.now()+1800;
   }
   function updateCornerTime(){const now=new Date(),m=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];cornerDate.textContent=`${m[now.getMonth()]} ${now.getDate()}`;cornerTime.textContent=now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}
   function getAudioContext(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;if(!audioCtx)audioCtx=new AC();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}catch(_){return null}}
+  function unlockAudio(){
+    if(soundVolume>0){
+      const ctx=getAudioContext();
+      if(ctx && ctx.state==='suspended') ctx.resume().catch(()=>{});
+    }
+  }
   function effectiveSoundVolume(){return soundVolume<=0?0:Math.min(1.7,0.35+1.35*Math.pow(soundVolume,.55))}
   function playChime({force=false}={}){if((!soundEnabled||soundVolume<=0)&&!force)return;const ctx=getAudioContext();if(!ctx)return;const v=Math.max(.2,effectiveSoundVolume()),start=ctx.currentTime,offs=[.02,.50,.98],dur=[.25,.25,.50];const master=ctx.createGain();master.gain.setValueAtTime(.0001,start);master.gain.linearRampToValueAtTime(.80*v,start+.035);master.gain.setValueAtTime(.80*v,start+1.30);master.gain.exponentialRampToValueAtTime(.0001,start+1.62);const filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.setValueAtTime(1350,start);filter.Q.setValueAtTime(.14,start);filter.connect(master).connect(ctx.destination);offs.forEach((o,p)=>{const t=start+o,base=BASE_FREQS[p],duration=dur[p],peak=.055*(p===2?1.16:1);[[1,1],[2,.025],[3,.006]].forEach(([ratio,rel],i)=>{const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type=i===0?'square':'sine';osc.frequency.setValueAtTime(base*ratio,t);gain.gain.setValueAtTime(.0001,t);gain.gain.linearRampToValueAtTime(peak*rel,t+.028);gain.gain.exponentialRampToValueAtTime(.0001,t+duration);osc.connect(gain).connect(filter);osc.start(t);osc.stop(t+duration+.04)})})}
   function triggerSignal(){
-    // Clean visual signal: exactly three inversion pulses, timed to the three sound pulses.
-    // Pulse 1 and 2 are short; pulse 3 stays visible longer, matching the longer final tone.
-    document.body.classList.remove('interval-flash','flash-pulse');
-    clearTimeout(flashTimer);
+    // Exactly three clean visual inversion pulses, timed to the three chime tones.
+    // Clearing old timers first prevents stray flashes after interval changes, tab switches, or quick re-entry.
+    clearVisualSignal();
     playChime();
     const pulses=[{at:20,dur:250},{at:500,dur:250},{at:980,dur:500}];
-    const timers=[];
     pulses.forEach(p=>{
-      timers.push(setTimeout(()=>document.body.classList.add('flash-pulse'),p.at));
-      timers.push(setTimeout(()=>document.body.classList.remove('flash-pulse'),p.at+p.dur));
+      flashPulseTimers.push(setTimeout(()=>document.body.classList.add('flash-pulse'),p.at));
+      flashPulseTimers.push(setTimeout(()=>document.body.classList.remove('flash-pulse'),p.at+p.dur));
     });
-    flashTimer=setTimeout(()=>{
-      document.body.classList.remove('flash-pulse','interval-flash');
-      timers.forEach(clearTimeout);
-    },1650);
+    flashTimer=setTimeout(clearVisualSignal,1660);
   }
   function isHorizontalDaybar(){return matchMedia('(max-width:700px), (max-height:500px) and (orientation:landscape)').matches}
   function render(){clampDay();const now=new Date(),current=minutesOfDay(now),start=startHour*60,end=endHour*60,dayLength=Math.max(1,end-start),elapsed=Math.max(0,Math.min(dayLength,current-start)),remaining=Math.max(0,dayLength-elapsed),unitsLeft=Math.ceil(remaining/intervalMinutes),completedSlot=Math.floor(elapsed/intervalMinutes);if(document.hidden||lastCompletedSlot===null||current<start||current>=end){lastCompletedSlot=completedSlot}else if(completedSlot>lastCompletedSlot){lastCompletedSlot=completedSlot;if(performance.now()>=resumeSuppressUntil)triggerSignal()}unitNumber.textContent=padNumber(unitsLeft);unitLabel.textContent=intervalMinutes===1?'min':`${intervalMinutes} min`;const remainder=remaining<=0?0:remaining%intervalMinutes;const progress=remaining<=0?0:(remainder===0?1:remainder/intervalMinutes);ringLeft.style.strokeDashoffset=circumference*(1-progress);const dayLeft=Math.max(0,Math.min(1,remaining/dayLength)),hue=dayLeft*120,nowPos=Math.max(0,Math.min(1,elapsed/dayLength));daybarFill.style.background=`hsl(${hue} 100% 45%)`;if(isHorizontalDaybar()){daybarFill.style.height='100%';daybarFill.style.width=`${dayLeft*100}%`;daybarFill.style.left='0';daybarFill.style.right='auto';daybarNow.style.left=`${nowPos*100}%`;daybarNow.style.bottom='auto'}else{daybarFill.style.width='100%';daybarFill.style.height=`${dayLeft*100}%`;daybarFill.style.left='0';daybarFill.style.right='0';daybarNow.style.bottom=`${(1-nowPos)*100}%`;daybarNow.style.left='50%'}startTimeEl.textContent=formatHour(startHour);endTimeEl.textContent=formatHour(endHour);intervalButtons.forEach(b=>b.classList.toggle('active',Number(b.dataset.interval)===intervalMinutes));updateCornerTime()}
-  function setStart(d){startHour+=d;if(startHour<0)startHour=0;if(startHour>=endHour)startHour=endHour-1;localStorage.setItem('dayUnitsStartHour',startHour);lastCompletedSlot=null;render()}
-  function setEnd(d){endHour+=d;if(endHour>24)endHour=24;if(endHour<=startHour)endHour=startHour+1;localStorage.setItem('dayUnitsEndHour',endHour);lastCompletedSlot=null;render()}
+  function setStart(d){startHour+=d;if(startHour<0)startHour=0;if(startHour>=endHour)startHour=endHour-1;localStorage.setItem('dayUnitsStartHour',startHour);lastCompletedSlot=currentCompletedSlot();clearVisualSignal();render()}
+  function setEnd(d){endHour+=d;if(endHour>24)endHour=24;if(endHour<=startHour)endHour=startHour+1;localStorage.setItem('dayUnitsEndHour',endHour);lastCompletedSlot=currentCompletedSlot();clearVisualSignal();render()}
   document.getElementById('startDown').onclick=()=>setStart(-1);document.getElementById('startUp').onclick=()=>setStart(1);document.getElementById('endDown').onclick=()=>setEnd(-1);document.getElementById('endUp').onclick=()=>setEnd(1);
-  intervalButtons.forEach(b=>b.addEventListener('click',()=>{intervalMinutes=Number(b.dataset.interval);localStorage.setItem('dayUnitsInterval',intervalMinutes);lastCompletedSlot=null;render()}));
+  intervalButtons.forEach(b=>b.addEventListener('click',()=>{
+    unlockAudio();
+    intervalMinutes=Number(b.dataset.interval);
+    localStorage.setItem('dayUnitsInterval',intervalMinutes);
+    // Re-baseline immediately to the selected interval. No catch-up signal, but the next real boundary will signal reliably.
+    lastCompletedSlot=currentCompletedSlot();
+    clearVisualSignal();
+    render();
+  }));
   function applySound(){soundEnabled=soundVolume>0;localStorage.setItem('dayUnitsSound',soundEnabled?'on':'off');localStorage.setItem('dayUnitsSoundVolume',String(Math.round(soundVolume*100)));const p=Math.round(soundVolume*100);document.body.classList.toggle('sound-off',!soundEnabled);soundBtn.title=soundEnabled?`Volume ${p}`:'Muted';soundBtn.setAttribute('aria-label',soundEnabled?`volume ${p}`:'muted');volumeSlider.value=String(p);volumeValue.textContent=String(p);volumePanel.style.setProperty('--volume-percent',`${p}%`)}
   soundBtn.addEventListener('click',e=>{e.stopPropagation();getAudioContext();if(!document.body.classList.contains('volume-open')){if(soundVolume<=0)soundVolume=1;document.body.classList.add('volume-open');volumeWasOpened=true;applySound();showControls()}else{soundVolume=0;document.body.classList.remove('volume-open');applySound();showControls()}});
   volumePanel.addEventListener('click',e=>e.stopPropagation());volumeSlider.addEventListener('input',()=>{soundVolume=Math.max(0,Math.min(1,Number(volumeSlider.value)/100));applySound();showControls()});volumeSlider.addEventListener('change',()=>{if(soundVolume>0)playChime({force:true})});window.addEventListener('pointerdown',e=>{if(!e.target.closest('#sound')&&!e.target.closest('#volumePanel'))document.body.classList.remove('volume-open')});
@@ -341,7 +356,10 @@
   async function toggleFullscreen(){setViewportHeight();const isFake=document.body.classList.contains('fake-fullscreen'),isReal=!!document.fullscreenElement;if(isFake||isReal){try{if(isReal)await document.exitFullscreen()}catch(_){}document.body.classList.remove('fake-fullscreen','fullscreen-mode');setViewportHeight();setTimeout(render,80);return}document.body.classList.add('fullscreen-mode');if(isIPhone()){document.body.classList.add('fake-fullscreen');setViewportHeight();setTimeout(render,80);return}try{await app.requestFullscreen();document.body.classList.add('fullscreen-mode')}catch(_){document.body.classList.add('fake-fullscreen')}setViewportHeight();setTimeout(render,100)}
   fullBtn.addEventListener('click',toggleFullscreen);document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&!document.body.classList.contains('fake-fullscreen'))document.body.classList.remove('fullscreen-mode');setViewportHeight();setTimeout(render,80)});
   function showControls(){document.body.classList.add('show-controls');clearTimeout(hideTimer);hideTimer=setTimeout(()=>{document.body.classList.remove('show-controls');document.body.classList.remove('volume-open')},2800)}
-  ['mousemove','touchstart','pointerdown','keydown'].forEach(e=>window.addEventListener(e,showControls,{passive:true}));
+  ['mousemove','touchstart','pointerdown','keydown'].forEach(e=>window.addEventListener(e,(event)=>{
+    showControls();
+    if(event.type==='pointerdown'||event.type==='touchstart'||event.type==='keydown') unlockAudio();
+  },{passive:true}));
 
   document.addEventListener('visibilitychange',()=>{
     if(document.hidden){
