@@ -1810,6 +1810,174 @@
     }
   }
 
+
+
+  /* Final fullscreen proportional scaling:
+     In fullscreen/fake-fullscreen the whole central object scales as a unit
+     (ring + digits + orange interval label), not only the digit size. */
+  body.fake-fullscreen .center,
+  html.fake-fullscreen .center,
+  .app:fullscreen .center,
+  .app:-webkit-full-screen .center {
+    width: min(78vmin, 820px) !important;
+    height: min(78vmin, 820px) !important;
+    transform: translateY(-1.2vh) !important;
+  }
+
+  body.fake-fullscreen .unit-number,
+  html.fake-fullscreen .unit-number,
+  .app:fullscreen .unit-number,
+  .app:-webkit-full-screen .unit-number {
+    font-size: clamp(92px, 20vmin, 250px) !important;
+    line-height: .72 !important;
+  }
+
+  body.fake-fullscreen .unit-label,
+  html.fake-fullscreen .unit-label,
+  .app:fullscreen .unit-label,
+  .app:-webkit-full-screen .unit-label {
+    top: calc(50% + clamp(54px, 10.8vmin, 136px)) !important;
+    font-size: clamp(10px, 1.35vmin, 14px) !important;
+  }
+
+  /* iPhone portrait fullscreen: enlarge the full circle-object while leaving
+     room for the top day bar, the interval row and the bottom controls. */
+  @media (orientation: portrait) and (max-width: 520px) {
+    body.fake-fullscreen .center,
+    html.fake-fullscreen .center,
+    .app:fullscreen .center,
+    .app:-webkit-full-screen .center {
+      width: min(88vw, 430px, 58dvh) !important;
+      height: min(88vw, 430px, 58dvh) !important;
+      transform: translateY(-1.4dvh) !important;
+    }
+
+    body.fake-fullscreen .unit-number,
+    html.fake-fullscreen .unit-number,
+    .app:fullscreen .unit-number,
+    .app:-webkit-full-screen .unit-number {
+      font-size: clamp(82px, 24vw, 160px) !important;
+    }
+
+    body.fake-fullscreen .unit-label,
+    html.fake-fullscreen .unit-label,
+    .app:fullscreen .unit-label,
+    .app:-webkit-full-screen .unit-label {
+      top: calc(50% + clamp(46px, 14vw, 82px)) !important;
+      font-size: clamp(9px, 2.6vw, 12px) !important;
+    }
+  }
+
+  /* iPhone landscape fullscreen: the full ring-object is larger, but the
+     upper day bar and lower controls remain symmetric and visible. */
+  @media (orientation: landscape) and (max-height: 520px) and (max-width: 950px) {
+    body.fake-fullscreen .center,
+    html.fake-fullscreen .center,
+    .app:fullscreen .center,
+    .app:-webkit-full-screen .center {
+      width: min(60svh, 50vw, 330px) !important;
+      height: min(60svh, 50vw, 330px) !important;
+      transform: translateY(-0.8svh) !important;
+    }
+
+    body.fake-fullscreen .unit-number,
+    html.fake-fullscreen .unit-number,
+    .app:fullscreen .unit-number,
+    .app:-webkit-full-screen .unit-number {
+      font-size: clamp(64px, 15svh, 128px) !important;
+      line-height: .72 !important;
+    }
+
+    body.fake-fullscreen .unit-label,
+    html.fake-fullscreen .unit-label,
+    .app:fullscreen .unit-label,
+    .app:-webkit-full-screen .unit-label {
+      top: calc(50% + clamp(38px, 9.8svh, 65px)) !important;
+      font-size: 8.5px !important;
+    }
+
+    body.fake-fullscreen .daybar-panel,
+    html.fake-fullscreen .daybar-panel,
+    .app:fullscreen .daybar-panel,
+    .app:-webkit-full-screen .daybar-panel {
+      top: max(30px, calc(env(safe-area-inset-top) + 24px)) !important;
+    }
+
+    body.fake-fullscreen .intervals,
+    html.fake-fullscreen .intervals,
+    .app:fullscreen .intervals,
+    .app:-webkit-full-screen .intervals {
+      bottom: max(54px, calc(env(safe-area-inset-bottom) + 48px)) !important;
+    }
+  }
+
+  @media (orientation: landscape) and (max-height: 390px) and (max-width: 950px) {
+    body.fake-fullscreen .center,
+    html.fake-fullscreen .center,
+    .app:fullscreen .center,
+    .app:-webkit-full-screen .center {
+      width: min(55svh, 46vw, 260px) !important;
+      height: min(55svh, 46vw, 260px) !important;
+      transform: translateY(-0.6svh) !important;
+    }
+
+    body.fake-fullscreen .unit-number,
+    html.fake-fullscreen .unit-number,
+    .app:fullscreen .unit-number,
+    .app:-webkit-full-screen .unit-number {
+      font-size: clamp(56px, 14svh, 106px) !important;
+    }
+
+    body.fake-fullscreen .unit-label,
+    html.fake-fullscreen .unit-label,
+    .app:fullscreen .unit-label,
+    .app:-webkit-full-screen .unit-label {
+      top: calc(50% + clamp(32px, 8.5svh, 52px)) !important;
+      font-size: 7.8px !important;
+    }
+  }
+
+  /* iPad landscape fullscreen: scale the ring and its contents together and
+     move the side elements according to the larger ring radius. */
+  @media (orientation: landscape) and (min-width: 900px) and (max-width: 1400px) and (max-height: 1100px) {
+    body.fake-fullscreen .center,
+    html.fake-fullscreen .center,
+    .app:fullscreen .center,
+    .app:-webkit-full-screen .center {
+      width: min(76vmin, 760px) !important;
+      height: min(76vmin, 760px) !important;
+      transform: translateY(-1.4vh) !important;
+    }
+
+    body.fake-fullscreen .unit-number,
+    html.fake-fullscreen .unit-number,
+    .app:fullscreen .unit-number,
+    .app:-webkit-full-screen .unit-number {
+      font-size: clamp(130px, 19vmin, 245px) !important;
+    }
+
+    body.fake-fullscreen .unit-label,
+    html.fake-fullscreen .unit-label,
+    .app:fullscreen .unit-label,
+    .app:-webkit-full-screen .unit-label {
+      top: calc(50% + clamp(74px, 10.5vmin, 130px)) !important;
+    }
+
+    body.fake-fullscreen .intervals,
+    html.fake-fullscreen .intervals,
+    .app:fullscreen .intervals,
+    .app:-webkit-full-screen .intervals {
+      left: calc(50% + min(38vmin, 380px) + 30px) !important;
+    }
+
+    body.fake-fullscreen .daybar-panel,
+    html.fake-fullscreen .daybar-panel,
+    .app:fullscreen .daybar-panel,
+    .app:-webkit-full-screen .daybar-panel {
+      right: calc(50% + min(38vmin, 380px) + 42px) !important;
+    }
+  }
+
 </style>
 </head>
 <body>
