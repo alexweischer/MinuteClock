@@ -1250,6 +1250,71 @@
     }
 
 
+    /* Sepia Sand Ultramarine theme: warm sepia-sand background with ultramarine blue signs. */
+    body.theme-sepia-ultramarine {
+      --bg: #d8c3a2;
+      --fg: #120a8f;
+      --muted: rgba(18, 10, 143, 0.58);
+      --line: rgba(18, 10, 143, 0.20);
+      --track: rgba(18, 10, 143, 0.13);
+      --orange: #120a8f;
+      --yellow: #120a8f;
+      --mint: #120a8f;
+      --time-1000: #1730b8;
+      --time-900: #1a2aa8;
+      --time-800: #1e2498;
+      --time-700: #221f89;
+      --time-600: #261b7a;
+      --time-500: #2a186d;
+      --time-400: #2e1662;
+      --time-300: #331659;
+      --time-200: #381750;
+      --time-100: #3d1948;
+      --time-0: #421b42;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(255, 236, 196, 0.34), transparent 30%),
+        radial-gradient(circle at 80% 76%, rgba(154, 119, 76, 0.24), transparent 38%),
+        linear-gradient(135deg, #ead8b9 0%, #d8c3a2 48%, #b89465 100%);
+    }
+
+    body.theme-sepia-ultramarine main {
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.015)),
+        rgba(216, 195, 162, 0.86);
+      border-color: rgba(18, 10, 143, 0.18);
+      box-shadow:
+        0 18px 70px rgba(86, 55, 23, 0.22),
+        inset 0 0 28px rgba(255, 242, 210, 0.055);
+    }
+
+    body.theme-sepia-ultramarine #minutes {
+      color: #120a8f;
+      text-shadow:
+        0 1px 0 rgba(255, 246, 220, 0.22),
+        0 7px 20px rgba(80, 48, 20, 0.16);
+    }
+
+    body.theme-sepia-ultramarine .label,
+    body.theme-sepia-ultramarine #clock,
+    body.theme-sepia-ultramarine #dateLabel,
+    body.theme-sepia-ultramarine #remainingPercent,
+    body.theme-sepia-ultramarine .remaining-labels,
+    body.theme-sepia-ultramarine .icon-button,
+    body.theme-sepia-ultramarine .designer-credit {
+      color: #120a8f;
+    }
+
+    body.theme-sepia-ultramarine .remaining-fill {
+      background: #120a8f !important;
+      box-shadow: 0 0 10px rgba(18, 10, 143, 0.16);
+    }
+
+    body.theme-sepia-ultramarine .theme-dot {
+      background: #120a8f;
+      box-shadow: 0 0 10px rgba(18, 10, 143, 0.16);
+    }
+
+
     /* Slate Water theme: dark moving water + slate-stone numbers */
     body.theme-slate-water {
       --bg: #071015;
@@ -2006,11 +2071,12 @@
     const toggleSound = document.getElementById("toggleSound");
     const mainEl = document.querySelector("main");
 
-    const themeModes = ["default", "invert", "night-red"];
+    const themeModes = ["default", "invert", "night-red", "sepia-ultramarine"];
     const themeNames = {
       default: "RAL 9002 / RAL 9005",
       invert: "RAL 9005 / RAL 9002",
-      "night-red": "Night red"
+      "night-red": "Night red",
+      "sepia-ultramarine": "Sepia sand / Ultramarine"
     };
     let currentTheme = localStorage.getItem("dayLeftTheme") || "default";
     if (!themeModes.includes(currentTheme)) currentTheme = "default";
@@ -2151,13 +2217,16 @@
         "theme-sage",
         "theme-slate-water",
         "theme-midnight",
-        "theme-lilac"
+        "theme-lilac",
+        "theme-sepia-ultramarine"
       );
 
       if (currentTheme === "invert") {
         document.body.classList.add("theme-invert");
       } else if (currentTheme === "night-red") {
         document.body.classList.add("theme-night-red");
+      } else if (currentTheme === "sepia-ultramarine") {
+        document.body.classList.add("theme-sepia-ultramarine");
       }
 
       const currentIndex = themeModes.indexOf(currentTheme);
