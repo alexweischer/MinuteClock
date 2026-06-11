@@ -275,7 +275,7 @@
   const radius=47, circumference=2*Math.PI*radius; ringLeft.style.strokeDasharray=circumference;
   let startHour=Number(localStorage.getItem('dayUnitsStartHour')||8), endHour=Number(localStorage.getItem('dayUnitsEndHour')||24), intervalMinutes=Number(localStorage.getItem('dayUnitsInterval')||1);
   if(![1,5,10,15,20,30,45,60,90,120].includes(intervalMinutes)) intervalMinutes=1;
-  const SOUND_DEFAULT_VERSION = 'sound100_flash_reliable_interval_v2';
+  const SOUND_DEFAULT_VERSION = 'sound100_audio_fixed_v3';
   if (localStorage.getItem('dayUnitsBuildDefault') !== SOUND_DEFAULT_VERSION) {
     localStorage.setItem('dayUnitsSoundVolume', '100');
     localStorage.setItem('dayUnitsSound', 'on');
@@ -313,14 +313,42 @@
   }
   function updateCornerTime(){const now=new Date(),m=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];cornerDate.textContent=`${m[now.getMonth()]} ${now.getDate()}`;cornerTime.textContent=now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}
   function getAudioContext(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;if(!audioCtx)audioCtx=new AC();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}catch(_){return null}}
+  let audioPrimed=false;
   function unlockAudio(){
-    if(soundVolume>0){
-      const ctx=getAudioContext();
-      if(ctx && ctx.state==='suspended') ctx.resume().catch(()=>{});
+    const ctx=getAudioContext();
+    if(!ctx) return;
+    const finish=()=>{
+      if(audioPrimed) return;
+      audioPrimed=true;
+      // iOS/Safari often needs a real, user-gesture-created audio node once.
+      // This silent micro-ping primes the context without making an audible click.
+      try{
+        const t=ctx.currentTime;
+        const osc=ctx.createOscillator();
+        const gain=ctx.createGain();
+        osc.type='sine';
+        osc.frequency.setValueAtTime(440,t);
+        gain.gain.setValueAtTime(0.00001,t);
+        gain.gain.exponentialRampToValueAtTime(0.000001,t+0.04);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(t);
+        osc.stop(t+0.05);
+      }catch(_){}
+    };
+    if(ctx.state==='suspended'){
+      ctx.resume().then(finish).catch(()=>{});
+    }else{
+      finish();
     }
   }
   function effectiveSoundVolume(){return soundVolume<=0?0:Math.min(1.7,0.35+1.35*Math.pow(soundVolume,.55))}
-  function playChime({force=false}={}){if((!soundEnabled||soundVolume<=0)&&!force)return;const ctx=getAudioContext();if(!ctx)return;const v=Math.max(.2,effectiveSoundVolume()),start=ctx.currentTime,offs=[.02,.50,.98],dur=[.25,.25,.50];const master=ctx.createGain();master.gain.setValueAtTime(.0001,start);master.gain.linearRampToValueAtTime(.80*v,start+.035);master.gain.setValueAtTime(.80*v,start+1.30);master.gain.exponentialRampToValueAtTime(.0001,start+1.62);const filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.setValueAtTime(1350,start);filter.Q.setValueAtTime(.14,start);filter.connect(master).connect(ctx.destination);offs.forEach((o,p)=>{const t=start+o,base=BASE_FREQS[p],duration=dur[p],peak=.055*(p===2?1.16:1);[[1,1],[2,.025],[3,.006]].forEach(([ratio,rel],i)=>{const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type=i===0?'square':'sine';osc.frequency.setValueAtTime(base*ratio,t);gain.gain.setValueAtTime(.0001,t);gain.gain.linearRampToValueAtTime(peak*rel,t+.028);gain.gain.exponentialRampToValueAtTime(.0001,t+duration);osc.connect(gain).connect(filter);osc.start(t);osc.stop(t+duration+.04)})})}
+  function playChime({force=false}={}){if((!soundEnabled||soundVolume<=0)&&!force)return;const ctx=getAudioContext();if(!ctx)return;const v=Math.max(.2,effectiveSoundVolume()),start=ctx.currentTime,offs=[.02,.50,.98],dur=[.25,.25,.50];const master=ctx.createGain();master.gain.setValueAtTime(.0001,start);master.gain.linearRampToValueAtTime(1.05*v,start+.035);master.gain.setValueAtTime(1.05*v,start+1.30);master.gain.exponentialRampToValueAtTime(.0001,start+1.62);const filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.setValueAtTime(1350,start);filter.Q.setValueAtTime(.14,start);const compressor=ctx.createDynamicsCompressor();
+    compressor.threshold.setValueAtTime(-24,start);
+    compressor.knee.setValueAtTime(20,start);
+    compressor.ratio.setValueAtTime(2.5,start);
+    compressor.attack.setValueAtTime(0.003,start);
+    compressor.release.setValueAtTime(0.18,start);
+    filter.connect(master).connect(compressor).connect(ctx.destination);offs.forEach((o,p)=>{const t=start+o,base=BASE_FREQS[p],duration=dur[p],peak=.085*(p===2?1.18:1);[[1,1],[2,.025],[3,.006]].forEach(([ratio,rel],i)=>{const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type=i===0?'square':'sine';osc.frequency.setValueAtTime(base*ratio,t);gain.gain.setValueAtTime(.0001,t);gain.gain.linearRampToValueAtTime(peak*rel,t+.028);gain.gain.exponentialRampToValueAtTime(.0001,t+duration);osc.connect(gain).connect(filter);osc.start(t);osc.stop(t+duration+.04)})})}
   function triggerSignal(){
     // Exactly three clean visual inversion pulses, timed to the three chime tones.
     // Clearing old timers first prevents stray flashes after interval changes, tab switches, or quick re-entry.
@@ -348,8 +376,25 @@
     render();
   }));
   function applySound(){soundEnabled=soundVolume>0;localStorage.setItem('dayUnitsSound',soundEnabled?'on':'off');localStorage.setItem('dayUnitsSoundVolume',String(Math.round(soundVolume*100)));const p=Math.round(soundVolume*100);document.body.classList.toggle('sound-off',!soundEnabled);soundBtn.title=soundEnabled?`Volume ${p}`:'Muted';soundBtn.setAttribute('aria-label',soundEnabled?`volume ${p}`:'muted');volumeSlider.value=String(p);volumeValue.textContent=String(p);volumePanel.style.setProperty('--volume-percent',`${p}%`)}
-  soundBtn.addEventListener('click',e=>{e.stopPropagation();getAudioContext();if(!document.body.classList.contains('volume-open')){if(soundVolume<=0)soundVolume=1;document.body.classList.add('volume-open');volumeWasOpened=true;applySound();showControls()}else{soundVolume=0;document.body.classList.remove('volume-open');applySound();showControls()}});
-  volumePanel.addEventListener('click',e=>e.stopPropagation());volumeSlider.addEventListener('input',()=>{soundVolume=Math.max(0,Math.min(1,Number(volumeSlider.value)/100));applySound();showControls()});volumeSlider.addEventListener('change',()=>{if(soundVolume>0)playChime({force:true})});window.addEventListener('pointerdown',e=>{if(!e.target.closest('#sound')&&!e.target.closest('#volumePanel'))document.body.classList.remove('volume-open')});
+  soundBtn.addEventListener('click',e=>{
+    e.stopPropagation();
+    unlockAudio();
+    if(!document.body.classList.contains('volume-open')){
+      if(soundVolume<=0) soundVolume=1;
+      document.body.classList.add('volume-open');
+      volumeWasOpened=true;
+      applySound();
+      showControls();
+      // audible confirmation that sound is active and unlocked
+      setTimeout(()=>playChime({force:true}),80);
+    }else{
+      soundVolume=0;
+      document.body.classList.remove('volume-open');
+      applySound();
+      showControls();
+    }
+  });
+  volumePanel.addEventListener('click',e=>e.stopPropagation());volumeSlider.addEventListener('input',()=>{unlockAudio();soundVolume=Math.max(0,Math.min(1,Number(volumeSlider.value)/100));applySound();showControls()});volumeSlider.addEventListener('change',()=>{unlockAudio();if(soundVolume>0)setTimeout(()=>playChime({force:true}),60)});window.addEventListener('pointerdown',e=>{if(!e.target.closest('#sound')&&!e.target.closest('#volumePanel'))document.body.classList.remove('volume-open')});
   themeBtn.addEventListener('click',()=>{document.body.classList.toggle('light');localStorage.setItem('dayUnitsTheme',document.body.classList.contains('light')?'light':'dark')});
   // Default is dark; only user-saved light opens light.
   if(localStorage.getItem('dayUnitsTheme')==='light')document.body.classList.add('light');
