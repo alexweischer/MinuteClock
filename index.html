@@ -636,34 +636,71 @@
       text-align: right;
     }
 
-    #barStartLabel,
-    #barEndLabel {
-      cursor: pointer;
+    .time-adjust {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .time-adjust.end {
+      justify-self: end;
+    }
+
+    .time-arrow {
+      appearance: none;
+      -webkit-appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      width: 32px;
+      height: 32px;
+      margin-inline: -7px;
       border-radius: 999px;
+      padding: 0;
+      display: inline-grid;
+      place-items: center;
+      font: inherit;
+      font-size: 14px;
+      line-height: 1;
+      cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
       touch-action: manipulation;
-      pointer-events: auto;
       position: relative;
-      z-index: 20;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease, background 0.18s ease, color 0.18s ease;
     }
 
-    /* Large invisible hit area without moving the visible labels */
-    #barStartLabel::before,
-    #barEndLabel::before {
+    main.controls-visible .time-arrow,
+    main:focus-within .time-arrow {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .time-arrow::before {
       content: "";
       position: absolute;
-      left: -16px;
-      right: -16px;
-      top: -12px;
-      bottom: -12px;
+      inset: -5px;
       border-radius: 999px;
     }
 
-    #barStartLabel:focus-visible,
-    #barEndLabel:focus-visible {
-      outline: 1px solid var(--muted);
-      outline-offset: 4px;
+    .time-arrow:hover,
+    .time-arrow:focus-visible {
+      color: var(--fg);
+      background: color-mix(in srgb, var(--fg) 8%, transparent);
+      outline: none;
+    }
+
+
+    #barStartLabel,
+    #barEndLabel {
+      user-select: none;
+      -webkit-user-select: none;
+      pointer-events: none;
+      position: relative;
+      z-index: 20;
     }
 
     .remaining-track {
@@ -1924,9 +1961,17 @@
 
     <section class="remaining-section" aria-label="Remaining time from 8:00 to 24:00">
       <div class="remaining-labels">
-        <span id="barStartLabel" role="button" tabindex="0" title="Startzeit +1 Stunde">8:00</span>
+        <span class="time-adjust start" aria-label="Startzeit einstellen">
+          <button id="startMinus" class="time-arrow" type="button" aria-label="Startzeit 30 Minuten früher" title="Startzeit -30 Minuten">‹</button>
+          <span id="barStartLabel">8:00</span>
+          <button id="startPlus" class="time-arrow" type="button" aria-label="Startzeit 30 Minuten später" title="Startzeit +30 Minuten">›</button>
+        </span>
         <span id="remainingPercent">100%</span>
-        <span id="barEndLabel" role="button" tabindex="0" title="Endzeit +1 Stunde">24:00</span>
+        <span class="time-adjust end" aria-label="Endzeit einstellen">
+          <button id="endMinus" class="time-arrow" type="button" aria-label="Endzeit 30 Minuten früher" title="Endzeit -30 Minuten">‹</button>
+          <span id="barEndLabel">24:00</span>
+          <button id="endPlus" class="time-arrow" type="button" aria-label="Endzeit 30 Minuten später" title="Endzeit +30 Minuten">›</button>
+        </span>
       </div>
       <div class="remaining-track">
         <div id="remainingFill" class="remaining-fill"></div>
@@ -1952,6 +1997,10 @@
     const remainingPercentEl = document.getElementById("remainingPercent");
     const barStartLabelEl = document.getElementById("barStartLabel");
     const barEndLabelEl = document.getElementById("barEndLabel");
+    const startMinusEl = document.getElementById("startMinus");
+    const startPlusEl = document.getElementById("startPlus");
+    const endMinusEl = document.getElementById("endMinus");
+    const endPlusEl = document.getElementById("endPlus");
     const toggleTheme = document.getElementById("toggleTheme");
     const toggleFullscreen = document.getElementById("toggleFullscreen");
     const toggleSound = document.getElementById("toggleSound");
@@ -1970,15 +2019,26 @@
       displayMode = "minutes";
     }
 
-    let dayStartHour = Number(localStorage.getItem("dayLeftStartHour") || 8);
-    let dayEndHour = Number(localStorage.getItem("dayLeftEndHour") || 24);
+    const storedStartMinutes = localStorage.getItem("dayLeftStartMinutes");
+    const storedEndMinutes = localStorage.getItem("dayLeftEndMinutes");
+    const legacyStartHour = Number(localStorage.getItem("dayLeftStartHour") || 8);
+    const legacyEndHour = Number(localStorage.getItem("dayLeftEndHour") || 24);
+    let dayStartMinutes = storedStartMinutes !== null ? Number(storedStartMinutes) : legacyStartHour * 60;
+    let dayEndMinutes = storedEndMinutes !== null ? Number(storedEndMinutes) : legacyEndHour * 60;
 
-    if (!Number.isInteger(dayStartHour) || dayStartHour < 0 || dayStartHour > 23) {
-      dayStartHour = 8;
+    if (!Number.isInteger(dayStartMinutes) || dayStartMinutes < 0 || dayStartMinutes > 1410) {
+      dayStartMinutes = 8 * 60;
     }
 
-    if (!Number.isInteger(dayEndHour) || dayEndHour < 1 || dayEndHour > 24) {
-      dayEndHour = 24;
+    if (!Number.isInteger(dayEndMinutes) || dayEndMinutes < 30 || dayEndMinutes > 1440) {
+      dayEndMinutes = 24 * 60;
+    }
+
+    dayStartMinutes = Math.round(dayStartMinutes / 30) * 30;
+    dayEndMinutes = Math.round(dayEndMinutes / 30) * 30;
+
+    if (dayEndMinutes <= dayStartMinutes) {
+      dayEndMinutes = Math.min(1440, dayStartMinutes + 30);
     }
 
     let animationId = null;
@@ -2404,17 +2464,30 @@
       }
     }
 
-    function formatHourLabel(hour) {
-      return hour === 24 ? "24:00" : `${hour}:00`;
+    function formatTimeLabel(totalMinutes) {
+      const safeMinutes = Math.max(0, Math.min(1440, totalMinutes));
+      if (safeMinutes === 1440) return "24:00";
+      const hours = Math.floor(safeMinutes / 60);
+      const minutes = safeMinutes % 60;
+      return `${hours}:${pad(minutes)}`;
     }
 
     function minutesSinceMidnight(date) {
       return date.getHours() * 60 + date.getMinutes() + date.getSeconds() / 60 + date.getMilliseconds() / 60000;
     }
 
+    function setClockFromMinutes(date, totalMinutes) {
+      const clamped = Math.max(0, Math.min(1440, totalMinutes));
+      if (clamped === 1440) {
+        date.setHours(24, 0, 0, 0);
+        return;
+      }
+      date.setHours(Math.floor(clamped / 60), clamped % 60, 0, 0);
+    }
+
     function buildWindowForNow(now) {
-      const startMinutes = dayStartHour * 60;
-      const endMinutes = dayEndHour * 60;
+      const startMinutes = dayStartMinutes;
+      const endMinutes = dayEndMinutes;
       const nowMinutes = minutesSinceMidnight(now);
       const crossesMidnight = endMinutes <= startMinutes;
 
@@ -2422,8 +2495,8 @@
       const end = new Date(now);
 
       if (!crossesMidnight) {
-        start.setHours(dayStartHour, 0, 0, 0);
-        end.setHours(dayEndHour, 0, 0, 0);
+        setClockFromMinutes(start, dayStartMinutes);
+        setClockFromMinutes(end, dayEndMinutes);
 
         if (nowMinutes < startMinutes) {
           return { start, end, active: false, nextStart: start };
@@ -2439,22 +2512,22 @@
       }
 
       if (nowMinutes >= startMinutes) {
-        start.setHours(dayStartHour, 0, 0, 0);
+        setClockFromMinutes(start, dayStartMinutes);
         end.setDate(end.getDate() + 1);
-        end.setHours(dayEndHour, 0, 0, 0);
+        setClockFromMinutes(end, dayEndMinutes);
         return { start, end, active: true, nextStart: start };
       }
 
       if (nowMinutes < endMinutes) {
         start.setDate(start.getDate() - 1);
-        start.setHours(dayStartHour, 0, 0, 0);
-        end.setHours(dayEndHour, 0, 0, 0);
+        setClockFromMinutes(start, dayStartMinutes);
+        setClockFromMinutes(end, dayEndMinutes);
         return { start, end, active: true, nextStart: start };
       }
 
-      start.setHours(dayStartHour, 0, 0, 0);
+      setClockFromMinutes(start, dayStartMinutes);
       end.setDate(end.getDate() + 1);
-      end.setHours(dayEndHour, 0, 0, 0);
+      setClockFromMinutes(end, dayEndMinutes);
       return { start, end, active: false, nextStart: start };
     }
 
@@ -2715,10 +2788,10 @@
       }
       clockEl.textContent = `${pad(state.hour)}:${pad(state.minute)}`;
 
-      barStartLabelEl.textContent = formatHourLabel(dayStartHour);
-      barEndLabelEl.textContent = formatHourLabel(dayEndHour);
-      barStartLabelEl.setAttribute("aria-label", `Startzeit ist ${formatHourLabel(dayStartHour)}. Klicken für plus eine Stunde.`);
-      barEndLabelEl.setAttribute("aria-label", `Endzeit ist ${formatHourLabel(dayEndHour)}. Klicken für plus eine Stunde.`);
+      barStartLabelEl.textContent = formatTimeLabel(dayStartMinutes);
+      barEndLabelEl.textContent = formatTimeLabel(dayEndMinutes);
+      barStartLabelEl.setAttribute("aria-label", `Startzeit ist ${formatTimeLabel(dayStartMinutes)}.`);
+      barEndLabelEl.setAttribute("aria-label", `Endzeit ist ${formatTimeLabel(dayEndMinutes)}.`);
 
       remainingFillEl.style.left = "auto";
       remainingFillEl.style.right = "0";
@@ -2762,17 +2835,54 @@
       toggleFullscreen.setAttribute("aria-label", active ? "Exit fullscreen" : "Enter fullscreen");
     }
 
+    let screenWakeLock = null;
+
+    async function requestScreenWakeLock() {
+      if (!("wakeLock" in navigator) || !navigator.wakeLock || document.hidden) return;
+      try {
+        if (screenWakeLock) return;
+        screenWakeLock = await navigator.wakeLock.request("screen");
+        screenWakeLock.addEventListener("release", () => {
+          screenWakeLock = null;
+        });
+      } catch (error) {
+        screenWakeLock = null;
+      }
+    }
+
+    async function releaseScreenWakeLock() {
+      if (!screenWakeLock) return;
+      try {
+        await screenWakeLock.release();
+      } catch (error) {}
+      screenWakeLock = null;
+    }
+
+    function fullscreenIsActive() {
+      return Boolean(document.fullscreenElement) || Boolean(document.webkitFullscreenElement) || isFakeFullscreen();
+    }
+
+    async function syncFullscreenWakeLock() {
+      if (fullscreenIsActive() && !document.hidden) {
+        await requestScreenWakeLock();
+      } else {
+        await releaseScreenWakeLock();
+      }
+    }
+
     async function toggleFullScreenMode() {
       try {
         if (isFakeFullscreen()) {
           document.body.classList.remove("fake-fullscreen");
           setFullscreenButtonState(false);
+          await syncFullscreenWakeLock();
           return;
         }
 
         if (document.fullscreenElement) {
           await document.exitFullscreen();
           setFullscreenButtonState(false);
+          await syncFullscreenWakeLock();
           return;
         }
 
@@ -2781,60 +2891,72 @@
         if (target.requestFullscreen) {
           await target.requestFullscreen();
           setFullscreenButtonState(true);
+          await syncFullscreenWakeLock();
           return;
         }
 
         if (target.webkitRequestFullscreen) {
           target.webkitRequestFullscreen();
           setFullscreenButtonState(true);
+          setTimeout(syncFullscreenWakeLock, 120);
           return;
         }
 
         document.body.classList.add("fake-fullscreen");
         setFullscreenButtonState(true);
+        await syncFullscreenWakeLock();
       } catch (error) {
         document.body.classList.add("fake-fullscreen");
         setFullscreenButtonState(true);
+        await syncFullscreenWakeLock();
       }
     }
 
     document.addEventListener("fullscreenchange", () => {
-      setFullscreenButtonState(Boolean(document.fullscreenElement) || isFakeFullscreen());
+      setFullscreenButtonState(fullscreenIsActive());
+      syncFullscreenWakeLock();
     });
 
     document.addEventListener("webkitfullscreenchange", () => {
-      setFullscreenButtonState(Boolean(document.webkitFullscreenElement) || isFakeFullscreen());
+      setFullscreenButtonState(fullscreenIsActive());
+      syncFullscreenWakeLock();
     });
 
-    function shiftStartHour(event) {
+    function saveTimeWindow() {
+      localStorage.setItem("dayLeftStartMinutes", String(dayStartMinutes));
+      localStorage.setItem("dayLeftEndMinutes", String(dayEndMinutes));
+      localStorage.setItem("dayLeftStartHour", String(Math.floor(dayStartMinutes / 60)));
+      localStorage.setItem("dayLeftEndHour", String(Math.floor(dayEndMinutes / 60)));
+    }
+
+    function shiftStartTime(deltaMinutes, event) {
       if (event) {
         event.preventDefault();
         event.stopPropagation();
       }
-      dayStartHour = (dayStartHour + 1) % 24;
-      localStorage.setItem("dayLeftStartHour", String(dayStartHour));
+      dayStartMinutes = Math.max(0, Math.min(1410, dayStartMinutes + deltaMinutes));
+      if (dayStartMinutes >= dayEndMinutes) {
+        dayEndMinutes = Math.min(1440, dayStartMinutes + 30);
+      }
+      saveTimeWindow();
       playDigitFlipTick(0.90);
       render();
       showControlsBriefly();
     }
 
-    function shiftEndHour(event) {
+    function shiftEndTime(deltaMinutes, event) {
       if (event) {
         event.preventDefault();
         event.stopPropagation();
       }
-      dayEndHour = dayEndHour >= 24 ? 1 : dayEndHour + 1;
-      localStorage.setItem("dayLeftEndHour", String(dayEndHour));
+      dayEndMinutes = Math.max(30, Math.min(1440, dayEndMinutes + deltaMinutes));
+      if (dayEndMinutes <= dayStartMinutes) {
+        dayStartMinutes = Math.max(0, dayEndMinutes - 30);
+      }
+      saveTimeWindow();
       playDigitFlipTick(0.90);
       render();
       showControlsBriefly();
-    }
-
-    function handleHourLabelKey(event, action) {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        action();
-      }
     }
 
     function toggleDisplayMode() {
@@ -2890,12 +3012,10 @@
       }
     });
 
-    barStartLabelEl.addEventListener("click", shiftStartHour);
-    barEndLabelEl.addEventListener("click", shiftEndHour);
-    barStartLabelEl.addEventListener("touchend", shiftStartHour, { passive: false });
-    barEndLabelEl.addEventListener("touchend", shiftEndHour, { passive: false });
-    barStartLabelEl.addEventListener("keydown", (event) => handleHourLabelKey(event, shiftStartHour));
-    barEndLabelEl.addEventListener("keydown", (event) => handleHourLabelKey(event, shiftEndHour));
+    startMinusEl.addEventListener("click", (event) => shiftStartTime(-30, event));
+    startPlusEl.addEventListener("click", (event) => shiftStartTime(30, event));
+    endMinusEl.addEventListener("click", (event) => shiftEndTime(-30, event));
+    endPlusEl.addEventListener("click", (event) => shiftEndTime(30, event));
 
     toggleTheme.addEventListener("click", cycleTheme);
 
@@ -2919,10 +3039,17 @@
 
     document.addEventListener("visibilitychange", () => {
       if (!document.hidden) startLiveLoop();
+      syncFullscreenWakeLock();
     });
 
-    window.addEventListener("focus", startLiveLoop);
-    window.addEventListener("pageshow", startLiveLoop);
+    window.addEventListener("focus", () => {
+      startLiveLoop();
+      syncFullscreenWakeLock();
+    });
+    window.addEventListener("pageshow", () => {
+      startLiveLoop();
+      syncFullscreenWakeLock();
+    });
 
     let controlsTimer = null;
     function showControlsBriefly() {
