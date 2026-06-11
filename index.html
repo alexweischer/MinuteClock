@@ -275,7 +275,7 @@
   const radius=47, circumference=2*Math.PI*radius; ringLeft.style.strokeDasharray=circumference;
   let startHour=Number(localStorage.getItem('dayUnitsStartHour')||8), endHour=Number(localStorage.getItem('dayUnitsEndHour')||24), intervalMinutes=Number(localStorage.getItem('dayUnitsInterval')||1);
   if(![1,5,10,15,20,30,45,60,90,120].includes(intervalMinutes)) intervalMinutes=1;
-  const SOUND_DEFAULT_VERSION = 'sound100_active_default_v2';
+  const SOUND_DEFAULT_VERSION = 'sound100_no_mobile_fullscreen_v1';
   if (localStorage.getItem('dayUnitsBuildDefault') !== SOUND_DEFAULT_VERSION) {
     localStorage.setItem('dayUnitsSoundVolume', '100');
     localStorage.setItem('dayUnitsSound', 'on');
@@ -284,8 +284,6 @@
   let soundVolume=Number(localStorage.getItem('dayUnitsSoundVolume')||100)/100; if(!Number.isFinite(soundVolume)) soundVolume=1; soundVolume=Math.max(0,Math.min(1,soundVolume));
   let soundEnabled=soundVolume>0, audioCtx=null, lastCompletedSlot=null, flashTimer=null, hideTimer=null, frameHandle=null, volumeWasOpened=false;
   let resumeSuppressUntil=0;
-  let pageIsActive = !document.hidden;
-  let lastRenderPerf = performance.now();
   const BASE_FREQS=[440,554.37,659.25];
   function setViewportHeight(){document.documentElement.style.setProperty('--app-h',`${window.innerHeight}px`)}
   setViewportHeight(); ['resize','orientationchange'].forEach(e=>window.addEventListener(e,()=>setTimeout(setViewportHeight,80),{passive:true}));
@@ -302,27 +300,10 @@
     return Math.floor(elapsed/intervalMinutes);
   }
   function syncIntervalWithoutSignal(){
-    lastCompletedSlot = currentCompletedSlot();
-    document.body.classList.remove('interval-flash','flash-pulse');
+    lastCompletedSlot=currentCompletedSlot();
+    document.body.classList.remove('interval-flash');
     clearTimeout(flashTimer);
-    resumeSuppressUntil = performance.now() + 2500;
-    lastRenderPerf = performance.now();
-  }
-
-  function pauseSignalsForInactivePage(){
-    pageIsActive = false;
-    syncIntervalWithoutSignal();
-  }
-
-  function resumeWithoutCatchup(){
-    setViewportHeight();
-    pageIsActive = false;
-    syncIntervalWithoutSignal();
-    setTimeout(() => {
-      syncIntervalWithoutSignal();
-      pageIsActive = !document.hidden;
-      render();
-    }, 180);
+    resumeSuppressUntil=performance.now()+1800;
   }
   function updateCornerTime(){const now=new Date(),m=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];cornerDate.textContent=`${m[now.getMonth()]} ${now.getDate()}`;cornerTime.textContent=now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}
   function getAudioContext(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;if(!audioCtx)audioCtx=new AC();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}catch(_){return null}}
@@ -346,29 +327,7 @@
     },1650);
   }
   function isHorizontalDaybar(){return matchMedia('(max-width:700px), (max-height:500px) and (orientation:landscape)').matches}
-  function render(){
-    clampDay();
-    const perfNow = performance.now();
-    const renderGap = perfNow - lastRenderPerf;
-    lastRenderPerf = perfNow;
-
-    const now=new Date(),current=minutesOfDay(now),start=startHour*60,end=endHour*60,dayLength=Math.max(1,end-start),elapsed=Math.max(0,Math.min(dayLength,current-start)),remaining=Math.max(0,dayLength-elapsed),unitsLeft=Math.ceil(remaining/intervalMinutes),completedSlot=Math.floor(elapsed/intervalMinutes);
-
-    const inactiveOrResumed = document.hidden || !pageIsActive || current < start || current >= end || perfNow < resumeSuppressUntil;
-    const skippedWhileInactive = lastCompletedSlot !== null && completedSlot > lastCompletedSlot + 1;
-    const rafWasPaused = renderGap > 2200;
-
-    if (lastCompletedSlot === null || inactiveOrResumed || skippedWhileInactive || rafWasPaused) {
-      lastCompletedSlot = completedSlot;
-    } else if (completedSlot === lastCompletedSlot + 1) {
-      lastCompletedSlot = completedSlot;
-      triggerSignal();
-    } else if (completedSlot < lastCompletedSlot) {
-      lastCompletedSlot = completedSlot;
-    }
-
-    unitNumber.textContent=padNumber(unitsLeft);unitLabel.textContent=intervalMinutes===1?'min':`${intervalMinutes} min`;const remainder=remaining<=0?0:remaining%intervalMinutes;const progress=remaining<=0?0:(remainder===0?1:remainder/intervalMinutes);ringLeft.style.strokeDashoffset=circumference*(1-progress);const dayLeft=Math.max(0,Math.min(1,remaining/dayLength)),hue=dayLeft*120,nowPos=Math.max(0,Math.min(1,elapsed/dayLength));daybarFill.style.background=`hsl(${hue} 100% 45%)`;if(isHorizontalDaybar()){daybarFill.style.height='100%';daybarFill.style.width=`${dayLeft*100}%`;daybarFill.style.left='0';daybarFill.style.right='auto';daybarNow.style.left=`${nowPos*100}%`;daybarNow.style.bottom='auto'}else{daybarFill.style.width='100%';daybarFill.style.height=`${dayLeft*100}%`;daybarFill.style.left='0';daybarFill.style.right='0';daybarNow.style.bottom=`${(1-nowPos)*100}%`;daybarNow.style.left='50%'}startTimeEl.textContent=formatHour(startHour);endTimeEl.textContent=formatHour(endHour);intervalButtons.forEach(b=>b.classList.toggle('active',Number(b.dataset.interval)===intervalMinutes));updateCornerTime()
-  }
+  function render(){clampDay();const now=new Date(),current=minutesOfDay(now),start=startHour*60,end=endHour*60,dayLength=Math.max(1,end-start),elapsed=Math.max(0,Math.min(dayLength,current-start)),remaining=Math.max(0,dayLength-elapsed),unitsLeft=Math.ceil(remaining/intervalMinutes),completedSlot=Math.floor(elapsed/intervalMinutes);if(document.hidden||lastCompletedSlot===null||current<start||current>=end){lastCompletedSlot=completedSlot}else if(completedSlot>lastCompletedSlot){lastCompletedSlot=completedSlot;if(performance.now()>=resumeSuppressUntil)triggerSignal()}unitNumber.textContent=padNumber(unitsLeft);unitLabel.textContent=intervalMinutes===1?'min':`${intervalMinutes} min`;const remainder=remaining<=0?0:remaining%intervalMinutes;const progress=remaining<=0?0:(remainder===0?1:remainder/intervalMinutes);ringLeft.style.strokeDashoffset=circumference*(1-progress);const dayLeft=Math.max(0,Math.min(1,remaining/dayLength)),hue=dayLeft*120,nowPos=Math.max(0,Math.min(1,elapsed/dayLength));daybarFill.style.background=`hsl(${hue} 100% 45%)`;if(isHorizontalDaybar()){daybarFill.style.height='100%';daybarFill.style.width=`${dayLeft*100}%`;daybarFill.style.left='0';daybarFill.style.right='auto';daybarNow.style.left=`${nowPos*100}%`;daybarNow.style.bottom='auto'}else{daybarFill.style.width='100%';daybarFill.style.height=`${dayLeft*100}%`;daybarFill.style.left='0';daybarFill.style.right='0';daybarNow.style.bottom=`${(1-nowPos)*100}%`;daybarNow.style.left='50%'}startTimeEl.textContent=formatHour(startHour);endTimeEl.textContent=formatHour(endHour);intervalButtons.forEach(b=>b.classList.toggle('active',Number(b.dataset.interval)===intervalMinutes));updateCornerTime()}
   function setStart(d){startHour+=d;if(startHour<0)startHour=0;if(startHour>=endHour)startHour=endHour-1;localStorage.setItem('dayUnitsStartHour',startHour);lastCompletedSlot=null;render()}
   function setEnd(d){endHour+=d;if(endHour>24)endHour=24;if(endHour<=startHour)endHour=startHour+1;localStorage.setItem('dayUnitsEndHour',endHour);lastCompletedSlot=null;render()}
   document.getElementById('startDown').onclick=()=>setStart(-1);document.getElementById('startUp').onclick=()=>setStart(1);document.getElementById('endDown').onclick=()=>setEnd(-1);document.getElementById('endUp').onclick=()=>setEnd(1);
@@ -385,14 +344,17 @@
   ['mousemove','touchstart','pointerdown','keydown'].forEach(e=>window.addEventListener(e,showControls,{passive:true}));
 
   document.addEventListener('visibilitychange',()=>{
-    if(document.hidden) pauseSignalsForInactivePage();
-    else resumeWithoutCatchup();
+    if(document.hidden){
+      syncIntervalWithoutSignal();
+    }else{
+      setViewportHeight();
+      syncIntervalWithoutSignal();
+      setTimeout(()=>{syncIntervalWithoutSignal();render()},120);
+    }
   });
-  window.addEventListener('pagehide', pauseSignalsForInactivePage);
-  window.addEventListener('blur', pauseSignalsForInactivePage);
-  window.addEventListener('pageshow', resumeWithoutCatchup);
-  window.addEventListener('focus', resumeWithoutCatchup);
-  applySound();clampDay();syncIntervalWithoutSignal();pageIsActive = !document.hidden;function loop(){render();frameHandle=requestAnimationFrame(loop)}if(frameHandle)cancelAnimationFrame(frameHandle);loop();showControls();
+  window.addEventListener('pageshow',()=>{setViewportHeight();syncIntervalWithoutSignal();setTimeout(render,120)});
+  window.addEventListener('focus',()=>{setViewportHeight();syncIntervalWithoutSignal();setTimeout(render,120)});
+  applySound();clampDay();function loop(){render();frameHandle=requestAnimationFrame(loop)}if(frameHandle)cancelAnimationFrame(frameHandle);loop();showControls();
 })();
 </script>
 </body>
