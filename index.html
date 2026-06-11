@@ -5,2512 +5,294 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Day Units — Designed by Alex Weischer</title>
 <style>
-  :root {
-    --bg: #000;
-    --fg: #f5f5f0;
-    --muted: rgba(245,245,240,.36);
-    --soft: rgba(245,245,240,.10);
-    --line: rgba(245,245,240,.18);
-    --ring: rgba(245,245,240,.20);
-    --track: rgba(245,245,240,.12);
-    --accent: #ff7a00;
-    --corner-mint: #62ffd2;
+  :root{
+    --bg:#000; --fg:#f5f5f0; --muted:rgba(245,245,240,.36); --soft:rgba(245,245,240,.10);
+    --line:rgba(245,245,240,.18); --ring:rgba(245,245,240,.20); --track:rgba(245,245,240,.12);
+    --accent:#ff7a00; --mint:#62ffd2; --center-size:min(80vmin,760px); --app-h:100svh;
   }
-  body.light {
-    --bg: #f5f3ec;
-    --fg: #090909;
-    --muted: rgba(9,9,9,.36);
-    --soft: rgba(9,9,9,.08);
-    --line: rgba(9,9,9,.18);
-    --ring: rgba(9,9,9,.18);
-    --track: rgba(9,9,9,.10);
-    --accent: #ff7a00;
-    --corner-mint: #007f70;
-  }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body {
-    margin: 0; width: 100%; height: 100%; overflow: hidden;
-    background: var(--bg); color: var(--fg);
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
-  }
-  body { display: grid; place-items: center; }
-  .app { width: 100vw; height: 100svh; position: relative; display: grid; place-items: center; padding: 30px; }
+  body.light{--bg:#f5f3ec;--fg:#090909;--muted:rgba(9,9,9,.38);--soft:rgba(9,9,9,.08);--line:rgba(9,9,9,.18);--ring:rgba(9,9,9,.18);--track:rgba(9,9,9,.10);--mint:#008f78;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;}
+  body{display:grid;place-items:center;}
+  .app{width:100vw;height:var(--app-h);min-height:100svh;position:relative;display:grid;place-items:center;padding:30px;background:var(--bg);overflow:hidden;}
 
-  .corner-date, .corner-time {
-    position: absolute; top: 22px; z-index: 5;
-    font-size: 11px; letter-spacing: .18em; color: var(--corner-mint);
-    opacity: 0; transition: opacity .35s ease; user-select: none;
-    text-shadow: 0 0 8px color-mix(in srgb, var(--corner-mint) 26%, transparent);
-  }
-  .corner-date { left: 26px; text-transform: uppercase; }
-  .corner-time { right: 26px; font-variant-numeric: tabular-nums; }
-  body.show-controls .corner-date, body.show-controls .corner-time { opacity: .58; }
+  body.fake-fullscreen{position:fixed;inset:0;width:100vw;height:var(--app-h);overflow:hidden;}
+  body.fake-fullscreen .app{position:fixed;inset:0;width:100vw;height:var(--app-h);min-height:var(--app-h);z-index:9999;}
+  .app:fullscreen{width:100vw;height:100dvh;min-height:100dvh;background:var(--bg);}
 
-  .top {
-    position: absolute; top: calc(50% - min(43vmin, 380px) - 44px); left: 50%;
-    width: min(78vw, 430px); transform: translateX(-50%);
-    display: grid; grid-template-columns: 1fr auto 1fr; column-gap: 1.28em; align-items: center;
-    font-size: 11px; letter-spacing: .12em; color: var(--muted); user-select: none; z-index: 5;
-    opacity: 0; transition: opacity .35s ease;
-  }
-  .top-left { text-align: right; }
-  .top-center { text-align: center; letter-spacing: .08em; }
-  .top-right { text-align: left; }
-  body.show-controls .top { opacity: .58; }
+  .corner-date,.corner-time{position:absolute;top:max(18px,env(safe-area-inset-top));z-index:20;font-size:11px;letter-spacing:.18em;color:var(--mint);opacity:0;transition:opacity .35s ease;user-select:none;text-shadow:0 0 8px color-mix(in srgb,var(--mint) 24%,transparent);}
+  .corner-date{left:max(22px,env(safe-area-inset-left));text-transform:uppercase}.corner-time{right:max(22px,env(safe-area-inset-right));font-variant-numeric:tabular-nums}
+  body.show-controls .corner-date,body.show-controls .corner-time{opacity:.72}
+  .top{position:absolute;top:calc(50% - var(--center-size)/2 - 44px);left:50%;width:min(78vw,430px);transform:translateX(-50%);display:grid;grid-template-columns:1fr auto 1fr;column-gap:1.28em;align-items:center;font-size:11px;letter-spacing:.12em;color:var(--muted);user-select:none;z-index:10;opacity:0;transition:opacity .35s ease;}
+  .top-left{text-align:right}.top-center{text-align:center;letter-spacing:.08em}.top-right{text-align:left} body.show-controls .top{opacity:.58}
 
-  .center {
-    position: relative; width: min(86vmin, 760px); height: min(86vmin, 760px);
-    display: grid; place-items: center; transform: translateY(-1.5vh);
-  }
-  .ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
-  .ring-bg { fill: none; stroke: var(--ring); stroke-width: 1.55; }
-  .ring-left { fill: none; stroke: var(--fg); stroke-width: 2.05; stroke-linecap: round; transition: none; }
+  .center{position:absolute;left:50%;top:50%;width:var(--center-size);height:var(--center-size);transform:translate(-50%,-50%);display:grid;place-items:center;z-index:3;}
+  .ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}.ring-bg{fill:none;stroke:var(--ring);stroke-width:1.55}.ring-left{fill:none;stroke:var(--fg);stroke-width:2.05;stroke-linecap:round;transition:none;}
+  .unit-number{position:relative;z-index:2;font-size:clamp(74px,18vw,245px);line-height:.72;letter-spacing:-.08em;font-weight:500;font-variant-numeric:tabular-nums;user-select:none;white-space:nowrap;text-align:center;}
+  .unit-label{position:absolute;top:calc(50% + clamp(56px,10vw,134px));left:0;right:0;text-align:center;font-size:clamp(10px,1.35vw,13px);letter-spacing:.22em;text-transform:uppercase;color:var(--accent);user-select:none;}
 
-  body.interval-flash {
-    animation: intervalInvertBlink 2s linear both;
+  .intervals{position:absolute;top:50%;left:calc(50% + var(--center-size)/2 + 34px);transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;opacity:0;pointer-events:none;transition:opacity .35s ease;z-index:12;}
+  body.show-controls .intervals{opacity:1;pointer-events:auto}
+  button{appearance:none;border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:999px;padding:0;min-width:46px;height:40px;font:inherit;cursor:pointer;user-select:none;display:grid;place-items:center;transition:background .16s ease,border-color .16s ease,color .16s ease,transform .1s ease,opacity .16s ease;}
+  button:hover{background:var(--soft);border-color:color-mix(in srgb,var(--fg) 34%,transparent)}button:active{transform:scale(.96)}
+  .intervals button{min-width:56px;height:31px;padding:0 10px;color:var(--muted);font-size:11px;letter-spacing:.10em;border-color:color-mix(in srgb,var(--fg) 16%,transparent);}
+  .intervals button.active{color:#050505;border-color:color-mix(in srgb,var(--accent) 82%,var(--fg) 18%);background:var(--accent);box-shadow:0 0 12px color-mix(in srgb,var(--accent) 38%,transparent),inset 0 0 0 1px color-mix(in srgb,#fff 24%,transparent);}
+
+  .daybar-panel{position:absolute;top:50%;right:calc(50% + var(--center-size)/2 + 46px);transform:translateY(-50%);height:min(62vh,430px);width:78px;display:grid;grid-template-rows:auto 1fr auto;justify-items:center;gap:12px;opacity:0;pointer-events:none;transition:opacity .35s ease;z-index:13;}
+  body.show-controls .daybar-panel{opacity:1;pointer-events:auto}.time-control{display:grid;grid-template-columns:18px auto 18px;align-items:center;gap:3px;color:var(--muted)}.time-control .time-value{width:40px;text-align:center;font-size:11px;letter-spacing:.10em;font-variant-numeric:tabular-nums;color:var(--fg)}.mini-arrow{min-width:18px;width:18px;height:18px;border:0;color:var(--muted);font-size:12px;background:transparent;border-radius:50%;padding:0}.mini-arrow:hover{color:var(--fg);background:var(--soft)}
+  .daybar{position:relative;width:8px;height:100%;border-radius:999px;border:1px solid color-mix(in srgb,var(--fg) 28%,transparent);background:var(--track);overflow:hidden;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--bg) 55%,transparent);}
+  .daybar-fill{position:absolute;left:0;right:0;bottom:0;height:100%;background:hsl(120 100% 45%);opacity:.92;border-radius:999px;transition:height .5s linear,width .5s linear,background .45s linear}.daybar-now{position:absolute;left:50%;transform:translate(-50%,50%);width:18px;height:1px;background:var(--fg);opacity:.78}.daybar-caption{position:absolute;left:50%;top:calc(100% + 17px);transform:translateX(-50%);color:var(--muted);font-size:9px;letter-spacing:.12em;white-space:nowrap;}
+
+  .controls{position:absolute;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;gap:10px;opacity:0;pointer-events:none;transition:opacity .35s ease;z-index:30;}
+  body.show-controls .controls{opacity:1;pointer-events:auto}.icon-btn{width:46px;height:40px;min-width:46px}.theme-dot{width:17px;height:17px;border-radius:50%;display:block;border:1.15px solid currentColor;background:linear-gradient(90deg,currentColor 0 50%,transparent 50% 100%);opacity:.9}.full-icon{width:18px;height:18px;display:block;position:relative;opacity:.92}.full-icon::before{content:"";position:absolute;inset:0;background:linear-gradient(currentColor,currentColor) left top/7px 1.2px no-repeat,linear-gradient(currentColor,currentColor) left top/1.2px 7px no-repeat,linear-gradient(currentColor,currentColor) right top/7px 1.2px no-repeat,linear-gradient(currentColor,currentColor) right top/1.2px 7px no-repeat,linear-gradient(currentColor,currentColor) left bottom/7px 1.2px no-repeat,linear-gradient(currentColor,currentColor) left bottom/1.2px 7px no-repeat,linear-gradient(currentColor,currentColor) right bottom/7px 1.2px no-repeat,linear-gradient(currentColor,currentColor) right bottom/1.2px 7px no-repeat;}
+  .sound-icon{width:19px;height:19px;display:block;opacity:.92;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.sound-muted-line{display:none}body.sound-off .sound-wave{display:none}body.sound-off .sound-muted-line{display:block}
+  .volume-panel{position:absolute;left:50%;bottom:calc(100% + 12px);transform:translateX(-50%) translateY(4px);width:158px;height:38px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:9px;padding:0 11px;border:1px solid var(--line);border-radius:999px;background:color-mix(in srgb,var(--bg) 88%,transparent);color:var(--fg);opacity:0;pointer-events:none;transition:opacity .22s ease,transform .22s ease,background .16s ease,border-color .16s ease;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 10px 28px rgba(0,0,0,.18);}
+  body.volume-open.show-controls .volume-panel{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}.volume-panel input[type=range]{width:100%;margin:0;appearance:none;-webkit-appearance:none;background:transparent;cursor:pointer}.volume-panel input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:999px;background:linear-gradient(90deg,var(--fg) var(--volume-percent,100%),var(--soft) var(--volume-percent,100%))}.volume-panel input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--fg);border:0;margin-top:-5.5px}.volume-value{min-width:28px;text-align:right;font-size:9px;letter-spacing:.08em;color:var(--muted);font-variant-numeric:tabular-nums;user-select:none;}
+  body.interval-flash{animation:intervalInvertBlink 2s linear both}@keyframes intervalInvertBlink{0%,10%{filter:invert(1)}11%,23%{filter:invert(0)}24%,34%{filter:invert(1)}35%,47%{filter:invert(0)}48%,58%{filter:invert(1)}59%,100%{filter:invert(0)}}
+
+  /* iPad landscape and tablet fullscreen: bigger central object, controls always safe */
+  @media (orientation:landscape) and (min-width:760px) and (max-height:1100px){
+    :root{--center-size:min(70vmin,720px)}
+    body.fullscreen-mode:root, body.fake-fullscreen:root{--center-size:min(78vmin,820px)}
+    body.fullscreen-mode .controls, body.fake-fullscreen .controls, .app:fullscreen .controls{bottom:max(24px,env(safe-area-inset-bottom))!important;}
   }
 
-  @keyframes intervalInvertBlink {
-    0%, 10% { filter: invert(1) hue-rotate(180deg); }
-    11%, 23% { filter: invert(0) hue-rotate(0deg); }
-    24%, 34% { filter: invert(1) hue-rotate(180deg); }
-    35%, 47% { filter: invert(0) hue-rotate(0deg); }
-    48%, 58% { filter: invert(1) hue-rotate(180deg); }
-    59%, 100% { filter: invert(0) hue-rotate(0deg); }
+  /* mobile and narrow windows: real layout, not absolute side columns */
+  @media (max-width:700px){
+    .app{display:grid;grid-template-rows:minmax(36px,7svh) minmax(42px,8svh) minmax(0,1fr) minmax(34px,7svh) minmax(48px,9svh);grid-template-areas:"top" "bar" "center" "intervals" "controls";gap:8px;padding:calc(env(safe-area-inset-top) + 10px) 12px calc(env(safe-area-inset-bottom) + 10px);place-items:center;}
+    .top{display:none}.corner-date,.corner-time{top:calc(env(safe-area-inset-top) + 10px);font-size:10px}.corner-date{left:16px}.corner-time{right:16px}
+    .center{grid-area:center;position:relative;left:auto;top:auto;transform:none;width:min(70vw,42svh,360px);height:min(70vw,42svh,360px);align-self:center;}
+    .unit-number{font-size:clamp(74px,23vw,150px)}.unit-label{top:calc(50% + clamp(44px,14vw,80px));font-size:9px;letter-spacing:.17em;}
+    .daybar-panel{grid-area:bar;position:relative;top:auto;right:auto;transform:none;width:min(86vw,430px);height:42px;display:grid;grid-template-columns:auto minmax(130px,1fr) auto;grid-template-rows:1fr;gap:8px;align-items:center;justify-items:center;opacity:0;}
+    .daybar{width:100%;height:8px}.daybar-fill{top:0;bottom:0;left:0;right:auto;width:100%;height:100%}.daybar-now{top:50%;left:0;transform:translate(-50%,-50%);width:1px;height:18px}.daybar-caption{display:none}.time-control{grid-template-columns:15px auto 15px;gap:1px}.time-control .time-value{width:35px;font-size:9px;letter-spacing:.05em}.mini-arrow{min-width:15px;width:15px;height:18px;font-size:11px}
+    .intervals{grid-area:intervals;position:relative;top:auto;left:auto;transform:none;width:min(92vw,440px);display:flex;flex-direction:row;justify-content:center;gap:6px;overflow:visible;opacity:0;}
+    .intervals button{min-width:32px;height:27px;padding:0 7px;font-size:9px;letter-spacing:.05em;}
+    .controls{grid-area:controls;position:relative;left:auto;bottom:auto;transform:none;align-self:center;gap:9px;opacity:0;}
+    .icon-btn{width:44px;min-width:44px;height:38px}.volume-panel{bottom:calc(100% + 10px)}
   }
 
-  body.interval-flash .app {
-    animation: intervalAppPulse 2s linear both;
+  /* iPhone landscape: compact rows, nothing overlaps */
+  @media (max-height:500px) and (orientation:landscape){
+    .app{display:grid;grid-template-rows:34px minmax(0,1fr) 34px 42px;grid-template-areas:"bar" "center" "intervals" "controls";gap:5px;padding:8px max(12px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));place-items:center;}
+    .corner-date,.corner-time{display:none}.top{display:none}
+    .center{grid-area:center;position:relative;left:auto;top:auto;transform:none;width:min(42vw,50svh,270px);height:min(42vw,50svh,270px);}
+    .unit-number{font-size:clamp(62px,16vw,118px)}.unit-label{top:calc(50% + clamp(36px,9vw,62px));font-size:8.5px;letter-spacing:.15em;}
+    .daybar-panel{grid-area:bar;position:relative;top:auto;right:auto;transform:none;width:min(72vw,520px);height:30px;display:grid;grid-template-columns:auto minmax(160px,1fr) auto;grid-template-rows:1fr;gap:8px;align-items:center;justify-items:center;opacity:0;}
+    .daybar{width:100%;height:7px}.daybar-fill{top:0;bottom:0;left:0;right:auto;width:100%;height:100%}.daybar-now{top:50%;left:0;transform:translate(-50%,-50%);width:1px;height:16px}.time-control .time-value{font-size:9px;width:35px}.mini-arrow{height:16px}
+    .intervals{grid-area:intervals;position:relative;top:auto;left:auto;transform:none;width:min(92vw,560px);display:flex;flex-direction:row;justify-content:center;gap:5px;opacity:0;}
+    .intervals button{min-width:34px;height:25px;padding:0 6px;font-size:8.5px;}
+    .controls{grid-area:controls;position:relative;left:auto;bottom:auto;transform:none;align-self:center;gap:8px}.icon-btn{height:34px;width:42px;min-width:42px}.volume-panel{bottom:calc(100% + 8px)}
   }
 
-  @keyframes intervalAppPulse {
-    0%, 10%, 24%, 34%, 48%, 58% { box-shadow: inset 0 0 0 9999px rgba(255,255,255,.055); }
-    11%, 23%, 35%, 47%, 59%, 100% { box-shadow: inset 0 0 0 9999px rgba(255,255,255,0); }
-  }
-
-  .unit-number {
-    position: relative; z-index: 2;
-    font-size: clamp(74px, 18vw, 245px); line-height: .72;
-    letter-spacing: -.08em; font-weight: 500; font-variant-numeric: tabular-nums;
-    user-select: none; white-space: nowrap; text-align: center;
-  }
-  .unit-label {
-    position: absolute; top: calc(50% + clamp(56px, 10vw, 134px)); left: 0; right: 0;
-    text-align: center; font-size: clamp(10px, 1.35vw, 13px);
-    letter-spacing: .22em; text-transform: uppercase; color: var(--muted); user-select: none;
-    display: flex; align-items: center; justify-content: center; gap: .55em;
-  }
-  .unit-label .unit-phrase {
-    color: var(--accent);
-    background: transparent;
-    border: 0;
-    border-radius: 0;
-    padding: 0;
-    box-shadow: none;
-  }
-  body.light .unit-label .unit-phrase {
-    color: var(--accent);
-  }
-
-  .intervals {
-    position: absolute;
-    top: 50%;
-    left: calc(50% + min(43vmin, 380px) + 34px);
-    transform: translateY(-50%);
-    display: flex; flex-direction: column; gap: 10px;
-    opacity: 0; transition: opacity .35s ease; z-index: 7;
-  }
-  body.show-controls .intervals { opacity: 1; }
-  button {
-    appearance: none; border: 1px solid var(--line); background: transparent; color: var(--fg);
-    border-radius: 999px; padding: 0; min-width: 46px; height: 40px;
-    font: inherit; cursor: pointer; user-select: none; display: grid; place-items: center;
-    transition: background .16s ease, border-color .16s ease, color .16s ease, transform .1s ease, opacity .16s ease;
-  }
-  button:hover { background: var(--soft); border-color: color-mix(in srgb, var(--fg) 34%, transparent); }
-  button:active { transform: scale(.96); }
-  .intervals button {
-    min-width: 56px; height: 31px; padding: 0 10px; color: var(--muted);
-    font-size: 11px; letter-spacing: .10em; border-color: color-mix(in srgb, var(--fg) 16%, transparent);
-  }
-  .intervals button.active {
-    color: #050505;
-    border-color: color-mix(in srgb, var(--accent) 82%, var(--fg) 18%);
-    background: var(--accent);
-    box-shadow:
-      0 0 12px color-mix(in srgb, var(--accent) 38%, transparent),
-      inset 0 0 0 1px color-mix(in srgb, #fff 24%, transparent);
-  }
-  body.light .intervals button.active {
-    color: #050505;
-    border-color: color-mix(in srgb, var(--accent) 72%, #000 28%);
-    background: var(--accent);
-    box-shadow:
-      0 0 10px color-mix(in srgb, var(--accent) 24%, transparent),
-      inset 0 0 0 1px color-mix(in srgb, #fff 30%, transparent);
-  }
-
-  .daybar-panel {
-    position: absolute;
-    top: 50%;
-    right: calc(50% + min(43vmin, 380px) + 46px);
-    transform: translateY(-50%);
-    height: min(62vh, 430px);
-    width: 78px;
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    justify-items: center;
-    gap: 12px;
-    opacity: 0; pointer-events: none; transition: opacity .35s ease; z-index: 8;
-  }
-  body.show-controls .daybar-panel { opacity: 1; pointer-events: auto; }
-  .time-control { display: grid; grid-template-columns: 18px auto 18px; align-items: center; gap: 3px; color: var(--muted); }
-  .time-control .time-value {
-    width: 40px; text-align: center; font-size: 11px; letter-spacing: .10em;
-    font-variant-numeric: tabular-nums; color: var(--fg);
-  }
-  .mini-arrow {
-    min-width: 18px; width: 18px; height: 18px; border: 0; color: var(--muted);
-    font-size: 12px; background: transparent; border-radius: 50%; padding: 0;
-  }
-  .mini-arrow:hover { color: var(--fg); background: var(--soft); }
-  .daybar {
-    position: relative; width: 8px; height: 100%; border-radius: 999px;
-    border: 1px solid color-mix(in srgb, var(--fg) 28%, transparent);
-    background: var(--track); overflow: hidden;
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bg) 55%, transparent);
-  }
-  .daybar-fill {
-    position: absolute; left: 0; right: 0; bottom: 0; height: 100%;
-    background: hsl(120 100% 45%); opacity: .92; border-radius: 999px;
-    transition: height .5s linear, background-color .45s linear, background .45s linear;
-  }
-  .daybar-now {
-    position: absolute; left: 50%; transform: translate(-50%, 50%);
-    width: 18px; height: 1px; background: var(--fg); opacity: .78;
-  }
-  .daybar-caption { position: absolute; left: 50%; top: calc(100% + 17px); transform: translateX(-50%); color: var(--muted); font-size: 9px; letter-spacing: .12em; white-space: nowrap; }
-
-  .controls {
-    position: absolute;
-    left: 50%; top: calc(50% + min(43vmin, 380px) + 18px);
-    transform: translateX(-50%);
-    display: flex; gap: 10px; opacity: 0; transition: opacity .35s ease; z-index: 6;
-  }
-  body.show-controls .controls { opacity: 1; }
-  .icon-btn { width: 46px; height: 40px; min-width: 46px; }
-  .theme-dot {
-    width: 17px; height: 17px; border-radius: 50%; display: block;
-    border: 1.15px solid currentColor;
-    background: linear-gradient(90deg, currentColor 0 50%, transparent 50% 100%);
-    opacity: .9;
-  }
-  .full-icon {
-    width: 18px; height: 18px; display: block; position: relative; opacity: .92;
-  }
-  .full-icon::before {
-    content: ""; position: absolute; inset: 0;
-    background:
-      linear-gradient(currentColor,currentColor) left top/7px 1.2px no-repeat,
-      linear-gradient(currentColor,currentColor) left top/1.2px 7px no-repeat,
-      linear-gradient(currentColor,currentColor) right top/7px 1.2px no-repeat,
-      linear-gradient(currentColor,currentColor) right top/1.2px 7px no-repeat,
-      linear-gradient(currentColor,currentColor) left bottom/7px 1.2px no-repeat,
-      linear-gradient(currentColor,currentColor) left bottom/1.2px 7px no-repeat,
-      linear-gradient(currentColor,currentColor) right bottom/7px 1.2px no-repeat,
-      linear-gradient(currentColor,currentColor) right bottom/1.2px 7px no-repeat;
-  }
+  /* fullscreen/fake fullscreen: scale the whole central unit, but keep chrome visible */
+  body.fullscreen-mode:not(.fake-fullscreen) .center, body.fake-fullscreen .center, .app:fullscreen .center{width:min(86vmin,880px);height:min(86vmin,880px);}
+  body.fullscreen-mode:not(.fake-fullscreen) .unit-number, body.fake-fullscreen .unit-number, .app:fullscreen .unit-number{font-size:clamp(90px,20vw,280px)}
+  @media (max-width:700px){body.fake-fullscreen .center{width:min(76vw,48svh,420px);height:min(76vw,48svh,420px)}}
+  @media (max-height:500px) and (orientation:landscape){body.fake-fullscreen .center{width:min(44vw,56svh,300px);height:min(44vw,56svh,300px)}body.fake-fullscreen .unit-number{font-size:clamp(64px,17vw,126px)}}
 
 
-  .sound-icon {
-    width: 19px; height: 19px; display: block; opacity: .92;
-    fill: none; stroke: currentColor; stroke-width: 1.7;
-    stroke-linecap: round; stroke-linejoin: round;
-  }
-  .sound-muted-line { display: none; }
-  body.sound-off .sound-wave { display: none; }
-  body.sound-off .sound-muted-line { display: block; }
-
-
-  .volume-panel {
-    position: absolute;
-    left: 50%;
-    bottom: calc(100% + 12px);
-    transform: translateX(-50%) translateY(4px);
-    width: 158px;
-    height: 38px;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    gap: 9px;
-    padding: 0 11px;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--bg) 88%, transparent);
-    color: var(--fg);
-    opacity: 0;
+  /* FINAL FIX: robust visible interval flash and clean fullscreen spacing */
+  .app::after {
+    content: "";
+    position: fixed;
+    inset: 0;
     pointer-events: none;
-    transition: opacity .22s ease, transform .22s ease, background .16s ease, border-color .16s ease;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    box-shadow: 0 10px 28px rgba(0,0,0,.18);
-  }
-  body.volume-open.show-controls .volume-panel {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateX(-50%) translateY(0);
-  }
-  .volume-panel input[type="range"] {
-    width: 100%;
-    margin: 0;
-    appearance: none;
-    -webkit-appearance: none;
-    background: transparent;
-    cursor: pointer;
-  }
-  .volume-panel input[type="range"]::-webkit-slider-runnable-track {
-    height: 3px;
-    border-radius: 999px;
-    background: linear-gradient(90deg, var(--fg) var(--volume-percent, 75%), var(--soft) var(--volume-percent, 75%));
-  }
-  .volume-panel input[type="range"]::-webkit-slider-thumb {
-    appearance: none;
-    -webkit-appearance: none;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
+    z-index: 99999;
     background: var(--fg);
-    border: 0;
-    margin-top: -5.5px;
+    opacity: 0;
+    mix-blend-mode: difference;
   }
-  .volume-panel input[type="range"]::-moz-range-track {
-    height: 3px;
-    border-radius: 999px;
-    background: var(--soft);
+  body.interval-flash .app::after {
+    animation: visibleIntervalFlash 2s linear both;
   }
-  .volume-panel input[type="range"]::-moz-range-progress {
-    height: 3px;
-    border-radius: 999px;
-    background: var(--fg);
-  }
-  .volume-panel input[type="range"]::-moz-range-thumb {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--fg);
-    border: 0;
-  }
-  .volume-value {
-    min-width: 28px;
-    text-align: right;
-    font-size: 9px;
-    letter-spacing: .08em;
-    color: var(--muted);
-    font-variant-numeric: tabular-nums;
-    user-select: none;
+  @keyframes visibleIntervalFlash {
+    0%, 10% { opacity: .92; }
+    11%, 23% { opacity: 0; }
+    24%, 34% { opacity: .92; }
+    35%, 47% { opacity: 0; }
+    48%, 58% { opacity: .92; }
+    59%, 100% { opacity: 0; }
   }
 
-
-  @media (max-width: 900px) {
-    .center { width: min(82vmin, 620px); height: min(82vmin, 620px); }
-    .intervals { left: auto; right: 16px; gap: 7px; }
-    .intervals button { min-width: 46px; height: 30px; padding: 0 8px; }
-    .daybar-panel { right: auto; left: 12px; height: min(58vh, 370px); width: 64px; }
-    .controls { top: auto; bottom: max(18px, env(safe-area-inset-bottom)); }
-    .top { top: 16px; width: min(68vw, 360px); }
-  }
-  @media (max-width: 520px) {
-    .app {
-      padding: max(22px, env(safe-area-inset-top)) 14px max(86px, env(safe-area-inset-bottom));
-      align-items: center;
-    }
-
-    .corner-date,
-    .corner-time {
-      top: max(16px, env(safe-area-inset-top));
-      font-size: 9.5px;
-      letter-spacing: .14em;
-    }
-    .corner-date { left: 16px; }
-    .corner-time { right: 16px; }
-
-    .top {
-      top: max(38px, calc(env(safe-area-inset-top) + 30px));
-      width: min(72vw, 300px);
-      font-size: 8.5px;
-      column-gap: .8em;
-      letter-spacing: .09em;
-    }
-
-    .center {
-      width: min(69vmin, 330px);
-      height: min(69vmin, 330px);
-      transform: translateY(-3.6vh);
-    }
-
-    .unit-number {
-      font-size: clamp(68px, 20vw, 122px);
-      letter-spacing: -.075em;
-    }
-
-    .unit-label {
-      top: calc(50% + clamp(42px, 12vw, 66px));
-      font-size: 8.5px;
-      letter-spacing: .15em;
-    }
-
-    .intervals {
-      right: max(8px, env(safe-area-inset-right));
-      gap: 5px;
-      transform: translateY(-53%);
-    }
-    .intervals button {
-      min-width: 36px;
-      height: 24px;
-      padding: 0 6px;
-      font-size: 8.5px;
-      letter-spacing: .06em;
-    }
-
-    .daybar-panel {
-      left: max(6px, env(safe-area-inset-left));
-      width: 50px;
-      height: min(45vh, 292px);
-      gap: 8px;
-      transform: translateY(-54%);
-    }
-    .daybar { width: 7px; }
-    .daybar-now { width: 14px; }
-    .daybar-caption { display: none; }
-
-    .time-control {
-      grid-template-columns: 12px auto 12px;
-      gap: 0;
-    }
-    .time-control .time-value {
-      width: 30px;
-      font-size: 8px;
-      letter-spacing: .035em;
-    }
-    .mini-arrow {
-      min-width: 12px;
-      width: 12px;
-      height: 14px;
-      font-size: 9px;
-    }
-
-    .controls {
-      bottom: max(18px, env(safe-area-inset-bottom));
-      gap: 8px;
-    }
-    .icon-btn {
-      width: 42px;
-      min-width: 42px;
-      height: 38px;
-    }
-    .volume-panel {
-      width: 142px;
-      height: 36px;
-    }
-  }
-
-  @media (max-width: 380px) {
-    .center {
-      width: min(64vmin, 292px);
-      height: min(64vmin, 292px);
-      transform: translateY(-4.8vh);
-    }
-    .unit-number { font-size: clamp(58px, 18vw, 102px); }
-    .unit-label { top: calc(50% + clamp(36px, 10.8vw, 56px)); font-size: 7.8px; }
-    .intervals button { min-width: 34px; height: 23px; font-size: 8px; }
-    .daybar-panel { width: 46px; height: min(42vh, 260px); }
-  }
-
-  @media (max-width: 520px) and (max-height: 700px) {
-    .center {
-      width: min(60vmin, 280px);
-      height: min(60vmin, 280px);
-      transform: translateY(-6.2vh);
-    }
-    .daybar-panel { height: min(40vh, 238px); }
-    .intervals { gap: 4px; }
-    .intervals button { height: 22px; }
-  }
-
-
-  /* Mobile layout rewrite: horizontal day scale above the ring, interval scale below the ring. */
-  @media (max-width: 520px) {
-    .app {
-      padding: max(18px, env(safe-area-inset-top)) 12px max(92px, env(safe-area-inset-bottom));
-    }
-
-    .center {
-      width: min(74vw, 330px);
-      height: min(74vw, 330px);
-      transform: translateY(-2.2vh);
-    }
-
-    .unit-number {
-      font-size: clamp(72px, 22vw, 138px);
-    }
-
-    .unit-label {
-      top: calc(50% + clamp(45px, 13vw, 74px));
-    }
-
-    .daybar-panel {
-      left: 50%;
-      right: auto;
-      top: calc(50% - min(37vw, 165px) - 54px);
-      transform: translateX(-50%);
-      width: min(86vw, 380px);
-      height: 34px;
-      display: grid;
-      grid-template-columns: auto minmax(74px, 1fr) auto;
-      grid-template-rows: 1fr;
-      align-items: center;
-      justify-items: center;
-      gap: 9px;
-      pointer-events: none;
-    }
-
-    body.show-controls .daybar-panel {
-      pointer-events: auto;
-    }
-
-    .daybar-panel .time-control:first-child { grid-column: 1; grid-row: 1; }
-    .daybar-panel .daybar { grid-column: 2; grid-row: 1; }
-    .daybar-panel .time-control:last-child { grid-column: 3; grid-row: 1; }
-
-    .daybar {
-      width: 100%;
-      height: 7px;
-      min-width: 74px;
-    }
-
-    .daybar-fill {
-      left: 0;
-      right: auto;
-      top: 0;
-      bottom: 0;
-      width: 100%;
-      height: 100%;
-      transition: width .5s linear, background-color .45s linear, background .45s linear;
-    }
-
-    .daybar-now {
-      top: 50%;
-      bottom: auto;
-      left: 0;
-      transform: translate(-50%, -50%);
-      width: 1px;
-      height: 16px;
-    }
-
-    .daybar-caption { display: none; }
-
-    .time-control {
-      grid-template-columns: 13px auto 13px;
-      gap: 1px;
-    }
-
-    .time-control .time-value {
-      width: 32px;
-      font-size: 8.5px;
-      letter-spacing: .035em;
-    }
-
-    .mini-arrow {
-      min-width: 13px;
-      width: 13px;
-      height: 16px;
-      font-size: 10px;
-    }
-
-    .intervals {
-      left: 50%;
-      right: auto;
-      top: auto;
-      bottom: calc(max(18px, env(safe-area-inset-bottom)) + 58px);
-      transform: translateX(-50%);
-      width: min(88vw, 390px);
-      display: flex;
-      flex-direction: row;
-      flex-wrap: nowrap;
-      justify-content: center;
-      align-items: center;
-      gap: 5px;
-      overflow-x: auto;
-      overflow-y: hidden;
-      padding: 3px 2px;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-
-    .intervals::-webkit-scrollbar { display: none; }
-
-    .intervals button {
-      flex: 0 0 auto;
-      min-width: 34px;
-      height: 25px;
-      padding: 0 7px;
-      font-size: 8.5px;
-      letter-spacing: .045em;
-    }
-
-    .controls {
-      top: auto;
-      bottom: max(18px, env(safe-area-inset-bottom));
-      gap: 9px;
-    }
-  }
-
-  @media (max-width: 520px) and (max-height: 700px) {
-    .center {
-      width: min(68vw, 290px);
-      height: min(68vw, 290px);
-      transform: translateY(-3.6vh);
-    }
-
-    .daybar-panel {
-      top: calc(50% - min(34vw, 145px) - 44px);
-      height: 30px;
-      width: min(84vw, 360px);
-    }
-
-    .intervals {
-      bottom: calc(max(14px, env(safe-area-inset-bottom)) + 51px);
-      gap: 4px;
-    }
-
-    .intervals button {
-      min-width: 32px;
-      height: 23px;
-      padding: 0 6px;
-      font-size: 8px;
-    }
-  }
-
-
-  /* Mobile balanced layout: no overlap, clear vertical rhythm. */
-  @media (max-width: 520px) {
-    .app {
-      padding: max(16px, env(safe-area-inset-top)) 12px max(76px, env(safe-area-inset-bottom));
-      place-items: center;
-    }
-
-    .corner-date,
-    .corner-time {
-      top: max(14px, env(safe-area-inset-top));
-      font-size: 9.5px;
-      letter-spacing: .14em;
-    }
-    .corner-date { left: 16px; }
-    .corner-time { right: 16px; }
-
-    .top {
-      top: max(40px, calc(env(safe-area-inset-top) + 30px));
-      width: min(70vw, 300px);
-      font-size: 8px;
-      column-gap: .75em;
-      letter-spacing: .08em;
-    }
-
-    .center {
-      width: min(72vw, 300px, 45svh);
-      height: min(72vw, 300px, 45svh);
-      transform: translateY(-1.8svh);
-    }
-
-    .unit-number {
-      font-size: clamp(66px, 21vw, 126px);
-      letter-spacing: -.075em;
-    }
-
-    .unit-label {
-      top: calc(50% + clamp(42px, 12vw, 68px));
-      font-size: 8.5px;
-      letter-spacing: .16em;
-    }
-
-    .daybar-panel {
-      left: 50%;
-      right: auto;
-      top: clamp(78px, 12.5svh, 112px);
-      transform: translateX(-50%);
-      width: min(86vw, 380px);
-      height: 32px;
-      display: grid;
-      grid-template-columns: auto minmax(92px, 1fr) auto;
-      grid-template-rows: 1fr;
-      align-items: center;
-      justify-items: center;
-      gap: 8px;
-      pointer-events: none;
-    }
-
-    body.show-controls .daybar-panel { pointer-events: auto; }
-
-    .daybar-panel .time-control:first-child { grid-column: 1; grid-row: 1; }
-    .daybar-panel .daybar { grid-column: 2; grid-row: 1; }
-    .daybar-panel .time-control:last-child { grid-column: 3; grid-row: 1; }
-
-    .daybar {
-      width: 100%;
-      height: 7px;
-      min-width: 92px;
-    }
-    .daybar-fill {
-      left: 0;
-      right: auto;
-      top: 0;
-      bottom: 0;
-      width: 100%;
-      height: 100%;
-      transition: width .5s linear, background-color .45s linear, background .45s linear;
-    }
-    .daybar-now {
-      top: 50%;
-      bottom: auto;
-      left: 0;
-      transform: translate(-50%, -50%);
-      width: 1px;
-      height: 16px;
-    }
-    .daybar-caption { display: none; }
-
-    .time-control {
-      grid-template-columns: 14px auto 14px;
-      gap: 1px;
-    }
-    .time-control .time-value {
-      width: 34px;
-      font-size: 8.5px;
-      letter-spacing: .035em;
-    }
-    .mini-arrow {
-      min-width: 14px;
-      width: 14px;
-      height: 16px;
-      font-size: 10px;
-    }
-
-    .intervals {
-      left: 50%;
-      right: auto;
-      top: calc(50% + min(36vw, 150px, 22.5svh) + 24px);
-      bottom: auto;
-      transform: translateX(-50%);
-      width: min(92vw, 410px);
-      display: flex;
-      flex-direction: row;
-      flex-wrap: nowrap;
-      justify-content: flex-start;
-      align-items: center;
-      gap: 6px;
-      overflow-x: auto;
-      overflow-y: hidden;
-      padding: 4px 7px;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-    .intervals::-webkit-scrollbar { display: none; }
-    .intervals button {
-      flex: 0 0 auto;
-      min-width: 36px;
-      height: 26px;
-      padding: 0 8px;
-      font-size: 8.5px;
-      letter-spacing: .045em;
-    }
-
-    .controls {
-      top: auto;
-      bottom: max(18px, env(safe-area-inset-bottom));
-      gap: 9px;
-    }
-    .icon-btn {
-      width: 42px;
-      min-width: 42px;
-      height: 38px;
-    }
-    .volume-panel {
-      width: 144px;
-      height: 36px;
-    }
-  }
-
-  @media (max-width: 380px) {
-    .center {
-      width: min(68vw, 270px, 42svh);
-      height: min(68vw, 270px, 42svh);
-      transform: translateY(-1.4svh);
-    }
-    .unit-number { font-size: clamp(58px, 19vw, 108px); }
-    .unit-label { top: calc(50% + clamp(36px, 10.8vw, 56px)); font-size: 7.8px; }
-    .daybar-panel { width: min(88vw, 340px); height: 30px; gap: 6px; }
-    .intervals { width: min(94vw, 360px); gap: 4px; padding-inline: 6px; }
-    .intervals button { min-width: 33px; height: 24px; padding: 0 6px; font-size: 8px; }
-  }
-
-  @media (max-width: 520px) and (max-height: 700px) {
-    .top { display: none; }
-    .daybar-panel { top: max(62px, calc(env(safe-area-inset-top) + 48px)); height: 29px; }
-    .center {
-      width: min(64vw, 270px, 39svh);
-      height: min(64vw, 270px, 39svh);
-      transform: translateY(-0.5svh);
-    }
-    .unit-number { font-size: clamp(56px, 18vw, 100px); }
-    .unit-label { top: calc(50% + clamp(34px, 10vw, 52px)); }
-    .intervals {
-      top: calc(50% + min(32vw, 120px, 19.5svh) + 16px);
-      gap: 4px;
-    }
-    .intervals button { height: 23px; }
-    .controls { bottom: max(12px, env(safe-area-inset-bottom)); }
-  }
-
-
-  /* Mobile-safe fullscreen: native fullscreen where available, iOS/Safari fallback via fake fullscreen. */
-  body.fake-fullscreen {
-    width: 100vw;
-    height: 100dvh;
-    overflow: hidden;
-    position: fixed;
-    inset: 0;
-    background: var(--bg);
-  }
-
+  /* In fullscreen/fake-fullscreen on tablets/desktops: do not anchor side elements from an oversized circle. */
+  body.fullscreen-mode .app,
   body.fake-fullscreen .app,
-  .app:fullscreen,
-  .app:-webkit-full-screen {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100dvh;
-    min-height: 100dvh;
-    max-height: 100dvh;
-    padding: max(18px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) max(86px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
-    background: var(--bg);
-    z-index: 9999;
+  .app:fullscreen {
+    --center-size: min(64vmin, 760px);
   }
 
-  body.fake-fullscreen .controls {
-    bottom: max(18px, env(safe-area-inset-bottom));
+  body.fullscreen-mode .top,
+  body.fake-fullscreen .top,
+  .app:fullscreen .top {
+    top: max(22px, env(safe-area-inset-top));
+    width: min(72vw, 480px);
+    z-index: 30;
   }
 
-  body.fake-fullscreen .corner-date,
-  body.fake-fullscreen .corner-time {
-    top: max(15px, env(safe-area-inset-top));
+  body.fullscreen-mode .daybar-panel,
+  body.fake-fullscreen .daybar-panel,
+  .app:fullscreen .daybar-panel {
+    right: calc(50% + var(--center-size) / 2 + clamp(48px, 5.2vw, 86px));
+    z-index: 28;
   }
 
-  @media (max-width: 520px) {
+  body.fullscreen-mode .intervals,
+  body.fake-fullscreen .intervals,
+  .app:fullscreen .intervals {
+    left: calc(50% + var(--center-size) / 2 + clamp(38px, 4.5vw, 72px));
+    z-index: 28;
+  }
+
+  body.fullscreen-mode .center,
+  body.fake-fullscreen .center,
+  .app:fullscreen .center {
+    width: var(--center-size) !important;
+    height: var(--center-size) !important;
+    z-index: 8;
+  }
+
+  body.fullscreen-mode .unit-number,
+  body.fake-fullscreen .unit-number,
+  .app:fullscreen .unit-number {
+    font-size: clamp(96px, calc(var(--center-size) * .28), 270px) !important;
+  }
+
+  body.fullscreen-mode .unit-label,
+  body.fake-fullscreen .unit-label,
+  .app:fullscreen .unit-label {
+    top: calc(50% + min(16vmin, 125px));
+  }
+
+  /* iPad landscape and similar: keep bottom controls fixed and visible. */
+  @media (orientation: landscape) and (min-width: 700px) and (max-height: 920px) {
+    body.fullscreen-mode .app,
     body.fake-fullscreen .app,
-    .app:fullscreen,
-    .app:-webkit-full-screen {
-      padding: max(16px, env(safe-area-inset-top)) 12px max(82px, env(safe-area-inset-bottom));
+    .app:fullscreen {
+      --center-size: min(58vmin, 620px);
     }
-
-    body.fake-fullscreen .center,
-    .app:fullscreen .center,
-    .app:-webkit-full-screen .center {
-      width: min(72vw, 310px, 45dvh);
-      height: min(72vw, 310px, 45dvh);
-      transform: translateY(-1.4dvh);
-    }
-
-    body.fake-fullscreen .daybar-panel,
-    .app:fullscreen .daybar-panel,
-    .app:-webkit-full-screen .daybar-panel {
-      top: clamp(72px, 12dvh, 116px);
-    }
-
-    body.fake-fullscreen .intervals,
-    .app:fullscreen .intervals,
-    .app:-webkit-full-screen .intervals {
-      top: calc(50% + min(36vw, 150px, 22.5dvh) + 24px);
-      bottom: auto;
-    }
-
+    body.fullscreen-mode .controls,
     body.fake-fullscreen .controls,
-    .app:fullscreen .controls,
-    .app:-webkit-full-screen .controls {
-      bottom: max(18px, env(safe-area-inset-bottom));
-    }
-  }
-
-  @media (max-width: 520px) and (max-height: 700px) {
-    body.fake-fullscreen .center,
-    .app:fullscreen .center,
-    .app:-webkit-full-screen .center {
-      width: min(64vw, 270px, 39dvh);
-      height: min(64vw, 270px, 39dvh);
-      transform: translateY(-0.4dvh);
-    }
-
-    body.fake-fullscreen .daybar-panel,
-    .app:fullscreen .daybar-panel,
-    .app:-webkit-full-screen .daybar-panel {
-      top: max(62px, calc(env(safe-area-inset-top) + 48px));
-    }
-
-    body.fake-fullscreen .intervals,
-    .app:fullscreen .intervals,
-    .app:-webkit-full-screen .intervals {
-      top: calc(50% + min(32vw, 120px, 19.5dvh) + 16px);
-    }
-  }
-
-
-
-  /* Robust iPhone fullscreen fallback. iOS Safari does not expose real fullscreen for normal pages,
-     so the app switches into a viewport-locked fake fullscreen using the actual visualViewport height. */
-  html.fake-fullscreen,
-  body.fake-fullscreen {
-    width: 100vw !important;
-    height: var(--app-height, 100dvh) !important;
-    min-height: var(--app-height, 100dvh) !important;
-    max-height: var(--app-height, 100dvh) !important;
-    overflow: hidden !important;
-    overscroll-behavior: none !important;
-    background: var(--bg) !important;
-  }
-
-  body.fake-fullscreen {
-    position: fixed !important;
-    inset: 0 !important;
-    touch-action: none;
-  }
-
-  html.fake-fullscreen .app,
-  body.fake-fullscreen .app {
-    position: fixed !important;
-    inset: 0 !important;
-    width: 100vw !important;
-    height: var(--app-height, 100dvh) !important;
-    min-height: var(--app-height, 100dvh) !important;
-    max-height: var(--app-height, 100dvh) !important;
-    overflow: hidden !important;
-  }
-
-  html.fake-fullscreen .corner-date,
-  html.fake-fullscreen .corner-time,
-  body.fake-fullscreen .corner-date,
-  body.fake-fullscreen .corner-time {
-    top: max(14px, env(safe-area-inset-top)) !important;
-  }
-
-
-
-  /* iPhone landscape / mobile horizontal: readable, no overlap. */
-  @media (orientation: landscape) and (max-height: 520px) and (max-width: 950px) {
-    .app,
-    body.fake-fullscreen .app,
-    html.fake-fullscreen .app,
-    .app:fullscreen,
-    .app:-webkit-full-screen {
-      padding: max(10px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) max(58px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left)) !important;
-      display: grid !important;
-      place-items: center !important;
-      overflow: hidden !important;
-    }
-
-    .corner-date,
-    .corner-time,
-    body.fake-fullscreen .corner-date,
-    body.fake-fullscreen .corner-time,
-    html.fake-fullscreen .corner-date,
-    html.fake-fullscreen .corner-time {
-      top: max(8px, env(safe-area-inset-top)) !important;
-      font-size: 9px !important;
-      letter-spacing: .13em !important;
-      opacity: 0 !important;
-    }
-    body.show-controls .corner-date,
-    body.show-controls .corner-time { opacity: .50 !important; }
-    .corner-date { left: max(14px, env(safe-area-inset-left)) !important; }
-    .corner-time { right: max(14px, env(safe-area-inset-right)) !important; }
-
-    .top { display: none !important; }
-
-    .center,
-    body.fake-fullscreen .center,
-    html.fake-fullscreen .center,
-    .app:fullscreen .center,
-    .app:-webkit-full-screen .center {
-      width: min(46svh, 43vw, 260px) !important;
-      height: min(46svh, 43vw, 260px) !important;
-      transform: translateY(-1.5svh) !important;
-      z-index: 3 !important;
-    }
-
-    .unit-number {
-      font-size: clamp(54px, 12.5vw, 112px) !important;
-      letter-spacing: -.075em !important;
-    }
-
-    .unit-label {
-      top: calc(50% + clamp(33px, 6.5vw, 54px)) !important;
-      font-size: 8px !important;
-      letter-spacing: .15em !important;
-    }
-
-    .ring-bg { stroke-width: 1.35 !important; }
-    .ring-left { stroke-width: 1.85 !important; }
-
-    /* Horizontal day bar above the ring. */
-    .daybar-panel,
-    body.fake-fullscreen .daybar-panel,
-    html.fake-fullscreen .daybar-panel,
-    .app:fullscreen .daybar-panel,
-    .app:-webkit-full-screen .daybar-panel {
-      left: 50% !important;
-      right: auto !important;
-      top: max(31px, calc(env(safe-area-inset-top) + 24px)) !important;
-      transform: translateX(-50%) !important;
-      width: min(78vw, 500px) !important;
-      height: 30px !important;
-      display: grid !important;
-      grid-template-columns: auto minmax(120px, 1fr) auto !important;
-      grid-template-rows: 1fr !important;
-      align-items: center !important;
-      justify-items: center !important;
-      gap: 9px !important;
-      opacity: 0 !important;
-      pointer-events: none !important;
-      z-index: 9 !important;
-    }
-    body.show-controls .daybar-panel { opacity: 1 !important; pointer-events: auto !important; }
-
-    .daybar-panel .time-control {
-      grid-template-columns: 14px 36px 14px !important;
-      gap: 1px !important;
-      width: 66px !important;
-    }
-    .daybar-panel .time-value {
-      width: 36px !important;
-      font-size: 8.5px !important;
-      letter-spacing: .05em !important;
-    }
-    .daybar-panel .mini-arrow {
-      min-width: 14px !important;
-      width: 14px !important;
-      height: 18px !important;
-      font-size: 10px !important;
-    }
-    .daybar-panel .daybar {
-      width: 100% !important;
-      height: 7px !important;
-      transform: none !important;
-      border-radius: 999px !important;
-    }
-    .daybar-panel .daybar-fill {
-      left: 0 !important;
-      right: auto !important;
-      top: 0 !important;
-      bottom: 0 !important;
-      height: 100% !important;
-      width: var(--daybar-width, 100%) !important;
-      border-radius: 999px !important;
-      transition: width .5s linear, background-color .45s linear, background .45s linear !important;
-    }
-    .daybar-panel .daybar-now {
-      top: 50% !important;
-      bottom: auto !important;
-      left: var(--daybar-now-left, 0%) !important;
-      transform: translate(-50%, -50%) !important;
-      width: 1px !important;
-      height: 16px !important;
-    }
-    .daybar-caption { display: none !important; }
-
-    /* Horizontal interval scale above the controls, below the ring. */
-    .intervals,
-    body.fake-fullscreen .intervals,
-    html.fake-fullscreen .intervals,
-    .app:fullscreen .intervals,
-    .app:-webkit-full-screen .intervals {
-      left: 50% !important;
-      right: auto !important;
-      top: auto !important;
-      bottom: max(52px, calc(env(safe-area-inset-bottom) + 46px)) !important;
-      transform: translateX(-50%) !important;
-      width: min(90vw, 620px) !important;
-      display: flex !important;
-      flex-direction: row !important;
-      justify-content: center !important;
-      align-items: center !important;
-      gap: 5px !important;
-      padding: 0 4px !important;
-      overflow: visible !important;
-      z-index: 8 !important;
-    }
-    .intervals button {
-      min-width: 38px !important;
-      height: 24px !important;
-      padding: 0 7px !important;
-      font-size: 8.5px !important;
-      letter-spacing: .055em !important;
-      flex: 0 0 auto !important;
-    }
-
-    .controls,
-    body.fake-fullscreen .controls,
-    html.fake-fullscreen .controls,
-    .app:fullscreen .controls,
-    .app:-webkit-full-screen .controls {
+    .app:fullscreen .controls {
+      position: fixed !important;
       left: 50% !important;
       top: auto !important;
-      bottom: max(8px, env(safe-area-inset-bottom)) !important;
-      transform: translateX(-50%) !important;
-      gap: 9px !important;
-      z-index: 10 !important;
-    }
-    .icon-btn {
-      width: 40px !important;
-      min-width: 40px !important;
-      height: 34px !important;
-    }
-    .volume-panel {
-      bottom: calc(100% + 10px) !important;
-      width: 150px !important;
-      height: 34px !important;
-    }
-  }
-
-  @media (orientation: landscape) and (max-height: 390px) and (max-width: 950px) {
-    .center,
-    body.fake-fullscreen .center,
-    html.fake-fullscreen .center,
-    .app:fullscreen .center,
-    .app:-webkit-full-screen .center {
-      width: min(43svh, 38vw, 220px) !important;
-      height: min(43svh, 38vw, 220px) !important;
-      transform: translateY(-1.0svh) !important;
-    }
-    .unit-number { font-size: clamp(48px, 11vw, 92px) !important; }
-    .unit-label { top: calc(50% + clamp(28px, 5.6vw, 45px)) !important; font-size: 7.5px !important; }
-    .daybar-panel,
-    body.fake-fullscreen .daybar-panel,
-    html.fake-fullscreen .daybar-panel { top: max(26px, calc(env(safe-area-inset-top) + 20px)) !important; width: min(74vw, 470px) !important; }
-    .intervals,
-    body.fake-fullscreen .intervals,
-    html.fake-fullscreen .intervals { bottom: max(45px, calc(env(safe-area-inset-bottom) + 39px)) !important; gap: 4px !important; }
-    .intervals button { min-width: 34px !important; height: 22px !important; padding: 0 6px !important; font-size: 7.8px !important; }
-    .controls,
-    body.fake-fullscreen .controls,
-    html.fake-fullscreen .controls { bottom: max(6px, env(safe-area-inset-bottom)) !important; }
-    .icon-btn { width: 38px !important; min-width: 38px !important; height: 32px !important; }
-  }
-
-
-
-  /* iPad landscape safety: keep bottom controls fully visible and proportioned.
-     Desktop-style side rails remain, but the central circle is slightly reduced
-     and the controls are anchored to the safe bottom area instead of the ring formula. */
-  @media (orientation: landscape) and (min-width: 900px) and (max-width: 1400px) and (max-height: 1100px) {
-    .app,
-    body.fake-fullscreen .app,
-    html.fake-fullscreen .app,
-    .app:fullscreen,
-    .app:-webkit-full-screen {
-      padding: max(24px, env(safe-area-inset-top)) max(34px, env(safe-area-inset-right)) max(94px, env(safe-area-inset-bottom)) max(34px, env(safe-area-inset-left)) !important;
-      overflow: hidden !important;
-    }
-
-    .center,
-    body.fake-fullscreen .center,
-    html.fake-fullscreen .center,
-    .app:fullscreen .center,
-    .app:-webkit-full-screen .center {
-      width: min(68vmin, 640px) !important;
-      height: min(68vmin, 640px) !important;
-      transform: translateY(-1.8vh) !important;
-    }
-
-    .unit-number {
-      font-size: clamp(118px, 15.2vw, 210px) !important;
-    }
-
-    .unit-label {
-      top: calc(50% + clamp(66px, 8.4vw, 116px)) !important;
-      font-size: clamp(10px, 1.08vw, 13px) !important;
-    }
-
-    .controls,
-    body.fake-fullscreen .controls,
-    html.fake-fullscreen .controls,
-    .app:fullscreen .controls,
-    .app:-webkit-full-screen .controls {
-      top: auto !important;
-      bottom: max(24px, env(safe-area-inset-bottom)) !important;
-      left: 50% !important;
-      transform: translateX(-50%) !important;
-      gap: 12px !important;
-      z-index: 30 !important;
-    }
-
-    .icon-btn {
-      width: 48px !important;
-      min-width: 48px !important;
-      height: 42px !important;
-    }
-
-    .volume-panel {
-      bottom: calc(100% + 12px) !important;
-    }
-
-    .intervals,
-    body.fake-fullscreen .intervals,
-    html.fake-fullscreen .intervals,
-    .app:fullscreen .intervals,
-    .app:-webkit-full-screen .intervals {
-      left: calc(50% + min(34vmin, 310px) + 30px) !important;
-      top: 50% !important;
-      bottom: auto !important;
-      transform: translateY(-50%) !important;
-      max-height: min(68vh, 520px) !important;
-      overflow: visible !important;
-      gap: 9px !important;
-      z-index: 20 !important;
-    }
-
-    .intervals button {
-      min-width: 54px !important;
-      height: 30px !important;
-      font-size: 10.5px !important;
-    }
-
-    .daybar-panel,
-    body.fake-fullscreen .daybar-panel,
-    html.fake-fullscreen .daybar-panel,
-    .app:fullscreen .daybar-panel,
-    .app:-webkit-full-screen .daybar-panel {
-      right: calc(50% + min(34vmin, 310px) + 42px) !important;
-      left: auto !important;
-      top: 50% !important;
-      transform: translateY(-50%) !important;
-      height: min(58vh, 420px) !important;
-      width: 76px !important;
-      z-index: 20 !important;
-    }
-
-    .top {
-      top: max(22px, env(safe-area-inset-top)) !important;
-    }
-  }
-
-  /* Smaller iPad landscape / Stage Manager safety: more vertical reserve for controls. */
-  @media (orientation: landscape) and (min-width: 900px) and (max-height: 820px) {
-    .app,
-    body.fake-fullscreen .app,
-    html.fake-fullscreen .app,
-    .app:fullscreen,
-    .app:-webkit-full-screen {
-      padding-bottom: max(88px, env(safe-area-inset-bottom)) !important;
-    }
-
-    .center,
-    body.fake-fullscreen .center,
-    html.fake-fullscreen .center,
-    .app:fullscreen .center,
-    .app:-webkit-full-screen .center {
-      width: min(62vmin, 560px) !important;
-      height: min(62vmin, 560px) !important;
-      transform: translateY(-2.2vh) !important;
-    }
-
-    .unit-number {
-      font-size: clamp(104px, 14vw, 180px) !important;
-    }
-
-    .unit-label {
-      top: calc(50% + clamp(58px, 7.4vw, 98px)) !important;
-    }
-
-    .controls,
-    body.fake-fullscreen .controls,
-    html.fake-fullscreen .controls,
-    .app:fullscreen .controls,
-    .app:-webkit-full-screen .controls {
       bottom: max(18px, env(safe-area-inset-bottom)) !important;
-    }
-
-    .icon-btn {
-      width: 46px !important;
-      min-width: 46px !important;
-      height: 40px !important;
-    }
-  }
-
-
-
-  /* Final mobile/tablet fullscreen stabilization: predictable iPhone landscape + iPad fake/native fullscreen. */
-  html.fake-fullscreen,
-  body.fake-fullscreen {
-    width: 100vw !important;
-    height: var(--app-height, 100dvh) !important;
-    min-height: var(--app-height, 100dvh) !important;
-    max-height: var(--app-height, 100dvh) !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: hidden !important;
-    background: var(--bg) !important;
-  }
-
-  body.fake-fullscreen {
-    position: fixed !important;
-    inset: 0 !important;
-  }
-
-  html.fake-fullscreen .app,
-  body.fake-fullscreen .app,
-  .app:fullscreen,
-  .app:-webkit-full-screen {
-    position: fixed !important;
-    inset: 0 !important;
-    width: 100vw !important;
-    height: var(--app-height, 100dvh) !important;
-    min-height: var(--app-height, 100dvh) !important;
-    max-height: var(--app-height, 100dvh) !important;
-    overflow: hidden !important;
-    background: var(--bg) !important;
-    z-index: 99999 !important;
-  }
-
-  @media (orientation: landscape) and (max-height: 540px) and (max-width: 1200px) {
-    html.fake-fullscreen .app, body.fake-fullscreen .app, .app:fullscreen, .app:-webkit-full-screen, .app {
-      padding: max(6px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(54px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)) !important;
-      display: grid !important;
-      place-items: center !important;
-    }
-
-    .top { display: none !important; }
-    .corner-date, .corner-time {
-      top: max(7px, env(safe-area-inset-top)) !important;
-      font-size: 8.5px !important;
-      letter-spacing: .12em !important;
-    }
-    .corner-date { left: max(12px, env(safe-area-inset-left)) !important; }
-    .corner-time { right: max(12px, env(safe-area-inset-right)) !important; }
-
-    .center, html.fake-fullscreen .center, body.fake-fullscreen .center, .app:fullscreen .center, .app:-webkit-full-screen .center {
-      width: min(42svh, 34vw, 190px) !important;
-      height: min(42svh, 34vw, 190px) !important;
-      transform: translateY(-1svh) !important;
-      z-index: 4 !important;
-    }
-    .unit-number { font-size: clamp(50px, 10.4vw, 92px) !important; }
-    .unit-label { top: calc(50% + clamp(27px, 5vw, 42px)) !important; font-size: 7.6px !important; letter-spacing: .14em !important; }
-
-    .daybar-panel, html.fake-fullscreen .daybar-panel, body.fake-fullscreen .daybar-panel, .app:fullscreen .daybar-panel, .app:-webkit-full-screen .daybar-panel {
-      left: 50% !important; right: auto !important;
-      top: max(30px, calc(env(safe-area-inset-top) + 22px)) !important;
       transform: translateX(-50%) !important;
-      width: min(72vw, 520px) !important; height: 28px !important;
-      display: grid !important; grid-template-columns: auto minmax(130px, 1fr) auto !important; grid-template-rows: 1fr !important;
-      align-items: center !important; justify-items: center !important; gap: 8px !important;
-      opacity: 0 !important; pointer-events: none !important; z-index: 12 !important;
+      z-index: 40 !important;
     }
-    body.show-controls .daybar-panel { opacity: 1 !important; pointer-events: auto !important; }
-    .daybar-panel .time-control { grid-template-columns: 13px 34px 13px !important; width: 62px !important; gap: 1px !important; }
-    .daybar-panel .time-value { width: 34px !important; font-size: 8px !important; letter-spacing: .04em !important; }
-    .daybar-panel .mini-arrow { min-width: 13px !important; width: 13px !important; height: 17px !important; font-size: 10px !important; }
-    .daybar-panel .daybar { width: 100% !important; height: 6px !important; }
-    .daybar-panel .daybar-fill { left: 0 !important; right: auto !important; top: 0 !important; bottom: 0 !important; height: 100% !important; width: var(--daybar-width, 100%) !important; }
-    .daybar-panel .daybar-now { top: 50% !important; bottom: auto !important; left: var(--daybar-now-left, 0%) !important; transform: translate(-50%, -50%) !important; width: 1px !important; height: 15px !important; }
-    .daybar-caption { display: none !important; }
-
-    .intervals, html.fake-fullscreen .intervals, body.fake-fullscreen .intervals, .app:fullscreen .intervals, .app:-webkit-full-screen .intervals {
-      left: 50% !important; right: auto !important; top: auto !important;
-      bottom: max(45px, calc(env(safe-area-inset-bottom) + 40px)) !important;
-      transform: translateX(-50%) !important;
-      width: min(90vw, 680px) !important; display: flex !important; flex-direction: row !important;
-      justify-content: center !important; align-items: center !important; gap: 4px !important;
-      padding: 0 4px !important; z-index: 11 !important; overflow: visible !important;
-    }
-    .intervals button { min-width: 33px !important; height: 22px !important; padding: 0 5px !important; font-size: 7.6px !important; letter-spacing: .035em !important; }
-
-    .controls, html.fake-fullscreen .controls, body.fake-fullscreen .controls, .app:fullscreen .controls, .app:-webkit-full-screen .controls {
-      left: 50% !important; top: auto !important; bottom: max(6px, env(safe-area-inset-bottom)) !important;
-      transform: translateX(-50%) !important; gap: 8px !important; z-index: 13 !important;
-    }
-    .icon-btn { width: 38px !important; min-width: 38px !important; height: 32px !important; }
-    .volume-panel { bottom: calc(100% + 8px) !important; width: 148px !important; height: 32px !important; }
-  }
-
-  @media (orientation: landscape) and (min-width: 900px) and (min-height: 541px) and (max-width: 1400px) {
-    html.fake-fullscreen .app, body.fake-fullscreen .app, .app:fullscreen, .app:-webkit-full-screen {
-      padding-bottom: max(90px, env(safe-area-inset-bottom)) !important;
-    }
-    html.fake-fullscreen .controls, body.fake-fullscreen .controls, .app:fullscreen .controls, .app:-webkit-full-screen .controls {
-      top: auto !important; bottom: max(22px, env(safe-area-inset-bottom)) !important; left: 50% !important; transform: translateX(-50%) !important; z-index: 30 !important;
+    body.fullscreen-mode .top,
+    body.fake-fullscreen .top,
+    .app:fullscreen .top {
+      top: max(16px, env(safe-area-inset-top));
     }
   }
 
-
-  /* Larger fullscreen ring, with safe space preserved for daybar, intervals and controls. */
-  html.fake-fullscreen .center,
-  body.fake-fullscreen .center,
-  .app:fullscreen .center,
-  .app:-webkit-full-screen .center {
-    width: min(90vmin, 860px) !important;
-    height: min(90vmin, 860px) !important;
-  }
-
-  html.fake-fullscreen .unit-number,
-  body.fake-fullscreen .unit-number,
-  .app:fullscreen .unit-number,
-  .app:-webkit-full-screen .unit-number {
-    font-size: clamp(86px, 19.5vw, 275px) !important;
-  }
-
-  /* iPhone / small mobile portrait fullscreen: bigger circle, still leaving room above and below. */
-  @media (orientation: portrait) and (max-width: 720px) {
-    html.fake-fullscreen .center,
-    body.fake-fullscreen .center,
-    .app:fullscreen .center,
-    .app:-webkit-full-screen .center {
-      width: min(84vw, 54svh, 390px) !important;
-      height: min(84vw, 54svh, 390px) !important;
-      transform: translateY(-1.2svh) !important;
-    }
-
-    html.fake-fullscreen .unit-number,
-    body.fake-fullscreen .unit-number,
-    .app:fullscreen .unit-number,
-    .app:-webkit-full-screen .unit-number {
-      font-size: clamp(82px, 25.5vw, 168px) !important;
-    }
-  }
-
-  /* iPhone landscape fullscreen: noticeably larger, but not colliding with the top daybar or bottom controls. */
-  @media (orientation: landscape) and (max-height: 540px) and (max-width: 1200px) {
-    .center,
-    html.fake-fullscreen .center,
-    body.fake-fullscreen .center,
-    .app:fullscreen .center,
-    .app:-webkit-full-screen .center {
-      width: min(57svh, 43vw, 270px) !important;
-      height: min(57svh, 43vw, 270px) !important;
-      transform: translateY(-0.4svh) !important;
-    }
-
-    .unit-number,
-    html.fake-fullscreen .unit-number,
-    body.fake-fullscreen .unit-number,
-    .app:fullscreen .unit-number,
-    .app:-webkit-full-screen .unit-number {
-      font-size: clamp(62px, 12.6vw, 116px) !important;
-    }
-
-    .unit-label,
-    html.fake-fullscreen .unit-label,
-    body.fake-fullscreen .unit-label,
-    .app:fullscreen .unit-label,
-    .app:-webkit-full-screen .unit-label {
-      top: calc(50% + clamp(32px, 5.9vw, 52px)) !important;
-    }
-  }
-
-  /* Very low iPhone landscape: slightly restrained so the controls stay visible. */
-  @media (orientation: landscape) and (max-height: 390px) and (max-width: 950px) {
-    .center,
-    html.fake-fullscreen .center,
-    body.fake-fullscreen .center,
-    .app:fullscreen .center,
-    .app:-webkit-full-screen .center {
-      width: min(54svh, 40vw, 230px) !important;
-      height: min(54svh, 40vw, 230px) !important;
-    }
-  }
-
-  /* iPad landscape fullscreen: bigger central ring while controls remain anchored below. */
-  @media (orientation: landscape) and (min-width: 900px) and (min-height: 541px) and (max-width: 1400px) {
-    html.fake-fullscreen .center,
-    body.fake-fullscreen .center,
-    .app:fullscreen .center,
-    .app:-webkit-full-screen .center {
-      width: min(76svh, 62vw, 720px) !important;
-      height: min(76svh, 62vw, 720px) !important;
-      transform: translateY(-2.4svh) !important;
-    }
-
-    html.fake-fullscreen .unit-number,
-    body.fake-fullscreen .unit-number,
-    .app:fullscreen .unit-number,
-    .app:-webkit-full-screen .unit-number {
-      font-size: clamp(160px, 23vw, 360px) !important;
-    }
-  }
-
-
-
-  /* FINAL FIX — reliable iPhone/iPad fake fullscreen and balanced iPhone landscape layout. */
-  html.fake-fullscreen,
-  body.fake-fullscreen {
-    width: 100vw !important;
-    height: var(--app-height, 100svh) !important;
-    min-height: var(--app-height, 100svh) !important;
-    max-height: var(--app-height, 100svh) !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: hidden !important;
-    position: fixed !important;
-    inset: 0 !important;
-    background: var(--bg) !important;
-  }
-
-  html.fake-fullscreen .app,
-  body.fake-fullscreen .app {
-    position: fixed !important;
-    inset: 0 !important;
-    width: 100vw !important;
-    height: var(--app-height, 100svh) !important;
-    min-height: var(--app-height, 100svh) !important;
-    max-height: var(--app-height, 100svh) !important;
-    overflow: hidden !important;
-    background: var(--bg) !important;
-    z-index: 999999 !important;
-  }
-
-  @media (orientation: landscape) and (max-height: 540px) and (max-width: 1200px) {
-    .app,
-    html.fake-fullscreen .app,
+  /* iPhone/mobile fullscreen uses its own stacked layout; keep the top bar and bottom controls out of the circle. */
+  @media (max-width: 700px) {
     body.fake-fullscreen .app,
-    .app:fullscreen,
-    .app:-webkit-full-screen {
-      padding: max(8px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(70px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)) !important;
-      display: grid !important;
-      place-items: center !important;
-      overflow: hidden !important;
+    body.fullscreen-mode .app {
+      grid-template-rows: minmax(40px, 8svh) minmax(0, 1fr) minmax(34px, 7svh) minmax(50px, 10svh);
+      grid-template-areas: "bar" "center" "intervals" "controls";
+      gap: 8px;
     }
-
-    .top { display: none !important; }
-
-    .corner-date,
-    .corner-time {
-      top: max(8px, env(safe-area-inset-top)) !important;
-      font-size: 8.5px !important;
-      letter-spacing: .12em !important;
-      opacity: 0 !important;
-    }
-    body.show-controls .corner-date,
-    body.show-controls .corner-time { opacity: .46 !important; }
-    .corner-date { left: max(12px, env(safe-area-inset-left)) !important; }
-    .corner-time { right: max(12px, env(safe-area-inset-right)) !important; }
-
-    .center,
-    html.fake-fullscreen .center,
     body.fake-fullscreen .center,
-    .app:fullscreen .center,
-    .app:-webkit-full-screen .center {
-      width: min(55svh, 42vw, 245px) !important;
-      height: min(55svh, 42vw, 245px) !important;
-      transform: translateY(-2px) !important;
-      z-index: 5 !important;
+    body.fullscreen-mode .center {
+      width: min(74vw, 44svh, 390px) !important;
+      height: min(74vw, 44svh, 390px) !important;
     }
-
-    .unit-number,
-    html.fake-fullscreen .unit-number,
-    body.fake-fullscreen .unit-number,
-    .app:fullscreen .unit-number,
-    .app:-webkit-full-screen .unit-number {
-      font-size: clamp(58px, 12.2vw, 108px) !important;
-      letter-spacing: -.075em !important;
-    }
-
-    .unit-label,
-    html.fake-fullscreen .unit-label,
     body.fake-fullscreen .unit-label,
-    .app:fullscreen .unit-label,
-    .app:-webkit-full-screen .unit-label {
-      top: calc(50% + clamp(31px, 5.6vw, 49px)) !important;
-      font-size: 7.8px !important;
-      letter-spacing: .14em !important;
+    body.fullscreen-mode .unit-label {
+      top: calc(50% + clamp(48px, 13vw, 82px));
     }
-
-    .daybar-panel,
-    html.fake-fullscreen .daybar-panel,
-    body.fake-fullscreen .daybar-panel,
-    .app:fullscreen .daybar-panel,
-    .app:-webkit-full-screen .daybar-panel {
-      left: 50% !important;
-      right: auto !important;
-      top: max(30px, calc(env(safe-area-inset-top) + 22px)) !important;
-      transform: translateX(-50%) !important;
-      width: min(78vw, 540px) !important;
-      height: 28px !important;
-      display: grid !important;
-      grid-template-columns: auto minmax(132px, 1fr) auto !important;
-      grid-template-rows: 1fr !important;
-      align-items: center !important;
-      justify-items: center !important;
-      gap: 8px !important;
-      z-index: 14 !important;
-    }
-
-    .daybar-panel .time-control {
-      grid-template-columns: 13px 34px 13px !important;
-      width: 62px !important;
-      gap: 1px !important;
-    }
-    .daybar-panel .time-value {
-      width: 34px !important;
-      font-size: 8px !important;
-      letter-spacing: .04em !important;
-    }
-    .daybar-panel .mini-arrow {
-      min-width: 13px !important;
-      width: 13px !important;
-      height: 17px !important;
-      font-size: 10px !important;
-    }
-    .daybar-panel .daybar {
-      width: 100% !important;
-      height: 6px !important;
-      border-radius: 999px !important;
-    }
-    .daybar-panel .daybar-fill {
-      left: 0 !important;
-      right: auto !important;
-      top: 0 !important;
-      bottom: 0 !important;
-      height: 100% !important;
-      width: var(--daybar-width, 100%) !important;
-      border-radius: 999px !important;
-    }
-    .daybar-panel .daybar-now {
-      top: 50% !important;
+    body.fake-fullscreen .controls,
+    body.fullscreen-mode .controls {
+      grid-area: controls;
+      position: relative !important;
+      left: auto !important;
+      top: auto !important;
       bottom: auto !important;
-      left: var(--daybar-now-left, 0%) !important;
-      transform: translate(-50%, -50%) !important;
-      width: 1px !important;
-      height: 15px !important;
-    }
-    .daybar-caption { display: none !important; }
-
-    .intervals,
-    html.fake-fullscreen .intervals,
-    body.fake-fullscreen .intervals,
-    .app:fullscreen .intervals,
-    .app:-webkit-full-screen .intervals {
-      left: 50% !important;
-      right: auto !important;
-      top: auto !important;
-      bottom: max(44px, calc(env(safe-area-inset-bottom) + 38px)) !important;
-      transform: translateX(-50%) !important;
-      width: min(92vw, 680px) !important;
-      display: flex !important;
-      flex-direction: row !important;
-      align-items: center !important;
-      justify-content: center !important;
-      gap: 4px !important;
-      padding: 0 4px !important;
-      overflow: visible !important;
-      z-index: 12 !important;
-    }
-    .intervals button {
-      min-width: 34px !important;
-      height: 22px !important;
-      padding: 0 5px !important;
-      font-size: 7.7px !important;
-      letter-spacing: .035em !important;
-      flex: 0 0 auto !important;
-    }
-
-    .controls,
-    html.fake-fullscreen .controls,
-    body.fake-fullscreen .controls,
-    .app:fullscreen .controls,
-    .app:-webkit-full-screen .controls {
-      left: 50% !important;
-      top: auto !important;
-      bottom: max(6px, env(safe-area-inset-bottom)) !important;
-      transform: translateX(-50%) !important;
-      gap: 8px !important;
-      z-index: 15 !important;
-    }
-    .icon-btn {
-      width: 38px !important;
-      min-width: 38px !important;
-      height: 32px !important;
-    }
-    .volume-panel {
-      bottom: calc(100% + 8px) !important;
-      width: 148px !important;
-      height: 32px !important;
+      transform: none !important;
+      z-index: 40 !important;
     }
   }
 
-  @media (orientation: landscape) and (max-height: 360px) and (max-width: 950px) {
-    .center,
-    html.fake-fullscreen .center,
-    body.fake-fullscreen .center,
-    .app:fullscreen .center,
-    .app:-webkit-full-screen .center {
-      width: min(50svh, 38vw, 208px) !important;
-      height: min(50svh, 38vw, 208px) !important;
-      transform: translateY(-1px) !important;
-    }
-    .unit-number { font-size: clamp(50px, 10.8vw, 92px) !important; }
-    .unit-label { top: calc(50% + clamp(27px, 5vw, 42px)) !important; }
-    .daybar-panel { top: max(26px, calc(env(safe-area-inset-top) + 18px)) !important; height: 25px !important; }
-    .intervals { bottom: max(40px, calc(env(safe-area-inset-bottom) + 34px)) !important; }
-    .intervals button { min-width: 31px !important; height: 20px !important; font-size: 7.1px !important; padding: 0 4px !important; }
-    .controls { bottom: max(5px, env(safe-area-inset-bottom)) !important; }
-    .icon-btn { width: 36px !important; min-width: 36px !important; height: 30px !important; }
-  }
-
-
-
-  /* FINAL CORRECTION — fullscreen overlap + symmetric mobile spacing.
-     The unit label sits clearly below the main number, and the top daybar /
-     bottom timescale are balanced around the central ring. */
-  html.fake-fullscreen .unit-label,
-  body.fake-fullscreen .unit-label,
-  .app:fullscreen .unit-label,
-  .app:-webkit-full-screen .unit-label {
-    top: calc(50% + clamp(64px, 10.8vw, 104px)) !important;
-    font-size: clamp(9px, 1.45vw, 14px) !important;
-    line-height: 1 !important;
-    z-index: 6 !important;
-  }
-
-  @media (orientation: portrait) and (max-width: 720px) {
-    html.fake-fullscreen .unit-label,
-    body.fake-fullscreen .unit-label,
-    .app:fullscreen .unit-label,
-    .app:-webkit-full-screen .unit-label {
-      top: calc(50% + clamp(68px, 18.5vw, 104px)) !important;
-      font-size: clamp(9px, 2.6vw, 12px) !important;
-      letter-spacing: .18em !important;
-    }
-  }
-
-  @media (orientation: landscape) and (max-height: 540px) and (max-width: 1200px) {
-    .app,
-    html.fake-fullscreen .app,
+  @media (max-height: 500px) and (orientation: landscape) {
     body.fake-fullscreen .app,
-    .app:fullscreen,
-    .app:-webkit-full-screen {
-      padding-top: max(8px, env(safe-area-inset-top)) !important;
-      padding-bottom: max(64px, env(safe-area-inset-bottom)) !important;
+    body.fullscreen-mode .app {
+      grid-template-rows: 32px minmax(0,1fr) 32px 40px;
+      gap: 4px;
+      padding-top: max(6px, env(safe-area-inset-top));
+      padding-bottom: max(6px, env(safe-area-inset-bottom));
     }
-
-    .center,
-    html.fake-fullscreen .center,
     body.fake-fullscreen .center,
-    .app:fullscreen .center,
-    .app:-webkit-full-screen .center {
-      width: min(51svh, 39vw, 228px) !important;
-      height: min(51svh, 39vw, 228px) !important;
-      transform: translateY(0) !important;
+    body.fullscreen-mode .center {
+      width: min(40vw, 52svh, 260px) !important;
+      height: min(40vw, 52svh, 260px) !important;
     }
-
-    .unit-number,
-    html.fake-fullscreen .unit-number,
     body.fake-fullscreen .unit-number,
-    .app:fullscreen .unit-number,
-    .app:-webkit-full-screen .unit-number {
-      font-size: clamp(54px, 11.2vw, 100px) !important;
-      line-height: .66 !important;
-      letter-spacing: -.075em !important;
+    body.fullscreen-mode .unit-number {
+      font-size: clamp(58px, 14vw, 112px) !important;
     }
-
-    .unit-label,
-    html.fake-fullscreen .unit-label,
     body.fake-fullscreen .unit-label,
-    .app:fullscreen .unit-label,
-    .app:-webkit-full-screen .unit-label {
-      top: calc(50% + clamp(43px, 8.2vw, 70px)) !important;
-      font-size: clamp(7.4px, 1.55vw, 10px) !important;
-      letter-spacing: .15em !important;
-    }
-
-    .daybar-panel,
-    html.fake-fullscreen .daybar-panel,
-    body.fake-fullscreen .daybar-panel,
-    .app:fullscreen .daybar-panel,
-    .app:-webkit-full-screen .daybar-panel {
-      top: max(30px, calc(env(safe-area-inset-top) + 22px)) !important;
-      width: min(76vw, 520px) !important;
-      height: 28px !important;
-    }
-
-    .intervals,
-    html.fake-fullscreen .intervals,
-    body.fake-fullscreen .intervals,
-    .app:fullscreen .intervals,
-    .app:-webkit-full-screen .intervals {
-      bottom: max(46px, calc(env(safe-area-inset-bottom) + 40px)) !important;
-      width: min(90vw, 660px) !important;
-    }
-
-    .controls,
-    html.fake-fullscreen .controls,
-    body.fake-fullscreen .controls,
-    .app:fullscreen .controls,
-    .app:-webkit-full-screen .controls {
-      bottom: max(8px, env(safe-area-inset-bottom)) !important;
-    }
-  }
-
-  @media (orientation: landscape) and (max-height: 390px) and (max-width: 950px) {
-    .center,
-    html.fake-fullscreen .center,
-    body.fake-fullscreen .center,
-    .app:fullscreen .center,
-    .app:-webkit-full-screen .center {
-      width: min(47svh, 35vw, 202px) !important;
-      height: min(47svh, 35vw, 202px) !important;
-    }
-
-    .unit-number,
-    html.fake-fullscreen .unit-number,
-    body.fake-fullscreen .unit-number,
-    .app:fullscreen .unit-number,
-    .app:-webkit-full-screen .unit-number {
-      font-size: clamp(48px, 10.2vw, 88px) !important;
-    }
-
-    .unit-label,
-    html.fake-fullscreen .unit-label,
-    body.fake-fullscreen .unit-label,
-    .app:fullscreen .unit-label,
-    .app:-webkit-full-screen .unit-label {
-      top: calc(50% + clamp(38px, 7.5vw, 58px)) !important;
-    }
-
-    .daybar-panel,
-    html.fake-fullscreen .daybar-panel,
-    body.fake-fullscreen .daybar-panel,
-    .app:fullscreen .daybar-panel,
-    .app:-webkit-full-screen .daybar-panel {
-      top: max(27px, calc(env(safe-area-inset-top) + 20px)) !important;
-    }
-
-    .intervals,
-    html.fake-fullscreen .intervals,
-    body.fake-fullscreen .intervals,
-    .app:fullscreen .intervals,
-    .app:-webkit-full-screen .intervals {
-      bottom: max(44px, calc(env(safe-area-inset-bottom) + 38px)) !important;
-    }
-  }
-
-  @media (orientation: landscape) and (min-width: 900px) and (min-height: 541px) and (max-width: 1400px) {
-    html.fake-fullscreen .unit-label,
-    body.fake-fullscreen .unit-label,
-    .app:fullscreen .unit-label,
-    .app:-webkit-full-screen .unit-label {
-      top: calc(50% + clamp(98px, 12vw, 154px)) !important;
-      font-size: clamp(12px, 1.3vw, 18px) !important;
-    }
-  }
-
-
-
-  /* Final fullscreen proportional scaling:
-     In fullscreen/fake-fullscreen the whole central object scales as a unit
-     (ring + digits + orange interval label), not only the digit size. */
-  body.fake-fullscreen .center,
-  html.fake-fullscreen .center,
-  .app:fullscreen .center,
-  .app:-webkit-full-screen .center {
-    width: min(78vmin, 820px) !important;
-    height: min(78vmin, 820px) !important;
-    transform: translateY(-1.2vh) !important;
-  }
-
-  body.fake-fullscreen .unit-number,
-  html.fake-fullscreen .unit-number,
-  .app:fullscreen .unit-number,
-  .app:-webkit-full-screen .unit-number {
-    font-size: clamp(92px, 20vmin, 250px) !important;
-    line-height: .72 !important;
-  }
-
-  body.fake-fullscreen .unit-label,
-  html.fake-fullscreen .unit-label,
-  .app:fullscreen .unit-label,
-  .app:-webkit-full-screen .unit-label {
-    top: calc(50% + clamp(54px, 10.8vmin, 136px)) !important;
-    font-size: clamp(10px, 1.35vmin, 14px) !important;
-  }
-
-  /* iPhone portrait fullscreen: enlarge the full circle-object while leaving
-     room for the top day bar, the interval row and the bottom controls. */
-  @media (orientation: portrait) and (max-width: 520px) {
-    body.fake-fullscreen .center,
-    html.fake-fullscreen .center,
-    .app:fullscreen .center,
-    .app:-webkit-full-screen .center {
-      width: min(88vw, 430px, 58dvh) !important;
-      height: min(88vw, 430px, 58dvh) !important;
-      transform: translateY(-1.4dvh) !important;
-    }
-
-    body.fake-fullscreen .unit-number,
-    html.fake-fullscreen .unit-number,
-    .app:fullscreen .unit-number,
-    .app:-webkit-full-screen .unit-number {
-      font-size: clamp(82px, 24vw, 160px) !important;
-    }
-
-    body.fake-fullscreen .unit-label,
-    html.fake-fullscreen .unit-label,
-    .app:fullscreen .unit-label,
-    .app:-webkit-full-screen .unit-label {
-      top: calc(50% + clamp(46px, 14vw, 82px)) !important;
-      font-size: clamp(9px, 2.6vw, 12px) !important;
-    }
-  }
-
-  /* iPhone landscape fullscreen: the full ring-object is larger, but the
-     upper day bar and lower controls remain symmetric and visible. */
-  @media (orientation: landscape) and (max-height: 520px) and (max-width: 950px) {
-    body.fake-fullscreen .center,
-    html.fake-fullscreen .center,
-    .app:fullscreen .center,
-    .app:-webkit-full-screen .center {
-      width: min(60svh, 50vw, 330px) !important;
-      height: min(60svh, 50vw, 330px) !important;
-      transform: translateY(-0.8svh) !important;
-    }
-
-    body.fake-fullscreen .unit-number,
-    html.fake-fullscreen .unit-number,
-    .app:fullscreen .unit-number,
-    .app:-webkit-full-screen .unit-number {
-      font-size: clamp(64px, 15svh, 128px) !important;
-      line-height: .72 !important;
-    }
-
-    body.fake-fullscreen .unit-label,
-    html.fake-fullscreen .unit-label,
-    .app:fullscreen .unit-label,
-    .app:-webkit-full-screen .unit-label {
-      top: calc(50% + clamp(38px, 9.8svh, 65px)) !important;
-      font-size: 8.5px !important;
-    }
-
-    body.fake-fullscreen .daybar-panel,
-    html.fake-fullscreen .daybar-panel,
-    .app:fullscreen .daybar-panel,
-    .app:-webkit-full-screen .daybar-panel {
-      top: max(30px, calc(env(safe-area-inset-top) + 24px)) !important;
-    }
-
-    body.fake-fullscreen .intervals,
-    html.fake-fullscreen .intervals,
-    .app:fullscreen .intervals,
-    .app:-webkit-full-screen .intervals {
-      bottom: max(54px, calc(env(safe-area-inset-bottom) + 48px)) !important;
-    }
-  }
-
-  @media (orientation: landscape) and (max-height: 390px) and (max-width: 950px) {
-    body.fake-fullscreen .center,
-    html.fake-fullscreen .center,
-    .app:fullscreen .center,
-    .app:-webkit-full-screen .center {
-      width: min(55svh, 46vw, 260px) !important;
-      height: min(55svh, 46vw, 260px) !important;
-      transform: translateY(-0.6svh) !important;
-    }
-
-    body.fake-fullscreen .unit-number,
-    html.fake-fullscreen .unit-number,
-    .app:fullscreen .unit-number,
-    .app:-webkit-full-screen .unit-number {
-      font-size: clamp(56px, 14svh, 106px) !important;
-    }
-
-    body.fake-fullscreen .unit-label,
-    html.fake-fullscreen .unit-label,
-    .app:fullscreen .unit-label,
-    .app:-webkit-full-screen .unit-label {
-      top: calc(50% + clamp(32px, 8.5svh, 52px)) !important;
-      font-size: 7.8px !important;
-    }
-  }
-
-  /* iPad landscape fullscreen: scale the ring and its contents together and
-     move the side elements according to the larger ring radius. */
-  @media (orientation: landscape) and (min-width: 900px) and (max-width: 1400px) and (max-height: 1100px) {
-    body.fake-fullscreen .center,
-    html.fake-fullscreen .center,
-    .app:fullscreen .center,
-    .app:-webkit-full-screen .center {
-      width: min(76vmin, 760px) !important;
-      height: min(76vmin, 760px) !important;
-      transform: translateY(-1.4vh) !important;
-    }
-
-    body.fake-fullscreen .unit-number,
-    html.fake-fullscreen .unit-number,
-    .app:fullscreen .unit-number,
-    .app:-webkit-full-screen .unit-number {
-      font-size: clamp(130px, 19vmin, 245px) !important;
-    }
-
-    body.fake-fullscreen .unit-label,
-    html.fake-fullscreen .unit-label,
-    .app:fullscreen .unit-label,
-    .app:-webkit-full-screen .unit-label {
-      top: calc(50% + clamp(74px, 10.5vmin, 130px)) !important;
-    }
-
-    body.fake-fullscreen .intervals,
-    html.fake-fullscreen .intervals,
-    .app:fullscreen .intervals,
-    .app:-webkit-full-screen .intervals {
-      left: calc(50% + min(38vmin, 380px) + 30px) !important;
-    }
-
-    body.fake-fullscreen .daybar-panel,
-    html.fake-fullscreen .daybar-panel,
-    .app:fullscreen .daybar-panel,
-    .app:-webkit-full-screen .daybar-panel {
-      right: calc(50% + min(38vmin, 380px) + 42px) !important;
+    body.fullscreen-mode .unit-label {
+      top: calc(50% + clamp(34px, 8vw, 58px));
+      font-size: 8px;
     }
   }
 
 </style>
 </head>
 <body>
-  <main class="app" aria-label="Day units left">
-    <div id="cornerDate" class="corner-date">JUN 11</div>
-    <div id="cornerTime" class="corner-time">10:25</div>
+  <main id="app" class="app" aria-label="Day units left">
+    <div id="cornerDate" class="corner-date">JUN 11</div><div id="cornerTime" class="corner-time">10:25</div>
     <div class="top"><span class="top-left">Designed</span><span class="top-center">by</span><span class="top-right">Alex Weischer</span></div>
-
     <aside class="daybar-panel" aria-label="day start and end time">
-      <div class="time-control" aria-label="start time">
-        <button class="mini-arrow" id="startDown" title="start time one hour earlier">‹</button>
-        <span id="startTime" class="time-value">08:00</span>
-        <button class="mini-arrow" id="startUp" title="start time one hour later">›</button>
-      </div>
-      <div class="daybar" aria-hidden="true">
-        <div id="daybarFill" class="daybar-fill"></div>
-        <div id="daybarNow" class="daybar-now"></div>
-        <span class="daybar-caption">DAY</span>
-      </div>
-      <div class="time-control" aria-label="end time">
-        <button class="mini-arrow" id="endDown" title="end time one hour earlier">‹</button>
-        <span id="endTime" class="time-value">24:00</span>
-        <button class="mini-arrow" id="endUp" title="end time one hour later">›</button>
-      </div>
+      <div class="time-control" aria-label="start time"><button class="mini-arrow" id="startDown" title="start time one hour earlier">‹</button><span id="startTime" class="time-value">08:00</span><button class="mini-arrow" id="startUp" title="start time one hour later">›</button></div>
+      <div class="daybar" aria-hidden="true"><div id="daybarFill" class="daybar-fill"></div><div id="daybarNow" class="daybar-now"></div><span class="daybar-caption">DAY</span></div>
+      <div class="time-control" aria-label="end time"><button class="mini-arrow" id="endDown" title="end time one hour earlier">‹</button><span id="endTime" class="time-value">24:00</span><button class="mini-arrow" id="endUp" title="end time one hour later">›</button></div>
     </aside>
-
-    <section class="center" aria-label="units left">
-      <svg class="ring" viewBox="0 0 100 100" aria-hidden="true">
-        <circle class="ring-bg" cx="50" cy="50" r="47"></circle>
-        <circle id="ringLeft" class="ring-left" cx="50" cy="50" r="47"></circle>
-      </svg>
-      <div id="unitNumber" class="unit-number">000</div>
-      <div id="unitLabel" class="unit-label"><span class="unit-phrase">5 min</span></div>
-    </section>
-
-    <aside class="intervals" aria-label="intervals">
-      <button data-interval="1" class="active">1m</button>
-      <button data-interval="5">5m</button>
-      <button data-interval="10">10m</button>
-      <button data-interval="15">15m</button>
-      <button data-interval="20">20m</button>
-      <button data-interval="30">30m</button>
-      <button data-interval="45">45m</button>
-      <button data-interval="60">60m</button>
-      <button data-interval="90">90m</button>
-      <button data-interval="120">120m</button>
-    </aside>
-
-    <div class="controls">
-      <button id="theme" class="icon-btn" aria-label="color mode"><span class="theme-dot"></span></button>
-      <button id="sound" class="icon-btn" aria-label="sound volume" title="Volume">
-        <svg class="sound-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M4 9.5h3.4L12 5.8v12.4l-4.6-3.7H4z"></path>
-          <path class="sound-wave" d="M15.4 8.4c1.15 1.15 1.15 6.05 0 7.2"></path>
-          <path class="sound-wave" d="M18.2 5.9c2.45 2.45 2.45 9.75 0 12.2"></path>
-          <path class="sound-muted-line" d="M5.2 5.2l13.6 13.6"></path>
-        </svg>
-      </button>
-      <div id="volumePanel" class="volume-panel" aria-label="volume control">
-        <input id="volumeSlider" type="range" min="0" max="100" value="100" aria-label="volume" />
-        <span id="volumeValue" class="volume-value">100</span>
-      </div>
-      <button id="full" class="icon-btn" aria-label="fullscreen"><span class="full-icon"></span></button>
-    </div>
+    <section class="center" aria-label="units left"><svg class="ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="ring-bg" cx="50" cy="50" r="47"></circle><circle id="ringLeft" class="ring-left" cx="50" cy="50" r="47"></circle></svg><div id="unitNumber" class="unit-number">000</div><div id="unitLabel" class="unit-label">min</div></section>
+    <aside class="intervals" aria-label="intervals"><button data-interval="1" class="active">min</button><button data-interval="5">5m</button><button data-interval="10">10m</button><button data-interval="15">15m</button><button data-interval="20">20m</button><button data-interval="30">30m</button><button data-interval="45">45m</button><button data-interval="60">60m</button><button data-interval="90">90m</button><button data-interval="120">120m</button></aside>
+    <div class="controls"><button id="theme" class="icon-btn" aria-label="color mode"><span class="theme-dot"></span></button><button id="sound" class="icon-btn" aria-label="sound volume" title="Volume"><svg class="sound-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.4L12 5.8v12.4l-4.6-3.7H4z"></path><path class="sound-wave" d="M15.4 8.4c1.15 1.15 1.15 6.05 0 7.2"></path><path class="sound-wave" d="M18.2 5.9c2.45 2.45 2.45 9.75 0 12.2"></path><path class="sound-muted-line" d="M5.2 5.2l13.6 13.6"></path></svg></button><div id="volumePanel" class="volume-panel" aria-label="volume control"><input id="volumeSlider" type="range" min="0" max="100" value="100" aria-label="volume"/><span id="volumeValue" class="volume-value">100</span></div><button id="full" class="icon-btn" aria-label="fullscreen"><span class="full-icon"></span></button></div>
   </main>
-
 <script>
 (() => {
-  const unitNumber = document.getElementById('unitNumber');
-  const unitLabel = document.getElementById('unitLabel');
-  const ringLeft = document.getElementById('ringLeft');
-  const daybarFill = document.getElementById('daybarFill');
-  const daybarNow = document.getElementById('daybarNow');
-  const cornerDate = document.getElementById('cornerDate');
-  const cornerTime = document.getElementById('cornerTime');
-  const startTimeEl = document.getElementById('startTime');
-  const endTimeEl = document.getElementById('endTime');
-  const intervalButtons = [...document.querySelectorAll('.intervals button')];
-  const themeBtn = document.getElementById('theme');
-  const soundBtn = document.getElementById('sound');
-  const volumePanel = document.getElementById('volumePanel');
-  const volumeSlider = document.getElementById('volumeSlider');
-  const volumeValue = document.getElementById('volumeValue');
-  const fullBtn = document.getElementById('full');
-
-  const radius = 47;
-  const circumference = 2 * Math.PI * radius;
-  ringLeft.style.strokeDasharray = circumference;
-
-  let startHour = Number(localStorage.getItem('dayUnitsStartHour') || 8);
-  let endHour = Number(localStorage.getItem('dayUnitsEndHour') || 24);
-  let intervalMinutes = Number(localStorage.getItem('dayUnitsIntervalMinDefault') || 1);
-  let hideTimer = null;
-  let soundVolume = Number(localStorage.getItem('dayUnitsSoundVolumeV2') || 100) / 100;
-  if (!Number.isFinite(soundVolume)) soundVolume = 1.00;
-  soundVolume = Math.max(0, Math.min(1, soundVolume));
-  let soundEnabled = soundVolume > 0 && localStorage.getItem('dayUnitsSound') !== 'off';
-  let audioCtx = null;
-  let lastCompletedSlot = null;
-  let lastIntervalMarker = null;
-  let flashTimer = null;
-  let frameHandle = null;
-  let soundPresetIndex = Number(localStorage.getItem('dayUnitsSoundPreset') || 0);
-  if (!Number.isFinite(soundPresetIndex)) soundPresetIndex = 0;
-
-  const BASE_INTERVAL_FREQS = [293.66, 349.23, 587.33]; // D4 · F4 · D5
-  const SOUND_PRESET = {
-    name: 'Muted square',
-    wave: 'square',
-    filter: 1350,
-    q: 0.14,
-    peak: 0.055,
-    attack: 0.028,
-    scale: 0.92,
-    partials: [[1,1],[2,0.025],[3,0.006]]
-  };
-
-  function clampDay() {
-    startHour = Math.max(0, Math.min(23, startHour));
-    endHour = Math.max(1, Math.min(24, endHour));
-    if (endHour <= startHour) endHour = Math.min(24, startHour + 1);
-  }
-  function formatHour(h) { return String(h).padStart(2, '0') + ':00'; }
-  function minutesOfDay(date) { return date.getHours() * 60 + date.getMinutes() + date.getSeconds() / 60 + date.getMilliseconds() / 60000; }
-  function padNumber(n) { return String(Math.max(0, n)).padStart(2, '0'); }
-
-  function updateCornerTime() {
-    const now = new Date();
-    const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-    cornerDate.textContent = `${months[now.getMonth()]} ${now.getDate()}`;
-    cornerTime.textContent = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-  }
-
-
-  function getAudioContext() {
-    try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContext) return null;
-      if (!audioCtx) audioCtx = new AudioContext();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      return audioCtx;
-    } catch (_) { return null; }
-  }
-
-  function effectiveSoundVolume() {
-    if (soundVolume <= 0) return 0;
-    // Perceptual boost: the slider middle should already be clearly audible.
-    // 50 now behaves much louder than a linear 50, while 100 stays controlled.
-    return Math.min(1.55, 0.30 + 1.25 * Math.pow(soundVolume, 0.55));
-  }
-
-  function playSelectedChime({ force = false } = {}) {
-    if ((!soundEnabled || soundVolume <= 0) && !force) return;
-    const ctx = getAudioContext();
-    if (!ctx) return;
-    const preset = SOUND_PRESET;
-    const v = Math.max(0.22, effectiveSoundVolume());
-    const start = ctx.currentTime;
-
-    // Three pulses, rhythmically aligned with the three visual flashes:
-    // ta — ta — taa. The third pulse is slightly longer so the ending is distinct.
-    const offsets = [0.02, 0.50, 0.98];
-    const durations = [0.26, 0.26, 0.52];
-
-    const master = ctx.createGain();
-    master.gain.setValueAtTime(0.0001, start);
-    master.gain.linearRampToValueAtTime(0.88 * v, start + 0.035);
-    master.gain.setValueAtTime(0.88 * v, start + 1.34);
-    master.gain.exponentialRampToValueAtTime(0.0001, start + 1.66);
-
-    const toneFilter = ctx.createBiquadFilter();
-    toneFilter.type = 'lowpass';
-    toneFilter.frequency.setValueAtTime(preset.filter, start);
-    toneFilter.Q.setValueAtTime(preset.q || 0.20, start);
-    toneFilter.connect(master).connect(ctx.destination);
-
-    offsets.forEach((offset, pulseIndex) => {
-      const t = start + offset;
-      const baseFreq = BASE_INTERVAL_FREQS[pulseIndex];
-      const duration = durations[pulseIndex] * (preset.scale || 1);
-      const peak = preset.peak * (pulseIndex === 2 ? 1.14 : 1.0);
-      const attack = preset.attack || 0.030;
-      const partials = preset.partials || [[1,1]];
-
-      partials.forEach(([ratio, relGain], i) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = i === 0 ? preset.wave : 'sine';
-        osc.frequency.setValueAtTime(baseFreq * ratio, t);
-        if (preset.detune) osc.detune.setValueAtTime(preset.detune * (i + 1), t);
-        if (pulseIndex === 2 && i === 0) {
-          osc.frequency.linearRampToValueAtTime(baseFreq * ratio * 1.003, t + duration * 0.70);
-        }
-        gain.gain.setValueAtTime(0.0001, t);
-        gain.gain.linearRampToValueAtTime(peak * relGain, t + attack);
-        gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
-        osc.connect(gain).connect(toneFilter);
-        osc.start(t);
-        osc.stop(t + duration + 0.045);
-      });
-
-      if (preset.noise) {
-        const bufferSize = Math.floor(ctx.sampleRate * Math.min(0.16, duration));
-        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-          const x = i / bufferSize;
-          data[i] = (Math.random() * 2 - 1) * Math.pow(1 - x, 3.6);
-        }
-        const noise = ctx.createBufferSource();
-        noise.buffer = buffer;
-        const noiseFilter = ctx.createBiquadFilter();
-        noiseFilter.type = 'bandpass';
-        noiseFilter.frequency.setValueAtTime(Math.min(5200, preset.filter * 0.85), t);
-        noiseFilter.Q.setValueAtTime(0.75, t);
-        const noiseGain = ctx.createGain();
-        noiseGain.gain.setValueAtTime(0.0001, t);
-        noiseGain.gain.linearRampToValueAtTime(preset.noise * peak, t + 0.010);
-        noiseGain.gain.exponentialRampToValueAtTime(0.0001, t + Math.min(0.16, duration));
-        noise.connect(noiseFilter).connect(noiseGain).connect(toneFilter);
-        noise.start(t);
-        noise.stop(t + Math.min(0.18, duration + 0.02));
-      }
-    });
-  }
-
-  function softIntervalChime() {
-    playSelectedChime();
-  }
-
-  function tinyClick() {
-    const ctx = getAudioContext();
-    if (!ctx) return;
-    const v = effectiveSoundVolume();
-    const t = ctx.currentTime;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(520, t);
-    gain.gain.setValueAtTime(0.0001, t);
-    gain.gain.linearRampToValueAtTime(0.020 * Math.max(0.35, v), t + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
-    osc.connect(gain).connect(ctx.destination);
-    osc.start(t); osc.stop(t + 0.09);
-  }
-
-  function applySoundState() {
-    soundEnabled = soundVolume > 0;
-    localStorage.setItem('dayUnitsSound', soundEnabled ? 'on' : 'off');
-    localStorage.setItem('dayUnitsSoundVolumeV2', String(Math.round(soundVolume * 100)));
-    const percent = Math.round(soundVolume * 100);
-    document.body.classList.toggle('sound-off', !soundEnabled);
-    if (soundBtn) soundBtn.title = soundEnabled ? `Volume ${percent}` : 'Muted';
-    if (soundBtn) soundBtn.setAttribute('aria-label', soundEnabled ? `volume ${percent}` : 'muted');
-    if (volumeSlider) volumeSlider.value = String(percent);
-    if (volumeValue) volumeValue.textContent = String(percent);
-    if (volumePanel) volumePanel.style.setProperty('--volume-percent', `${percent}%`);
-  }
-
-
-  function triggerVisualIntervalSignal() {
-    document.body.classList.remove('interval-flash');
-    // Force-restart the CSS animation even if two intervals trigger close together.
-    void document.body.offsetWidth;
-    document.body.classList.add('interval-flash');
-    clearTimeout(flashTimer);
-    flashTimer = setTimeout(() => document.body.classList.remove('interval-flash'), 2050);
-  }
-
-  function render() {
-    clampDay();
-    const now = new Date();
-    const current = minutesOfDay(now);
-    const start = startHour * 60;
-    const end = endHour * 60;
-    const dayLength = Math.max(1, end - start);
-    const elapsed = Math.max(0, Math.min(dayLength, current - start));
-    const remaining = Math.max(0, dayLength - elapsed);
-    const unitsLeft = Math.ceil(remaining / intervalMinutes);
-
-    const inActiveDay = current >= start && current < end;
-    const completedSlot = Math.floor(elapsed / intervalMinutes);
-    const intervalMarker = inActiveDay ? `${intervalMinutes}:${completedSlot}` : null;
-
-    // Robust interval-end signal: triggers when the completed interval index changes.
-    // This survives fullscreen/fake-fullscreen layout changes and RAF timing jitter.
-    if (!inActiveDay || elapsed <= 0) {
-      lastCompletedSlot = completedSlot;
-      lastIntervalMarker = intervalMarker;
-    } else if (lastIntervalMarker === null) {
-      lastCompletedSlot = completedSlot;
-      lastIntervalMarker = intervalMarker;
-    } else if (intervalMarker !== lastIntervalMarker && completedSlot > lastCompletedSlot) {
-      lastCompletedSlot = completedSlot;
-      lastIntervalMarker = intervalMarker;
-      triggerVisualIntervalSignal();
-      softIntervalChime();
-    } else {
-      lastCompletedSlot = completedSlot;
-      lastIntervalMarker = intervalMarker;
-    }
-
-    unitNumber.textContent = padNumber(unitsLeft);
-    const activeUnitLabel = intervalMinutes === 1 ? 'min' : `${intervalMinutes} min`;
-    unitLabel.innerHTML = `<span class="unit-phrase">${activeUnitLabel}</span>`;
-
-    // Ring drains smoothly inside the current selected interval.
-    const intervalRemainder = remaining <= 0 ? 0 : remaining % intervalMinutes;
-    const intervalProgressLeft = remaining <= 0 ? 0 : (intervalRemainder === 0 ? 1 : intervalRemainder / intervalMinutes);
-    ringLeft.style.strokeDashoffset = circumference * (1 - intervalProgressLeft);
-
-    const dayLeft = Math.max(0, Math.min(1, remaining / dayLength));
-    const dayHue = dayLeft * 120;
-    daybarFill.style.background = `hsl(${dayHue} 100% 45%)`;
-    const nowPosition = Math.max(0, Math.min(1, elapsed / dayLength));
-    const horizontalDaybar = window.matchMedia('(max-width: 720px), (orientation: landscape) and (max-height: 540px) and (max-width: 1200px)').matches;
-    daybarFill.style.setProperty('--daybar-width', `${dayLeft * 100}%`);
-    daybarNow.style.setProperty('--daybar-now-left', `${nowPosition * 100}%`);
-    if (horizontalDaybar) {
-      daybarFill.style.height = '100%';
-      daybarFill.style.width = `${dayLeft * 100}%`;
-      daybarNow.style.bottom = 'auto';
-      daybarNow.style.left = `${nowPosition * 100}%`;
-    } else {
-      daybarFill.style.width = '100%';
-      daybarFill.style.height = `${dayLeft * 100}%`;
-      daybarNow.style.left = '50%';
-      daybarNow.style.bottom = `${(1 - nowPosition) * 100}%`;
-    }
-
-    startTimeEl.textContent = formatHour(startHour);
-    endTimeEl.textContent = formatHour(endHour);
-    intervalButtons.forEach(btn => btn.classList.toggle('active', Number(btn.dataset.interval) === intervalMinutes));
-    updateCornerTime();
-  }
-
-  function setStart(delta) {
-    startHour += delta;
-    if (startHour < 0) startHour = 0;
-    if (startHour >= endHour) startHour = endHour - 1;
-    localStorage.setItem('dayUnitsStartHour', startHour);
-    lastCompletedSlot = null;
-    lastIntervalMarker = null;
-    render();
-  }
-  function setEnd(delta) {
-    endHour += delta;
-    if (endHour > 24) endHour = 24;
-    if (endHour <= startHour) endHour = startHour + 1;
-    localStorage.setItem('dayUnitsEndHour', endHour);
-    lastCompletedSlot = null;
-    lastIntervalMarker = null;
-    render();
-  }
-
-  document.getElementById('startDown').addEventListener('click', () => setStart(-1));
-  document.getElementById('startUp').addEventListener('click', () => setStart(1));
-  document.getElementById('endDown').addEventListener('click', () => setEnd(-1));
-  document.getElementById('endUp').addEventListener('click', () => setEnd(1));
-
-  intervalButtons.forEach(btn => btn.addEventListener('click', () => {
-    intervalMinutes = Number(btn.dataset.interval);
-    localStorage.setItem('dayUnitsIntervalMinDefault', intervalMinutes);
-    lastCompletedSlot = null;
-    lastIntervalMarker = null;
-    render();
-  }));
-
-  soundBtn.addEventListener('click', (event) => {
-    event.stopPropagation();
-    getAudioContext();
-
-    // First click opens the volume control. If it is already open, the next
-    // click on the sound button mutes immediately. When muted, clicking again
-    // restores full volume and opens the control.
-    if (document.body.classList.contains('volume-open')) {
-      soundVolume = 0;
-      document.body.classList.remove('volume-open');
-      applySoundState();
-      showControls();
-      return;
-    }
-
-    if (soundVolume <= 0) soundVolume = 1.0;
-    applySoundState();
-    document.body.classList.add('volume-open');
-    tinyClick();
-    showControls();
-  });
-
-  volumePanel.addEventListener('click', (event) => event.stopPropagation());
-  volumePanel.addEventListener('pointerdown', () => showControls());
-  volumeSlider.addEventListener('input', () => {
-    soundVolume = Math.max(0, Math.min(1, Number(volumeSlider.value) / 100));
-    applySoundState();
-    showControls();
-  });
-  volumeSlider.addEventListener('change', () => {
-    if (soundVolume > 0) tinyClick();
-  });
-  window.addEventListener('pointerdown', (event) => {
-    if (!event.target.closest('#sound') && !event.target.closest('#volumePanel')) {
-      document.body.classList.remove('volume-open');
-    }
-  });
-
-  themeBtn.addEventListener('click', () => {
-    document.body.classList.toggle('light');
-    localStorage.setItem('dayUnitsThemeMinDefault', document.body.classList.contains('light') ? 'light' : 'dark');
-  });
-  if (localStorage.getItem('dayUnitsThemeMinDefault') === 'light') document.body.classList.add('light');
-
-  function isNativeFullscreen() {
-    return document.fullscreenElement || document.webkitFullscreenElement;
-  }
-
-  const isIPhoneDevice = /iPhone|iPod/.test(navigator.userAgent);
-  const isAppleTouchDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
-  function setAppHeight() {
-    const height = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
-    document.documentElement.style.setProperty('--app-height', `${height}px`);
-    const width = (window.visualViewport && window.visualViewport.width) ? window.visualViewport.width : window.innerWidth;
-    document.documentElement.style.setProperty('--app-width', `${width}px`);
-  }
-
-  function enterFakeFullscreen() {
-    setAppHeight();
-    document.documentElement.classList.add('fake-fullscreen');
-    document.body.classList.add('fake-fullscreen');
-    document.body.classList.add('show-controls');
-    // iOS can only hide the browser chrome after user scroll / PWA mode. This keeps the app locked
-    // to the visible viewport and avoids the old half-fullscreen failure.
-    requestAnimationFrame(() => {
-      window.scrollTo(0, 0);
-      setAppHeight();
-    });
-    setTimeout(setAppHeight, 120);
-    setTimeout(setAppHeight, 420);
-  }
-
-  async function enterFullscreen() {
-    // iPhone/iPad Safari can be inconsistent with the Fullscreen API for normal pages.
-    // On Apple touch devices we use the reliable viewport-locked fake fullscreen.
-    if (isAppleTouchDevice) {
-      enterFakeFullscreen();
-      updateFullscreenButton();
-      return;
-    }
-
-    const target = document.querySelector('.app') || document.documentElement;
-    try {
-      if (target.requestFullscreen) {
-        await target.requestFullscreen();
-      } else if (target.webkitRequestFullscreen) {
-        target.webkitRequestFullscreen();
-      } else {
-        enterFakeFullscreen();
-        updateFullscreenButton();
-        return;
-      }
-      setTimeout(() => {
-        if (!isNativeFullscreen()) enterFakeFullscreen();
-        else {
-          document.documentElement.classList.remove('fake-fullscreen');
-          document.body.classList.remove('fake-fullscreen');
-          setAppHeight();
-        }
-        updateFullscreenButton();
-      }, 160);
-      return;
-    } catch (_) {
-      enterFakeFullscreen();
-      updateFullscreenButton();
-    }
-  }
-
-  async function exitFullscreen() {
-    try {
-      if (document.exitFullscreen && document.fullscreenElement) {
-        await document.exitFullscreen();
-      } else if (document.webkitExitFullscreen && document.webkitFullscreenElement) {
-        document.webkitExitFullscreen();
-      }
-    } catch (_) {}
-    document.documentElement.classList.remove('fake-fullscreen');
-    document.body.classList.remove('fake-fullscreen');
-  }
-
-  function updateFullscreenButton() {
-    const active = Boolean(isNativeFullscreen() || document.body.classList.contains('fake-fullscreen'));
-    fullBtn.title = active ? 'Exit fullscreen' : 'Fullscreen';
-    fullBtn.setAttribute('aria-label', active ? 'exit fullscreen' : 'fullscreen');
-  }
-
-  fullBtn.addEventListener('click', async (event) => {
-    event.stopPropagation();
-    if (isNativeFullscreen() || document.body.classList.contains('fake-fullscreen')) await exitFullscreen();
-    else await enterFullscreen();
-    updateFullscreenButton();
-    showControls();
-  });
-
-  document.addEventListener('fullscreenchange', updateFullscreenButton);
-  document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
-
-  function refreshFakeFullscreenHeight() {
-    if (document.body.classList.contains('fake-fullscreen')) setAppHeight();
-  }
-  window.addEventListener('resize', refreshFakeFullscreenHeight, { passive: true });
-  window.addEventListener('orientationchange', () => setTimeout(refreshFakeFullscreenHeight, 250), { passive: true });
-  if (window.visualViewport) window.visualViewport.addEventListener('resize', refreshFakeFullscreenHeight, { passive: true });
-  document.addEventListener('touchmove', (event) => {
-    if (document.body.classList.contains('fake-fullscreen')) event.preventDefault();
-  }, { passive: false });
-
-  function showControls() {
-    document.body.classList.add('show-controls');
-    clearTimeout(hideTimer);
-    hideTimer = setTimeout(() => document.body.classList.remove('show-controls'), 2400);
-  }
-  ['mousemove','touchstart','pointerdown','keydown'].forEach(evt => window.addEventListener(evt, showControls, { passive: true }));
-
-  applySoundState();
-  clampDay();
-  function animationLoop() {
-    render();
-    frameHandle = requestAnimationFrame(animationLoop);
-  }
-  if (frameHandle) cancelAnimationFrame(frameHandle);
-  animationLoop();
-  showControls();
+  const app=document.getElementById('app'), unitNumber=document.getElementById('unitNumber'), unitLabel=document.getElementById('unitLabel'), ringLeft=document.getElementById('ringLeft'), daybarFill=document.getElementById('daybarFill'), daybarNow=document.getElementById('daybarNow'), cornerDate=document.getElementById('cornerDate'), cornerTime=document.getElementById('cornerTime'), startTimeEl=document.getElementById('startTime'), endTimeEl=document.getElementById('endTime'), intervalButtons=[...document.querySelectorAll('.intervals button')], themeBtn=document.getElementById('theme'), soundBtn=document.getElementById('sound'), volumePanel=document.getElementById('volumePanel'), volumeSlider=document.getElementById('volumeSlider'), volumeValue=document.getElementById('volumeValue'), fullBtn=document.getElementById('full');
+  const radius=47, circumference=2*Math.PI*radius; ringLeft.style.strokeDasharray=circumference;
+  let startHour=Number(localStorage.getItem('dayUnitsStartHour')||8), endHour=Number(localStorage.getItem('dayUnitsEndHour')||24), intervalMinutes=Number(localStorage.getItem('dayUnitsInterval')||1);
+  if(![1,5,10,15,20,30,45,60,90,120].includes(intervalMinutes)) intervalMinutes=1;
+  let soundVolume=Number(localStorage.getItem('dayUnitsSoundVolume')||100)/100; if(!Number.isFinite(soundVolume)) soundVolume=1; soundVolume=Math.max(0,Math.min(1,soundVolume));
+  let soundEnabled=soundVolume>0, audioCtx=null, lastCompletedSlot=null, flashTimer=null, hideTimer=null, frameHandle=null, volumeWasOpened=false;
+  const BASE_FREQS=[440,554.37,659.25];
+  function setViewportHeight(){document.documentElement.style.setProperty('--app-h',`${window.innerHeight}px`)}
+  setViewportHeight(); ['resize','orientationchange'].forEach(e=>window.addEventListener(e,()=>setTimeout(setViewportHeight,80),{passive:true}));
+  function isIPhone(){return /iPhone|iPod/i.test(navigator.userAgent)}
+  function clampDay(){startHour=Math.max(0,Math.min(23,startHour));endHour=Math.max(1,Math.min(24,endHour));if(endHour<=startHour)endHour=Math.min(24,startHour+1)}
+  function formatHour(h){return String(h).padStart(2,'0')+':00'}
+  function minutesOfDay(d){return d.getHours()*60+d.getMinutes()+d.getSeconds()/60+d.getMilliseconds()/60000}
+  function padNumber(n){return String(Math.max(0,n)).padStart(2,'0')}
+  function updateCornerTime(){const now=new Date(),m=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];cornerDate.textContent=`${m[now.getMonth()]} ${now.getDate()}`;cornerTime.textContent=now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}
+  function getAudioContext(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;if(!audioCtx)audioCtx=new AC();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}catch(_){return null}}
+  function effectiveSoundVolume(){return soundVolume<=0?0:Math.min(1.7,0.35+1.35*Math.pow(soundVolume,.55))}
+  function playChime({force=false}={}){if((!soundEnabled||soundVolume<=0)&&!force)return;const ctx=getAudioContext();if(!ctx)return;const v=Math.max(.2,effectiveSoundVolume()),start=ctx.currentTime,offs=[.02,.50,.98],dur=[.25,.25,.50];const master=ctx.createGain();master.gain.setValueAtTime(.0001,start);master.gain.linearRampToValueAtTime(.80*v,start+.035);master.gain.setValueAtTime(.80*v,start+1.30);master.gain.exponentialRampToValueAtTime(.0001,start+1.62);const filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.setValueAtTime(1350,start);filter.Q.setValueAtTime(.14,start);filter.connect(master).connect(ctx.destination);offs.forEach((o,p)=>{const t=start+o,base=BASE_FREQS[p],duration=dur[p],peak=.055*(p===2?1.16:1);[[1,1],[2,.025],[3,.006]].forEach(([ratio,rel],i)=>{const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type=i===0?'square':'sine';osc.frequency.setValueAtTime(base*ratio,t);gain.gain.setValueAtTime(.0001,t);gain.gain.linearRampToValueAtTime(peak*rel,t+.028);gain.gain.exponentialRampToValueAtTime(.0001,t+duration);osc.connect(gain).connect(filter);osc.start(t);osc.stop(t+duration+.04)})})}
+  function triggerSignal(){document.body.classList.remove('interval-flash');void document.body.offsetWidth;document.body.classList.add('interval-flash');clearTimeout(flashTimer);flashTimer=setTimeout(()=>document.body.classList.remove('interval-flash'),2050);playChime()}
+  function isHorizontalDaybar(){return matchMedia('(max-width:700px), (max-height:500px) and (orientation:landscape)').matches}
+  function render(){clampDay();const now=new Date(),current=minutesOfDay(now),start=startHour*60,end=endHour*60,dayLength=Math.max(1,end-start),elapsed=Math.max(0,Math.min(dayLength,current-start)),remaining=Math.max(0,dayLength-elapsed),unitsLeft=Math.ceil(remaining/intervalMinutes),completedSlot=Math.floor(elapsed/intervalMinutes);if(lastCompletedSlot===null||current<start||current>=end){lastCompletedSlot=completedSlot}else if(completedSlot>lastCompletedSlot){lastCompletedSlot=completedSlot;triggerSignal()}unitNumber.textContent=padNumber(unitsLeft);unitLabel.textContent=intervalMinutes===1?'min':`${intervalMinutes} min`;const remainder=remaining<=0?0:remaining%intervalMinutes;const progress=remaining<=0?0:(remainder===0?1:remainder/intervalMinutes);ringLeft.style.strokeDashoffset=circumference*(1-progress);const dayLeft=Math.max(0,Math.min(1,remaining/dayLength)),hue=dayLeft*120,nowPos=Math.max(0,Math.min(1,elapsed/dayLength));daybarFill.style.background=`hsl(${hue} 100% 45%)`;if(isHorizontalDaybar()){daybarFill.style.height='100%';daybarFill.style.width=`${dayLeft*100}%`;daybarFill.style.left='0';daybarFill.style.right='auto';daybarNow.style.left=`${nowPos*100}%`;daybarNow.style.bottom='auto'}else{daybarFill.style.width='100%';daybarFill.style.height=`${dayLeft*100}%`;daybarFill.style.left='0';daybarFill.style.right='0';daybarNow.style.bottom=`${(1-nowPos)*100}%`;daybarNow.style.left='50%'}startTimeEl.textContent=formatHour(startHour);endTimeEl.textContent=formatHour(endHour);intervalButtons.forEach(b=>b.classList.toggle('active',Number(b.dataset.interval)===intervalMinutes));updateCornerTime()}
+  function setStart(d){startHour+=d;if(startHour<0)startHour=0;if(startHour>=endHour)startHour=endHour-1;localStorage.setItem('dayUnitsStartHour',startHour);lastCompletedSlot=null;render()}
+  function setEnd(d){endHour+=d;if(endHour>24)endHour=24;if(endHour<=startHour)endHour=startHour+1;localStorage.setItem('dayUnitsEndHour',endHour);lastCompletedSlot=null;render()}
+  document.getElementById('startDown').onclick=()=>setStart(-1);document.getElementById('startUp').onclick=()=>setStart(1);document.getElementById('endDown').onclick=()=>setEnd(-1);document.getElementById('endUp').onclick=()=>setEnd(1);
+  intervalButtons.forEach(b=>b.addEventListener('click',()=>{intervalMinutes=Number(b.dataset.interval);localStorage.setItem('dayUnitsInterval',intervalMinutes);lastCompletedSlot=null;render()}));
+  function applySound(){soundEnabled=soundVolume>0;localStorage.setItem('dayUnitsSound',soundEnabled?'on':'off');localStorage.setItem('dayUnitsSoundVolume',String(Math.round(soundVolume*100)));const p=Math.round(soundVolume*100);document.body.classList.toggle('sound-off',!soundEnabled);soundBtn.title=soundEnabled?`Volume ${p}`:'Muted';soundBtn.setAttribute('aria-label',soundEnabled?`volume ${p}`:'muted');volumeSlider.value=String(p);volumeValue.textContent=String(p);volumePanel.style.setProperty('--volume-percent',`${p}%`)}
+  soundBtn.addEventListener('click',e=>{e.stopPropagation();getAudioContext();if(!document.body.classList.contains('volume-open')){if(soundVolume<=0)soundVolume=1;document.body.classList.add('volume-open');volumeWasOpened=true;applySound();showControls()}else{soundVolume=0;document.body.classList.remove('volume-open');applySound();showControls()}});
+  volumePanel.addEventListener('click',e=>e.stopPropagation());volumeSlider.addEventListener('input',()=>{soundVolume=Math.max(0,Math.min(1,Number(volumeSlider.value)/100));applySound();showControls()});volumeSlider.addEventListener('change',()=>{if(soundVolume>0)playChime({force:true})});window.addEventListener('pointerdown',e=>{if(!e.target.closest('#sound')&&!e.target.closest('#volumePanel'))document.body.classList.remove('volume-open')});
+  themeBtn.addEventListener('click',()=>{document.body.classList.toggle('light');localStorage.setItem('dayUnitsTheme',document.body.classList.contains('light')?'light':'dark')});
+  // Default is dark; only user-saved light opens light.
+  if(localStorage.getItem('dayUnitsTheme')==='light')document.body.classList.add('light');
+  async function toggleFullscreen(){setViewportHeight();const isFake=document.body.classList.contains('fake-fullscreen'),isReal=!!document.fullscreenElement;if(isFake||isReal){try{if(isReal)await document.exitFullscreen()}catch(_){}document.body.classList.remove('fake-fullscreen','fullscreen-mode');setViewportHeight();setTimeout(render,80);return}document.body.classList.add('fullscreen-mode');if(isIPhone()){document.body.classList.add('fake-fullscreen');setViewportHeight();setTimeout(render,80);return}try{await app.requestFullscreen();document.body.classList.add('fullscreen-mode')}catch(_){document.body.classList.add('fake-fullscreen')}setViewportHeight();setTimeout(render,100)}
+  fullBtn.addEventListener('click',toggleFullscreen);document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&!document.body.classList.contains('fake-fullscreen'))document.body.classList.remove('fullscreen-mode');setViewportHeight();setTimeout(render,80)});
+  function showControls(){document.body.classList.add('show-controls');clearTimeout(hideTimer);hideTimer=setTimeout(()=>{document.body.classList.remove('show-controls');document.body.classList.remove('volume-open')},2800)}
+  ['mousemove','touchstart','pointerdown','keydown'].forEach(e=>window.addEventListener(e,showControls,{passive:true}));
+  applySound();clampDay();function loop(){render();frameHandle=requestAnimationFrame(loop)}if(frameHandle)cancelAnimationFrame(frameHandle);loop();showControls();
 })();
 </script>
 </body>
