@@ -14,6 +14,7 @@
     --ring: rgba(245,245,240,.20);
     --track: rgba(245,245,240,.12);
     --accent: #ff7a00;
+    --corner-mint: #62ffd2;
   }
   body.light {
     --bg: #f5f3ec;
@@ -24,6 +25,7 @@
     --ring: rgba(9,9,9,.18);
     --track: rgba(9,9,9,.10);
     --accent: #ff7a00;
+    --corner-mint: #007f70;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body {
@@ -36,9 +38,9 @@
 
   .corner-date, .corner-time {
     position: absolute; top: 22px; z-index: 5;
-    font-size: 11px; letter-spacing: .18em; color: #62ffd2;
+    font-size: 11px; letter-spacing: .18em; color: var(--corner-mint);
     opacity: 0; transition: opacity .35s ease; user-select: none;
-    text-shadow: 0 0 8px rgba(98, 255, 210, 0.22);
+    text-shadow: 0 0 8px color-mix(in srgb, var(--corner-mint) 26%, transparent);
   }
   .corner-date { left: 26px; text-transform: uppercase; }
   .corner-time { right: 26px; font-variant-numeric: tabular-nums; }
@@ -309,16 +311,457 @@
     .top { top: 16px; width: min(68vw, 360px); }
   }
   @media (max-width: 520px) {
-    .app { padding: 18px; }
-    .unit-number { font-size: clamp(72px, 24vw, 148px); }
-    .unit-label { top: calc(50% + clamp(44px, 14vw, 72px)); font-size: 9px; letter-spacing: .17em; }
-    .intervals { right: 8px; }
-    .intervals button { min-width: 38px; height: 27px; font-size: 9px; }
-    .daybar-panel { left: 6px; width: 56px; height: min(52vh, 330px); }
-    .time-control { grid-template-columns: 14px auto 14px; gap: 1px; }
-    .time-control .time-value { width: 32px; font-size: 9px; letter-spacing: .05em; }
-    .mini-arrow { min-width: 14px; width: 14px; height: 16px; font-size: 10px; }
+    .app {
+      padding: max(22px, env(safe-area-inset-top)) 14px max(86px, env(safe-area-inset-bottom));
+      align-items: center;
+    }
+
+    .corner-date,
+    .corner-time {
+      top: max(16px, env(safe-area-inset-top));
+      font-size: 9.5px;
+      letter-spacing: .14em;
+    }
+    .corner-date { left: 16px; }
+    .corner-time { right: 16px; }
+
+    .top {
+      top: max(38px, calc(env(safe-area-inset-top) + 30px));
+      width: min(72vw, 300px);
+      font-size: 8.5px;
+      column-gap: .8em;
+      letter-spacing: .09em;
+    }
+
+    .center {
+      width: min(69vmin, 330px);
+      height: min(69vmin, 330px);
+      transform: translateY(-3.6vh);
+    }
+
+    .unit-number {
+      font-size: clamp(68px, 20vw, 122px);
+      letter-spacing: -.075em;
+    }
+
+    .unit-label {
+      top: calc(50% + clamp(42px, 12vw, 66px));
+      font-size: 8.5px;
+      letter-spacing: .15em;
+    }
+
+    .intervals {
+      right: max(8px, env(safe-area-inset-right));
+      gap: 5px;
+      transform: translateY(-53%);
+    }
+    .intervals button {
+      min-width: 36px;
+      height: 24px;
+      padding: 0 6px;
+      font-size: 8.5px;
+      letter-spacing: .06em;
+    }
+
+    .daybar-panel {
+      left: max(6px, env(safe-area-inset-left));
+      width: 50px;
+      height: min(45vh, 292px);
+      gap: 8px;
+      transform: translateY(-54%);
+    }
+    .daybar { width: 7px; }
+    .daybar-now { width: 14px; }
+    .daybar-caption { display: none; }
+
+    .time-control {
+      grid-template-columns: 12px auto 12px;
+      gap: 0;
+    }
+    .time-control .time-value {
+      width: 30px;
+      font-size: 8px;
+      letter-spacing: .035em;
+    }
+    .mini-arrow {
+      min-width: 12px;
+      width: 12px;
+      height: 14px;
+      font-size: 9px;
+    }
+
+    .controls {
+      bottom: max(18px, env(safe-area-inset-bottom));
+      gap: 8px;
+    }
+    .icon-btn {
+      width: 42px;
+      min-width: 42px;
+      height: 38px;
+    }
+    .volume-panel {
+      width: 142px;
+      height: 36px;
+    }
   }
+
+  @media (max-width: 380px) {
+    .center {
+      width: min(64vmin, 292px);
+      height: min(64vmin, 292px);
+      transform: translateY(-4.8vh);
+    }
+    .unit-number { font-size: clamp(58px, 18vw, 102px); }
+    .unit-label { top: calc(50% + clamp(36px, 10.8vw, 56px)); font-size: 7.8px; }
+    .intervals button { min-width: 34px; height: 23px; font-size: 8px; }
+    .daybar-panel { width: 46px; height: min(42vh, 260px); }
+  }
+
+  @media (max-width: 520px) and (max-height: 700px) {
+    .center {
+      width: min(60vmin, 280px);
+      height: min(60vmin, 280px);
+      transform: translateY(-6.2vh);
+    }
+    .daybar-panel { height: min(40vh, 238px); }
+    .intervals { gap: 4px; }
+    .intervals button { height: 22px; }
+  }
+
+
+  /* Mobile layout rewrite: horizontal day scale above the ring, interval scale below the ring. */
+  @media (max-width: 520px) {
+    .app {
+      padding: max(18px, env(safe-area-inset-top)) 12px max(92px, env(safe-area-inset-bottom));
+    }
+
+    .center {
+      width: min(74vw, 330px);
+      height: min(74vw, 330px);
+      transform: translateY(-2.2vh);
+    }
+
+    .unit-number {
+      font-size: clamp(72px, 22vw, 138px);
+    }
+
+    .unit-label {
+      top: calc(50% + clamp(45px, 13vw, 74px));
+    }
+
+    .daybar-panel {
+      left: 50%;
+      right: auto;
+      top: calc(50% - min(37vw, 165px) - 54px);
+      transform: translateX(-50%);
+      width: min(86vw, 380px);
+      height: 34px;
+      display: grid;
+      grid-template-columns: auto minmax(74px, 1fr) auto;
+      grid-template-rows: 1fr;
+      align-items: center;
+      justify-items: center;
+      gap: 9px;
+      pointer-events: none;
+    }
+
+    body.show-controls .daybar-panel {
+      pointer-events: auto;
+    }
+
+    .daybar-panel .time-control:first-child { grid-column: 1; grid-row: 1; }
+    .daybar-panel .daybar { grid-column: 2; grid-row: 1; }
+    .daybar-panel .time-control:last-child { grid-column: 3; grid-row: 1; }
+
+    .daybar {
+      width: 100%;
+      height: 7px;
+      min-width: 74px;
+    }
+
+    .daybar-fill {
+      left: 0;
+      right: auto;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      transition: width .5s linear, background-color .45s linear, background .45s linear;
+    }
+
+    .daybar-now {
+      top: 50%;
+      bottom: auto;
+      left: 0;
+      transform: translate(-50%, -50%);
+      width: 1px;
+      height: 16px;
+    }
+
+    .daybar-caption { display: none; }
+
+    .time-control {
+      grid-template-columns: 13px auto 13px;
+      gap: 1px;
+    }
+
+    .time-control .time-value {
+      width: 32px;
+      font-size: 8.5px;
+      letter-spacing: .035em;
+    }
+
+    .mini-arrow {
+      min-width: 13px;
+      width: 13px;
+      height: 16px;
+      font-size: 10px;
+    }
+
+    .intervals {
+      left: 50%;
+      right: auto;
+      top: auto;
+      bottom: calc(max(18px, env(safe-area-inset-bottom)) + 58px);
+      transform: translateX(-50%);
+      width: min(88vw, 390px);
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 3px 2px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .intervals::-webkit-scrollbar { display: none; }
+
+    .intervals button {
+      flex: 0 0 auto;
+      min-width: 34px;
+      height: 25px;
+      padding: 0 7px;
+      font-size: 8.5px;
+      letter-spacing: .045em;
+    }
+
+    .controls {
+      top: auto;
+      bottom: max(18px, env(safe-area-inset-bottom));
+      gap: 9px;
+    }
+  }
+
+  @media (max-width: 520px) and (max-height: 700px) {
+    .center {
+      width: min(68vw, 290px);
+      height: min(68vw, 290px);
+      transform: translateY(-3.6vh);
+    }
+
+    .daybar-panel {
+      top: calc(50% - min(34vw, 145px) - 44px);
+      height: 30px;
+      width: min(84vw, 360px);
+    }
+
+    .intervals {
+      bottom: calc(max(14px, env(safe-area-inset-bottom)) + 51px);
+      gap: 4px;
+    }
+
+    .intervals button {
+      min-width: 32px;
+      height: 23px;
+      padding: 0 6px;
+      font-size: 8px;
+    }
+  }
+
+
+  /* Mobile balanced layout: no overlap, clear vertical rhythm. */
+  @media (max-width: 520px) {
+    .app {
+      padding: max(16px, env(safe-area-inset-top)) 12px max(76px, env(safe-area-inset-bottom));
+      place-items: center;
+    }
+
+    .corner-date,
+    .corner-time {
+      top: max(14px, env(safe-area-inset-top));
+      font-size: 9.5px;
+      letter-spacing: .14em;
+    }
+    .corner-date { left: 16px; }
+    .corner-time { right: 16px; }
+
+    .top {
+      top: max(40px, calc(env(safe-area-inset-top) + 30px));
+      width: min(70vw, 300px);
+      font-size: 8px;
+      column-gap: .75em;
+      letter-spacing: .08em;
+    }
+
+    .center {
+      width: min(72vw, 300px, 45svh);
+      height: min(72vw, 300px, 45svh);
+      transform: translateY(-1.8svh);
+    }
+
+    .unit-number {
+      font-size: clamp(66px, 21vw, 126px);
+      letter-spacing: -.075em;
+    }
+
+    .unit-label {
+      top: calc(50% + clamp(42px, 12vw, 68px));
+      font-size: 8.5px;
+      letter-spacing: .16em;
+    }
+
+    .daybar-panel {
+      left: 50%;
+      right: auto;
+      top: clamp(78px, 12.5svh, 112px);
+      transform: translateX(-50%);
+      width: min(86vw, 380px);
+      height: 32px;
+      display: grid;
+      grid-template-columns: auto minmax(92px, 1fr) auto;
+      grid-template-rows: 1fr;
+      align-items: center;
+      justify-items: center;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    body.show-controls .daybar-panel { pointer-events: auto; }
+
+    .daybar-panel .time-control:first-child { grid-column: 1; grid-row: 1; }
+    .daybar-panel .daybar { grid-column: 2; grid-row: 1; }
+    .daybar-panel .time-control:last-child { grid-column: 3; grid-row: 1; }
+
+    .daybar {
+      width: 100%;
+      height: 7px;
+      min-width: 92px;
+    }
+    .daybar-fill {
+      left: 0;
+      right: auto;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      transition: width .5s linear, background-color .45s linear, background .45s linear;
+    }
+    .daybar-now {
+      top: 50%;
+      bottom: auto;
+      left: 0;
+      transform: translate(-50%, -50%);
+      width: 1px;
+      height: 16px;
+    }
+    .daybar-caption { display: none; }
+
+    .time-control {
+      grid-template-columns: 14px auto 14px;
+      gap: 1px;
+    }
+    .time-control .time-value {
+      width: 34px;
+      font-size: 8.5px;
+      letter-spacing: .035em;
+    }
+    .mini-arrow {
+      min-width: 14px;
+      width: 14px;
+      height: 16px;
+      font-size: 10px;
+    }
+
+    .intervals {
+      left: 50%;
+      right: auto;
+      top: calc(50% + min(36vw, 150px, 22.5svh) + 24px);
+      bottom: auto;
+      transform: translateX(-50%);
+      width: min(92vw, 410px);
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 4px 7px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .intervals::-webkit-scrollbar { display: none; }
+    .intervals button {
+      flex: 0 0 auto;
+      min-width: 36px;
+      height: 26px;
+      padding: 0 8px;
+      font-size: 8.5px;
+      letter-spacing: .045em;
+    }
+
+    .controls {
+      top: auto;
+      bottom: max(18px, env(safe-area-inset-bottom));
+      gap: 9px;
+    }
+    .icon-btn {
+      width: 42px;
+      min-width: 42px;
+      height: 38px;
+    }
+    .volume-panel {
+      width: 144px;
+      height: 36px;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .center {
+      width: min(68vw, 270px, 42svh);
+      height: min(68vw, 270px, 42svh);
+      transform: translateY(-1.4svh);
+    }
+    .unit-number { font-size: clamp(58px, 19vw, 108px); }
+    .unit-label { top: calc(50% + clamp(36px, 10.8vw, 56px)); font-size: 7.8px; }
+    .daybar-panel { width: min(88vw, 340px); height: 30px; gap: 6px; }
+    .intervals { width: min(94vw, 360px); gap: 4px; padding-inline: 6px; }
+    .intervals button { min-width: 33px; height: 24px; padding: 0 6px; font-size: 8px; }
+  }
+
+  @media (max-width: 520px) and (max-height: 700px) {
+    .top { display: none; }
+    .daybar-panel { top: max(62px, calc(env(safe-area-inset-top) + 48px)); height: 29px; }
+    .center {
+      width: min(64vw, 270px, 39svh);
+      height: min(64vw, 270px, 39svh);
+      transform: translateY(-0.5svh);
+    }
+    .unit-number { font-size: clamp(56px, 18vw, 100px); }
+    .unit-label { top: calc(50% + clamp(34px, 10vw, 52px)); }
+    .intervals {
+      top: calc(50% + min(32vw, 120px, 19.5svh) + 16px);
+      gap: 4px;
+    }
+    .intervals button { height: 23px; }
+    .controls { bottom: max(12px, env(safe-area-inset-bottom)); }
+  }
+
 </style>
 </head>
 <body>
@@ -355,8 +798,8 @@
     </section>
 
     <aside class="intervals" aria-label="intervals">
-      <button data-interval="1">1m</button>
-      <button data-interval="5" class="active">5m</button>
+      <button data-interval="1" class="active">1m</button>
+      <button data-interval="5">5m</button>
       <button data-interval="10">10m</button>
       <button data-interval="15">15m</button>
       <button data-interval="20">20m</button>
@@ -410,7 +853,7 @@
 
   let startHour = Number(localStorage.getItem('dayUnitsStartHour') || 8);
   let endHour = Number(localStorage.getItem('dayUnitsEndHour') || 24);
-  let intervalMinutes = Number(localStorage.getItem('dayUnitsInterval') || 5);
+  let intervalMinutes = Number(localStorage.getItem('dayUnitsIntervalMinDefault') || 1);
   let hideTimer = null;
   let soundVolume = Number(localStorage.getItem('dayUnitsSoundVolume') || 90) / 100;
   if (!Number.isFinite(soundVolume)) soundVolume = 0.90;
@@ -617,11 +1060,21 @@
     ringLeft.style.strokeDashoffset = circumference * (1 - intervalProgressLeft);
 
     const dayLeft = Math.max(0, Math.min(1, remaining / dayLength));
-    daybarFill.style.height = `${dayLeft * 100}%`;
     const dayHue = dayLeft * 120;
     daybarFill.style.background = `hsl(${dayHue} 100% 45%)`;
     const nowPosition = Math.max(0, Math.min(1, elapsed / dayLength));
-    daybarNow.style.bottom = `${(1 - nowPosition) * 100}%`;
+    const mobileHorizontalDaybar = window.matchMedia('(max-width: 520px)').matches;
+    if (mobileHorizontalDaybar) {
+      daybarFill.style.height = '100%';
+      daybarFill.style.width = `${dayLeft * 100}%`;
+      daybarNow.style.bottom = 'auto';
+      daybarNow.style.left = `${nowPosition * 100}%`;
+    } else {
+      daybarFill.style.width = '100%';
+      daybarFill.style.height = `${dayLeft * 100}%`;
+      daybarNow.style.left = '50%';
+      daybarNow.style.bottom = `${(1 - nowPosition) * 100}%`;
+    }
 
     startTimeEl.textContent = formatHour(startHour);
     endTimeEl.textContent = formatHour(endHour);
@@ -653,7 +1106,7 @@
 
   intervalButtons.forEach(btn => btn.addEventListener('click', () => {
     intervalMinutes = Number(btn.dataset.interval);
-    localStorage.setItem('dayUnitsInterval', intervalMinutes);
+    localStorage.setItem('dayUnitsIntervalMinDefault', intervalMinutes);
     lastCompletedSlot = null;
     render();
   }));
@@ -686,9 +1139,9 @@
 
   themeBtn.addEventListener('click', () => {
     document.body.classList.toggle('light');
-    localStorage.setItem('dayUnitsTheme', document.body.classList.contains('light') ? 'light' : 'dark');
+    localStorage.setItem('dayUnitsThemeMinDefault', document.body.classList.contains('light') ? 'light' : 'dark');
   });
-  if (localStorage.getItem('dayUnitsTheme') === 'light') document.body.classList.add('light');
+  if (localStorage.getItem('dayUnitsThemeMinDefault') === 'light') document.body.classList.add('light');
 
   fullBtn.addEventListener('click', async () => {
     try {
