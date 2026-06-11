@@ -46,6 +46,9 @@
   .controls{position:absolute;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;gap:10px;opacity:0;pointer-events:none;transition:opacity .35s ease;z-index:30;}
   body.show-controls .controls{opacity:1;pointer-events:auto}.icon-btn{width:46px;height:40px;min-width:46px}.theme-dot{width:17px;height:17px;border-radius:50%;display:block;border:1.15px solid currentColor;background:linear-gradient(90deg,currentColor 0 50%,transparent 50% 100%);opacity:.9}.full-icon{width:18px;height:18px;display:block;position:relative;opacity:.92}.full-icon::before{content:"";position:absolute;inset:0;background:linear-gradient(currentColor,currentColor) left top/7px 1.2px no-repeat,linear-gradient(currentColor,currentColor) left top/1.2px 7px no-repeat,linear-gradient(currentColor,currentColor) right top/7px 1.2px no-repeat,linear-gradient(currentColor,currentColor) right top/1.2px 7px no-repeat,linear-gradient(currentColor,currentColor) left bottom/7px 1.2px no-repeat,linear-gradient(currentColor,currentColor) left bottom/1.2px 7px no-repeat,linear-gradient(currentColor,currentColor) right bottom/7px 1.2px no-repeat,linear-gradient(currentColor,currentColor) right bottom/1.2px 7px no-repeat;}
   .sound-icon{width:19px;height:19px;display:block;opacity:.92;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.sound-muted-line{display:none}body.sound-off .sound-wave{display:none}body.sound-off .sound-muted-line{display:block}
+  .flash-icon{width:19px;height:19px;display:block;opacity:.92;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.flash-off-line{display:none}body.flash-off .flash-off-line{display:block}body.flash-off .flash-bolt{opacity:.45}
+  .ring-toggle-icon{width:19px;height:19px;display:block;opacity:.92;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.ring-toggle-off-line{display:none}body.ring-hidden .ring-toggle-off-line{display:block}body.ring-hidden .ring{opacity:0}
+
   .volume-panel{position:absolute;left:50%;bottom:calc(100% + 12px);transform:translateX(-50%) translateY(4px);width:158px;height:38px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:9px;padding:0 11px;border:1px solid var(--line);border-radius:999px;background:color-mix(in srgb,var(--bg) 88%,transparent);color:var(--fg);opacity:0;pointer-events:none;transition:opacity .22s ease,transform .22s ease,background .16s ease,border-color .16s ease;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 10px 28px rgba(0,0,0,.18);}
   body.volume-open.show-controls .volume-panel{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}.volume-panel input[type=range]{width:100%;margin:0;appearance:none;-webkit-appearance:none;background:transparent;cursor:pointer}.volume-panel input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:999px;background:linear-gradient(90deg,var(--fg) var(--volume-percent,100%),var(--soft) var(--volume-percent,100%))}.volume-panel input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--fg);border:0;margin-top:-5.5px}.volume-value{min-width:28px;text-align:right;font-size:9px;letter-spacing:.08em;color:var(--muted);font-variant-numeric:tabular-nums;user-select:none;}
   body.interval-flash{animation:intervalInvertBlink 2s linear both}@keyframes intervalInvertBlink{0%,10%{filter:invert(1)}11%,23%{filter:invert(0)}24%,34%{filter:invert(1)}35%,47%{filter:invert(0)}48%,58%{filter:invert(1)}59%,100%{filter:invert(0)}}
@@ -267,24 +270,29 @@
     </aside>
     <section class="center" aria-label="units left"><svg class="ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="ring-bg" cx="50" cy="50" r="47"></circle><circle id="ringLeft" class="ring-left" cx="50" cy="50" r="47"></circle></svg><div id="unitNumber" class="unit-number">000</div><div id="unitLabel" class="unit-label">min</div></section>
     <aside class="intervals" aria-label="intervals"><button data-interval="1" class="active">min</button><button data-interval="5">5m</button><button data-interval="10">10m</button><button data-interval="15">15m</button><button data-interval="20">20m</button><button data-interval="30">30m</button><button data-interval="45">45m</button><button data-interval="60">60m</button><button data-interval="90">90m</button><button data-interval="120">120m</button></aside>
-    <div class="controls"><button id="theme" class="icon-btn" aria-label="color mode"><span class="theme-dot"></span></button><button id="sound" class="icon-btn" aria-label="sound volume" title="Volume"><svg class="sound-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.4L12 5.8v12.4l-4.6-3.7H4z"></path><path class="sound-wave" d="M15.4 8.4c1.15 1.15 1.15 6.05 0 7.2"></path><path class="sound-wave" d="M18.2 5.9c2.45 2.45 2.45 9.75 0 12.2"></path><path class="sound-muted-line" d="M5.2 5.2l13.6 13.6"></path></svg></button><div id="volumePanel" class="volume-panel" aria-label="volume control"><input id="volumeSlider" type="range" min="0" max="100" value="100" aria-label="volume"/><span id="volumeValue" class="volume-value">100</span></div><button id="full" class="icon-btn" aria-label="fullscreen"><span class="full-icon"></span></button></div>
+    <div class="controls"><button id="theme" class="icon-btn" aria-label="color mode"><span class="theme-dot"></span></button><button id="sound" class="icon-btn" aria-label="muted" title="Muted"><svg class="sound-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.4L12 5.8v12.4l-4.6-3.7H4z"></path><path class="sound-wave" d="M15.4 8.4c1.15 1.15 1.15 6.05 0 7.2"></path><path class="sound-wave" d="M18.2 5.9c2.45 2.45 2.45 9.75 0 12.2"></path><path class="sound-muted-line" d="M5.2 5.2l13.6 13.6"></path></svg></button><button id="flashToggle" class="icon-btn" aria-label="flash off" title="Flash off"><svg class="flash-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="flash-bolt" d="M13 2.8 5.8 13h5.1L9.8 21.2 18.2 9.8h-5.1z"></path><path class="flash-off-line" d="M4.8 4.8 19.2 19.2"></path></svg></button><button id="ringToggle" class="icon-btn" aria-label="hide main ring" title="Hide ring"><svg class="ring-toggle-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.2"></circle><path class="ring-toggle-off-line" d="M4.8 4.8 19.2 19.2"></path></svg></button><button id="full" class="icon-btn" aria-label="fullscreen"><span class="full-icon"></span></button></div>
   </main>
 <script>
 (() => {
-  const app=document.getElementById('app'), unitNumber=document.getElementById('unitNumber'), unitLabel=document.getElementById('unitLabel'), ringLeft=document.getElementById('ringLeft'), daybarFill=document.getElementById('daybarFill'), daybarNow=document.getElementById('daybarNow'), cornerDate=document.getElementById('cornerDate'), cornerTime=document.getElementById('cornerTime'), startTimeEl=document.getElementById('startTime'), endTimeEl=document.getElementById('endTime'), intervalButtons=[...document.querySelectorAll('.intervals button')], themeBtn=document.getElementById('theme'), soundBtn=document.getElementById('sound'), volumePanel=document.getElementById('volumePanel'), volumeSlider=document.getElementById('volumeSlider'), volumeValue=document.getElementById('volumeValue'), fullBtn=document.getElementById('full');
+  const app=document.getElementById('app'), unitNumber=document.getElementById('unitNumber'), unitLabel=document.getElementById('unitLabel'), ringLeft=document.getElementById('ringLeft'), daybarFill=document.getElementById('daybarFill'), daybarNow=document.getElementById('daybarNow'), cornerDate=document.getElementById('cornerDate'), cornerTime=document.getElementById('cornerTime'), startTimeEl=document.getElementById('startTime'), endTimeEl=document.getElementById('endTime'), intervalButtons=[...document.querySelectorAll('.intervals button')], themeBtn=document.getElementById('theme'), soundBtn=document.getElementById('sound'), flashBtn=document.getElementById('flashToggle'), ringToggleBtn=document.getElementById('ringToggle'), fullBtn=document.getElementById('full');
   const radius=47, circumference=2*Math.PI*radius; ringLeft.style.strokeDasharray=circumference;
   let startHour=Number(localStorage.getItem('dayUnitsStartHour')||8), endHour=Number(localStorage.getItem('dayUnitsEndHour')||24), intervalMinutes=Number(localStorage.getItem('dayUnitsInterval')||1);
   if(![1,5,10,15,20,30,45,60,90,120].includes(intervalMinutes)) intervalMinutes=1;
-  const SOUND_DEFAULT_VERSION = 'sound100_audio_fixed_v3';
+  const SOUND_DEFAULT_VERSION = 'silent_flash_off_ring_toggle_v3';
   if (localStorage.getItem('dayUnitsBuildDefault') !== SOUND_DEFAULT_VERSION) {
-    localStorage.setItem('dayUnitsSoundVolume', '100');
-    localStorage.setItem('dayUnitsSound', 'on');
+    localStorage.setItem('dayUnitsSoundVolume', '0');
+    localStorage.setItem('dayUnitsSound', 'off');
+    localStorage.setItem('dayUnitsFlash', 'off');
+    localStorage.setItem('dayUnitsRingHidden', 'off');
     localStorage.setItem('dayUnitsBuildDefault', SOUND_DEFAULT_VERSION);
   }
-  let soundVolume=Number(localStorage.getItem('dayUnitsSoundVolume')||100)/100; if(!Number.isFinite(soundVolume)) soundVolume=1; soundVolume=Math.max(0,Math.min(1,soundVolume));
-  let soundEnabled=soundVolume>0, audioCtx=null, lastCompletedSlot=null, flashTimer=null, hideTimer=null, frameHandle=null, volumeWasOpened=false;
-  let flashPulseTimers=[];
+  let soundVolume=Number(localStorage.getItem('dayUnitsSoundVolume')||0)/100; if(!Number.isFinite(soundVolume)) soundVolume=0; soundVolume=Math.max(0,Math.min(1,soundVolume));
+  let soundEnabled=soundVolume>0, audioCtx=null, lastCompletedSlot=null, flashTimer=null, hideTimer=null, frameHandle=null;
   let resumeSuppressUntil=0;
+  let flashTimeouts=[];
+  let flashEnabled = localStorage.getItem('dayUnitsFlash') === 'on';
+  let ringHidden = localStorage.getItem('dayUnitsRingHidden') === 'on';
+  let audioPrimed=false;
   const BASE_FREQS=[440,554.37,659.25];
   function setViewportHeight(){document.documentElement.style.setProperty('--app-h',`${window.innerHeight}px`)}
   setViewportHeight(); ['resize','orientationchange'].forEach(e=>window.addEventListener(e,()=>setTimeout(setViewportHeight,80),{passive:true}));
@@ -300,111 +308,102 @@
     const elapsed=Math.max(0,Math.min(end-start,current-start));
     return Math.floor(elapsed/intervalMinutes);
   }
-  function clearVisualSignal(){
-    clearTimeout(flashTimer);
-    flashPulseTimers.forEach(clearTimeout);
-    flashPulseTimers=[];
-    document.body.classList.remove('interval-flash','flash-pulse');
-  }
   function syncIntervalWithoutSignal(){
     lastCompletedSlot=currentCompletedSlot();
-    clearVisualSignal();
+    clearSignalTimers();
     resumeSuppressUntil=performance.now()+1800;
   }
   function updateCornerTime(){const now=new Date(),m=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];cornerDate.textContent=`${m[now.getMonth()]} ${now.getDate()}`;cornerTime.textContent=now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}
   function getAudioContext(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;if(!audioCtx)audioCtx=new AC();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}catch(_){return null}}
-  let audioPrimed=false;
-  function unlockAudio(){
+  function primeAudio(){
     const ctx=getAudioContext();
-    if(!ctx) return;
-    const finish=()=>{
-      if(audioPrimed) return;
+    if(!ctx||audioPrimed)return;
+    try{
+      const t=ctx.currentTime;
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.type='sine';
+      osc.frequency.setValueAtTime(440,t);
+      gain.gain.setValueAtTime(0.00001,t);
+      gain.gain.exponentialRampToValueAtTime(0.000001,t+0.035);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t); osc.stop(t+0.04);
       audioPrimed=true;
-      // iOS/Safari often needs a real, user-gesture-created audio node once.
-      // This silent micro-ping primes the context without making an audible click.
-      try{
-        const t=ctx.currentTime;
-        const osc=ctx.createOscillator();
-        const gain=ctx.createGain();
-        osc.type='sine';
-        osc.frequency.setValueAtTime(440,t);
-        gain.gain.setValueAtTime(0.00001,t);
-        gain.gain.exponentialRampToValueAtTime(0.000001,t+0.04);
-        osc.connect(gain).connect(ctx.destination);
-        osc.start(t);
-        osc.stop(t+0.05);
-      }catch(_){}
-    };
-    if(ctx.state==='suspended'){
-      ctx.resume().then(finish).catch(()=>{});
-    }else{
-      finish();
+    }catch(_){}
+  }
+  function clearSignalTimers(){
+    flashTimeouts.forEach(clearTimeout);
+    flashTimeouts=[];
+    clearTimeout(flashTimer);
+    document.body.classList.remove('flash-pulse','interval-flash');
+  }
+  function applyFlashState(){
+    document.body.classList.toggle('flash-off', !flashEnabled);
+    if(flashBtn){
+      flashBtn.title = flashEnabled ? 'Flash on' : 'Flash off';
+      flashBtn.setAttribute('aria-label', flashEnabled ? 'flash on' : 'flash off');
+    }
+  }
+  function applyRingState(){
+    document.body.classList.toggle('ring-hidden', ringHidden);
+    if(ringToggleBtn){
+      ringToggleBtn.title = ringHidden ? 'Show ring' : 'Hide ring';
+      ringToggleBtn.setAttribute('aria-label', ringHidden ? 'show main ring' : 'hide main ring');
     }
   }
   function effectiveSoundVolume(){return soundVolume<=0?0:Math.min(1.7,0.35+1.35*Math.pow(soundVolume,.55))}
-  function playChime({force=false}={}){if((!soundEnabled||soundVolume<=0)&&!force)return;const ctx=getAudioContext();if(!ctx)return;const v=Math.max(.2,effectiveSoundVolume()),start=ctx.currentTime,offs=[.02,.50,.98],dur=[.25,.25,.50];const master=ctx.createGain();master.gain.setValueAtTime(.0001,start);master.gain.linearRampToValueAtTime(1.05*v,start+.035);master.gain.setValueAtTime(1.05*v,start+1.30);master.gain.exponentialRampToValueAtTime(.0001,start+1.62);const filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.setValueAtTime(1350,start);filter.Q.setValueAtTime(.14,start);const compressor=ctx.createDynamicsCompressor();
-    compressor.threshold.setValueAtTime(-24,start);
-    compressor.knee.setValueAtTime(20,start);
-    compressor.ratio.setValueAtTime(2.5,start);
-    compressor.attack.setValueAtTime(0.003,start);
-    compressor.release.setValueAtTime(0.18,start);
-    filter.connect(master).connect(compressor).connect(ctx.destination);offs.forEach((o,p)=>{const t=start+o,base=BASE_FREQS[p],duration=dur[p],peak=.085*(p===2?1.18:1);[[1,1],[2,.025],[3,.006]].forEach(([ratio,rel],i)=>{const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type=i===0?'square':'sine';osc.frequency.setValueAtTime(base*ratio,t);gain.gain.setValueAtTime(.0001,t);gain.gain.linearRampToValueAtTime(peak*rel,t+.028);gain.gain.exponentialRampToValueAtTime(.0001,t+duration);osc.connect(gain).connect(filter);osc.start(t);osc.stop(t+duration+.04)})})}
+  function playChime({force=false}={}){if((!soundEnabled||soundVolume<=0)&&!force)return;const ctx=getAudioContext();if(!ctx)return;const v=Math.max(.2,effectiveSoundVolume()),start=ctx.currentTime,offs=[.02,.50,.98],dur=[.25,.25,.50];const master=ctx.createGain();master.gain.setValueAtTime(.0001,start);master.gain.linearRampToValueAtTime(.80*v,start+.035);master.gain.setValueAtTime(.80*v,start+1.30);master.gain.exponentialRampToValueAtTime(.0001,start+1.62);const filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.setValueAtTime(1350,start);filter.Q.setValueAtTime(.14,start);filter.connect(master).connect(ctx.destination);offs.forEach((o,p)=>{const t=start+o,base=BASE_FREQS[p],duration=dur[p],peak=.055*(p===2?1.16:1);[[1,1],[2,.025],[3,.006]].forEach(([ratio,rel],i)=>{const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type=i===0?'square':'sine';osc.frequency.setValueAtTime(base*ratio,t);gain.gain.setValueAtTime(.0001,t);gain.gain.linearRampToValueAtTime(peak*rel,t+.028);gain.gain.exponentialRampToValueAtTime(.0001,t+duration);osc.connect(gain).connect(filter);osc.start(t);osc.stop(t+duration+.04)})})}
   function triggerSignal(){
-    // Exactly three clean visual inversion pulses, timed to the three chime tones.
-    // Clearing old timers first prevents stray flashes after interval changes, tab switches, or quick re-entry.
-    clearVisualSignal();
+    if(document.hidden) return;
+    // Clean visual signal: exactly three inversion pulses, timed to the three sound pulses.
+    // Pulse 1 and 2 are short; pulse 3 stays visible longer, matching the longer final tone.
+    clearSignalTimers();
     playChime();
+    if(!flashEnabled) return;
     const pulses=[{at:20,dur:250},{at:500,dur:250},{at:980,dur:500}];
     pulses.forEach(p=>{
-      flashPulseTimers.push(setTimeout(()=>document.body.classList.add('flash-pulse'),p.at));
-      flashPulseTimers.push(setTimeout(()=>document.body.classList.remove('flash-pulse'),p.at+p.dur));
+      flashTimeouts.push(setTimeout(()=>document.body.classList.add('flash-pulse'),p.at));
+      flashTimeouts.push(setTimeout(()=>document.body.classList.remove('flash-pulse'),p.at+p.dur));
     });
-    flashTimer=setTimeout(clearVisualSignal,1660);
+    flashTimer=setTimeout(()=>clearSignalTimers(),1650);
   }
   function isHorizontalDaybar(){return matchMedia('(max-width:700px), (max-height:500px) and (orientation:landscape)').matches}
   function render(){clampDay();const now=new Date(),current=minutesOfDay(now),start=startHour*60,end=endHour*60,dayLength=Math.max(1,end-start),elapsed=Math.max(0,Math.min(dayLength,current-start)),remaining=Math.max(0,dayLength-elapsed),unitsLeft=Math.ceil(remaining/intervalMinutes),completedSlot=Math.floor(elapsed/intervalMinutes);if(document.hidden||lastCompletedSlot===null||current<start||current>=end){lastCompletedSlot=completedSlot}else if(completedSlot>lastCompletedSlot){lastCompletedSlot=completedSlot;if(performance.now()>=resumeSuppressUntil)triggerSignal()}unitNumber.textContent=padNumber(unitsLeft);unitLabel.textContent=intervalMinutes===1?'min':`${intervalMinutes} min`;const remainder=remaining<=0?0:remaining%intervalMinutes;const progress=remaining<=0?0:(remainder===0?1:remainder/intervalMinutes);ringLeft.style.strokeDashoffset=circumference*(1-progress);const dayLeft=Math.max(0,Math.min(1,remaining/dayLength)),hue=dayLeft*120,nowPos=Math.max(0,Math.min(1,elapsed/dayLength));daybarFill.style.background=`hsl(${hue} 100% 45%)`;if(isHorizontalDaybar()){daybarFill.style.height='100%';daybarFill.style.width=`${dayLeft*100}%`;daybarFill.style.left='0';daybarFill.style.right='auto';daybarNow.style.left=`${nowPos*100}%`;daybarNow.style.bottom='auto'}else{daybarFill.style.width='100%';daybarFill.style.height=`${dayLeft*100}%`;daybarFill.style.left='0';daybarFill.style.right='0';daybarNow.style.bottom=`${(1-nowPos)*100}%`;daybarNow.style.left='50%'}startTimeEl.textContent=formatHour(startHour);endTimeEl.textContent=formatHour(endHour);intervalButtons.forEach(b=>b.classList.toggle('active',Number(b.dataset.interval)===intervalMinutes));updateCornerTime()}
-  function setStart(d){startHour+=d;if(startHour<0)startHour=0;if(startHour>=endHour)startHour=endHour-1;localStorage.setItem('dayUnitsStartHour',startHour);lastCompletedSlot=currentCompletedSlot();clearVisualSignal();render()}
-  function setEnd(d){endHour+=d;if(endHour>24)endHour=24;if(endHour<=startHour)endHour=startHour+1;localStorage.setItem('dayUnitsEndHour',endHour);lastCompletedSlot=currentCompletedSlot();clearVisualSignal();render()}
+  function setStart(d){startHour+=d;if(startHour<0)startHour=0;if(startHour>=endHour)startHour=endHour-1;localStorage.setItem('dayUnitsStartHour',startHour);syncIntervalWithoutSignal();render()}
+  function setEnd(d){endHour+=d;if(endHour>24)endHour=24;if(endHour<=startHour)endHour=startHour+1;localStorage.setItem('dayUnitsEndHour',endHour);syncIntervalWithoutSignal();render()}
   document.getElementById('startDown').onclick=()=>setStart(-1);document.getElementById('startUp').onclick=()=>setStart(1);document.getElementById('endDown').onclick=()=>setEnd(-1);document.getElementById('endUp').onclick=()=>setEnd(1);
   intervalButtons.forEach(b=>b.addEventListener('click',()=>{
-    unlockAudio();
+    primeAudio();
     intervalMinutes=Number(b.dataset.interval);
     localStorage.setItem('dayUnitsInterval',intervalMinutes);
-    // Re-baseline immediately to the selected interval. No catch-up signal, but the next real boundary will signal reliably.
-    lastCompletedSlot=currentCompletedSlot();
-    clearVisualSignal();
+    syncIntervalWithoutSignal();
     render();
   }));
-  function applySound(){soundEnabled=soundVolume>0;localStorage.setItem('dayUnitsSound',soundEnabled?'on':'off');localStorage.setItem('dayUnitsSoundVolume',String(Math.round(soundVolume*100)));const p=Math.round(soundVolume*100);document.body.classList.toggle('sound-off',!soundEnabled);soundBtn.title=soundEnabled?`Volume ${p}`:'Muted';soundBtn.setAttribute('aria-label',soundEnabled?`volume ${p}`:'muted');volumeSlider.value=String(p);volumeValue.textContent=String(p);volumePanel.style.setProperty('--volume-percent',`${p}%`)}
+  function applySound(){
+    soundEnabled=soundVolume>0;
+    localStorage.setItem('dayUnitsSound',soundEnabled?'on':'off');
+    localStorage.setItem('dayUnitsSoundVolume',String(soundEnabled?100:0));
+    document.body.classList.toggle('sound-off',!soundEnabled);
+    soundBtn.title=soundEnabled?'Sound on 100':'Muted';
+    soundBtn.setAttribute('aria-label',soundEnabled?'sound on 100':'muted');
+  }
   soundBtn.addEventListener('click',e=>{
     e.stopPropagation();
-    unlockAudio();
-    if(!document.body.classList.contains('volume-open')){
-      if(soundVolume<=0) soundVolume=1;
-      document.body.classList.add('volume-open');
-      volumeWasOpened=true;
-      applySound();
-      showControls();
-      // audible confirmation that sound is active and unlocked
-      setTimeout(()=>playChime({force:true}),80);
-    }else{
-      soundVolume=0;
-      document.body.classList.remove('volume-open');
-      applySound();
-      showControls();
-    }
+    soundVolume=soundVolume>0?0:1;
+    applySound();
+    if(soundVolume>0){primeAudio();playChime({force:true});}
+    showControls();
   });
-  volumePanel.addEventListener('click',e=>e.stopPropagation());volumeSlider.addEventListener('input',()=>{unlockAudio();soundVolume=Math.max(0,Math.min(1,Number(volumeSlider.value)/100));applySound();showControls()});volumeSlider.addEventListener('change',()=>{unlockAudio();if(soundVolume>0)setTimeout(()=>playChime({force:true}),60)});window.addEventListener('pointerdown',e=>{if(!e.target.closest('#sound')&&!e.target.closest('#volumePanel'))document.body.classList.remove('volume-open')});
+  flashBtn.addEventListener('click',e=>{e.stopPropagation();flashEnabled=!flashEnabled;localStorage.setItem('dayUnitsFlash',flashEnabled?'on':'off');applyFlashState();if(flashEnabled){clearSignalTimers();const preview=[{at:20,dur:160},{at:260,dur:160},{at:500,dur:260}];preview.forEach(p=>{flashTimeouts.push(setTimeout(()=>document.body.classList.add('flash-pulse'),p.at));flashTimeouts.push(setTimeout(()=>document.body.classList.remove('flash-pulse'),p.at+p.dur));});flashTimer=setTimeout(()=>clearSignalTimers(),850);}showControls();});
+  ringToggleBtn.addEventListener('click',e=>{e.stopPropagation();ringHidden=!ringHidden;localStorage.setItem('dayUnitsRingHidden',ringHidden?'on':'off');applyRingState();showControls();});
   themeBtn.addEventListener('click',()=>{document.body.classList.toggle('light');localStorage.setItem('dayUnitsTheme',document.body.classList.contains('light')?'light':'dark')});
   // Default is dark; only user-saved light opens light.
   if(localStorage.getItem('dayUnitsTheme')==='light')document.body.classList.add('light');
   async function toggleFullscreen(){setViewportHeight();const isFake=document.body.classList.contains('fake-fullscreen'),isReal=!!document.fullscreenElement;if(isFake||isReal){try{if(isReal)await document.exitFullscreen()}catch(_){}document.body.classList.remove('fake-fullscreen','fullscreen-mode');setViewportHeight();setTimeout(render,80);return}document.body.classList.add('fullscreen-mode');if(isIPhone()){document.body.classList.add('fake-fullscreen');setViewportHeight();setTimeout(render,80);return}try{await app.requestFullscreen();document.body.classList.add('fullscreen-mode')}catch(_){document.body.classList.add('fake-fullscreen')}setViewportHeight();setTimeout(render,100)}
   fullBtn.addEventListener('click',toggleFullscreen);document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&!document.body.classList.contains('fake-fullscreen'))document.body.classList.remove('fullscreen-mode');setViewportHeight();setTimeout(render,80)});
-  function showControls(){document.body.classList.add('show-controls');clearTimeout(hideTimer);hideTimer=setTimeout(()=>{document.body.classList.remove('show-controls');document.body.classList.remove('volume-open')},2800)}
-  ['mousemove','touchstart','pointerdown','keydown'].forEach(e=>window.addEventListener(e,(event)=>{
-    showControls();
-    if(event.type==='pointerdown'||event.type==='touchstart'||event.type==='keydown') unlockAudio();
-  },{passive:true}));
+  function showControls(){document.body.classList.add('show-controls');clearTimeout(hideTimer);hideTimer=setTimeout(()=>{document.body.classList.remove('show-controls')},2800)}
+  ['mousemove','touchstart','pointerdown','keydown'].forEach(e=>window.addEventListener(e,showControls,{passive:true}));
+  ['touchstart','pointerdown','mousedown','keydown'].forEach(e=>window.addEventListener(e,primeAudio,{passive:true,once:false}));
 
   document.addEventListener('visibilitychange',()=>{
     if(document.hidden){
@@ -417,7 +416,7 @@
   });
   window.addEventListener('pageshow',()=>{setViewportHeight();syncIntervalWithoutSignal();setTimeout(render,120)});
   window.addEventListener('focus',()=>{setViewportHeight();syncIntervalWithoutSignal();setTimeout(render,120)});
-  applySound();clampDay();function loop(){render();frameHandle=requestAnimationFrame(loop)}if(frameHandle)cancelAnimationFrame(frameHandle);loop();showControls();
+  applySound();applyFlashState();applyRingState();clampDay();function loop(){render();frameHandle=requestAnimationFrame(loop)}if(frameHandle)cancelAnimationFrame(frameHandle);loop();showControls();
 })();
 </script>
 </body>
