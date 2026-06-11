@@ -389,9 +389,15 @@
   }
   soundBtn.addEventListener('click',e=>{
     e.stopPropagation();
-    soundVolume=soundVolume>0?0:1;
+    const wasMuted = soundVolume <= 0;
+    soundVolume = wasMuted ? 1 : 0;
     applySound();
-    if(soundVolume>0){primeAudio();playChime({force:true});}
+    if(wasMuted){
+      primeAudio();
+      // On iOS/Safari the audio context sometimes needs one event-loop tick after being resumed.
+      // This makes the normal three-note signal play once immediately when sound is switched on.
+      setTimeout(()=>playChime({force:true}), 40);
+    }
     showControls();
   });
   flashBtn.addEventListener('click',e=>{e.stopPropagation();flashEnabled=!flashEnabled;localStorage.setItem('dayUnitsFlash',flashEnabled?'on':'off');applyFlashState();if(flashEnabled){clearSignalTimers();const preview=[{at:20,dur:160},{at:260,dur:160},{at:500,dur:260}];preview.forEach(p=>{flashTimeouts.push(setTimeout(()=>document.body.classList.add('flash-pulse'),p.at));flashTimeouts.push(setTimeout(()=>document.body.classList.remove('flash-pulse'),p.at+p.dur));});flashTimer=setTimeout(()=>clearSignalTimers(),850);}showControls();});
