@@ -3,7 +3,14 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Day Units — Designed by Alex Weischer</title>
+<meta name="description" content="A new time system that shows time not as a point, but as a remaining resource of the day." />
+<meta property="og:title" content="Minute Clock - Designed by Alex Weischer" />
+<meta property="og:description" content="A new time system that shows time not as a point, but as a remaining resource of the day." />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Minute Clock - Designed by Alex Weischer" />
+<meta name="twitter:description" content="A new time system that shows time not as a point, but as a remaining resource of the day." />
+<title>Minute Clock - Designed by Alex Weischer</title>
 <style>
   :root{
     --bg:#000; --fg:#f5f5f0; --muted:rgba(245,245,240,.36); --soft:rgba(245,245,240,.10);
@@ -251,11 +258,11 @@
   }
 
 
-  /* CLEAN SYNCED FLASH: no CSS filter flicker; JS opens three exact visual pulses matching the three chime tones. */
+  /* CLEAN SYNCED FLASH: exact full-page color inversion, matching the three chime tones. */
   body.interval-flash { animation: none !important; filter: none !important; }
-  body.interval-flash .app::after { animation: none !important; }
-  .app::after { transition: opacity 24ms linear !important; }
-  body.flash-pulse .app::after { opacity: .88 !important; }
+  body.interval-flash .app::after { animation: none !important; opacity: 0 !important; }
+  .app::after { opacity: 0 !important; background: transparent !important; mix-blend-mode: normal !important; transition: none !important; }
+  body.flash-pulse .app { filter: invert(1) !important; }
 
 </style>
 </head>
