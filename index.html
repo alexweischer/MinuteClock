@@ -1340,6 +1340,102 @@
     }
   }
 
+
+  /* Larger fullscreen ring, with safe space preserved for daybar, intervals and controls. */
+  html.fake-fullscreen .center,
+  body.fake-fullscreen .center,
+  .app:fullscreen .center,
+  .app:-webkit-full-screen .center {
+    width: min(90vmin, 860px) !important;
+    height: min(90vmin, 860px) !important;
+  }
+
+  html.fake-fullscreen .unit-number,
+  body.fake-fullscreen .unit-number,
+  .app:fullscreen .unit-number,
+  .app:-webkit-full-screen .unit-number {
+    font-size: clamp(86px, 19.5vw, 275px) !important;
+  }
+
+  /* iPhone / small mobile portrait fullscreen: bigger circle, still leaving room above and below. */
+  @media (orientation: portrait) and (max-width: 720px) {
+    html.fake-fullscreen .center,
+    body.fake-fullscreen .center,
+    .app:fullscreen .center,
+    .app:-webkit-full-screen .center {
+      width: min(84vw, 54svh, 390px) !important;
+      height: min(84vw, 54svh, 390px) !important;
+      transform: translateY(-1.2svh) !important;
+    }
+
+    html.fake-fullscreen .unit-number,
+    body.fake-fullscreen .unit-number,
+    .app:fullscreen .unit-number,
+    .app:-webkit-full-screen .unit-number {
+      font-size: clamp(82px, 25.5vw, 168px) !important;
+    }
+  }
+
+  /* iPhone landscape fullscreen: noticeably larger, but not colliding with the top daybar or bottom controls. */
+  @media (orientation: landscape) and (max-height: 540px) and (max-width: 1200px) {
+    .center,
+    html.fake-fullscreen .center,
+    body.fake-fullscreen .center,
+    .app:fullscreen .center,
+    .app:-webkit-full-screen .center {
+      width: min(57svh, 43vw, 270px) !important;
+      height: min(57svh, 43vw, 270px) !important;
+      transform: translateY(-0.4svh) !important;
+    }
+
+    .unit-number,
+    html.fake-fullscreen .unit-number,
+    body.fake-fullscreen .unit-number,
+    .app:fullscreen .unit-number,
+    .app:-webkit-full-screen .unit-number {
+      font-size: clamp(62px, 12.6vw, 116px) !important;
+    }
+
+    .unit-label,
+    html.fake-fullscreen .unit-label,
+    body.fake-fullscreen .unit-label,
+    .app:fullscreen .unit-label,
+    .app:-webkit-full-screen .unit-label {
+      top: calc(50% + clamp(32px, 5.9vw, 52px)) !important;
+    }
+  }
+
+  /* Very low iPhone landscape: slightly restrained so the controls stay visible. */
+  @media (orientation: landscape) and (max-height: 390px) and (max-width: 950px) {
+    .center,
+    html.fake-fullscreen .center,
+    body.fake-fullscreen .center,
+    .app:fullscreen .center,
+    .app:-webkit-full-screen .center {
+      width: min(54svh, 40vw, 230px) !important;
+      height: min(54svh, 40vw, 230px) !important;
+    }
+  }
+
+  /* iPad landscape fullscreen: bigger central ring while controls remain anchored below. */
+  @media (orientation: landscape) and (min-width: 900px) and (min-height: 541px) and (max-width: 1400px) {
+    html.fake-fullscreen .center,
+    body.fake-fullscreen .center,
+    .app:fullscreen .center,
+    .app:-webkit-full-screen .center {
+      width: min(76svh, 62vw, 720px) !important;
+      height: min(76svh, 62vw, 720px) !important;
+      transform: translateY(-2.4svh) !important;
+    }
+
+    html.fake-fullscreen .unit-number,
+    body.fake-fullscreen .unit-number,
+    .app:fullscreen .unit-number,
+    .app:-webkit-full-screen .unit-number {
+      font-size: clamp(160px, 23vw, 360px) !important;
+    }
+  }
+
 </style>
 </head>
 <body>
