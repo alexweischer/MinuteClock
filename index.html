@@ -285,12 +285,13 @@
   const radius=47, circumference=2*Math.PI*radius; ringLeft.style.strokeDasharray=circumference;
   let startHour=Number(localStorage.getItem('dayUnitsStartHour')||8), endHour=Number(localStorage.getItem('dayUnitsEndHour')||24), intervalMinutes=Number(localStorage.getItem('dayUnitsInterval')||1);
   if(![1,5,10,15,20,30,45,60,90,120].includes(intervalMinutes)) intervalMinutes=1;
-  const SOUND_DEFAULT_VERSION = 'silent_flash_off_ring_toggle_v3';
+  const SOUND_DEFAULT_VERSION = 'default_dark_silent_flash_off_ring_on_v4';
   if (localStorage.getItem('dayUnitsBuildDefault') !== SOUND_DEFAULT_VERSION) {
     localStorage.setItem('dayUnitsSoundVolume', '0');
     localStorage.setItem('dayUnitsSound', 'off');
     localStorage.setItem('dayUnitsFlash', 'off');
     localStorage.setItem('dayUnitsRingHidden', 'off');
+    localStorage.setItem('dayUnitsTheme', 'dark');
     localStorage.setItem('dayUnitsBuildDefault', SOUND_DEFAULT_VERSION);
   }
   let soundVolume=Number(localStorage.getItem('dayUnitsSoundVolume')||0)/100; if(!Number.isFinite(soundVolume)) soundVolume=0; soundVolume=Math.max(0,Math.min(1,soundVolume));
@@ -410,8 +411,8 @@
   flashBtn.addEventListener('click',e=>{e.stopPropagation();flashEnabled=!flashEnabled;localStorage.setItem('dayUnitsFlash',flashEnabled?'on':'off');applyFlashState();if(flashEnabled){clearSignalTimers();const preview=[{at:20,dur:160},{at:260,dur:160},{at:500,dur:260}];preview.forEach(p=>{flashTimeouts.push(setTimeout(()=>document.body.classList.add('flash-pulse'),p.at));flashTimeouts.push(setTimeout(()=>document.body.classList.remove('flash-pulse'),p.at+p.dur));});flashTimer=setTimeout(()=>clearSignalTimers(),850);}showControls();});
   ringToggleBtn.addEventListener('click',e=>{e.stopPropagation();ringHidden=!ringHidden;localStorage.setItem('dayUnitsRingHidden',ringHidden?'on':'off');applyRingState();showControls();});
   themeBtn.addEventListener('click',()=>{document.body.classList.toggle('light');localStorage.setItem('dayUnitsTheme',document.body.classList.contains('light')?'light':'dark')});
-  // Default is dark; only user-saved light opens light.
-  if(localStorage.getItem('dayUnitsTheme')==='light')document.body.classList.add('light');
+  // Default is dark; only an explicit user-saved light mode opens light.
+  document.body.classList.toggle('light', localStorage.getItem('dayUnitsTheme') === 'light');
   async function toggleFullscreen(){setViewportHeight();const isFake=document.body.classList.contains('fake-fullscreen'),isReal=!!document.fullscreenElement;if(isFake||isReal){try{if(isReal)await document.exitFullscreen()}catch(_){}document.body.classList.remove('fake-fullscreen','fullscreen-mode');setViewportHeight();setTimeout(render,80);return}document.body.classList.add('fullscreen-mode');if(isIPhone()){document.body.classList.add('fake-fullscreen');setViewportHeight();setTimeout(render,80);return}try{await app.requestFullscreen();document.body.classList.add('fullscreen-mode')}catch(_){document.body.classList.add('fake-fullscreen')}setViewportHeight();setTimeout(render,100)}
   fullBtn.addEventListener('click',toggleFullscreen);document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&!document.body.classList.contains('fake-fullscreen'))document.body.classList.remove('fullscreen-mode');setViewportHeight();setTimeout(render,80)});
   function showControls(){document.body.classList.add('show-controls');clearTimeout(hideTimer);hideTimer=setTimeout(()=>{document.body.classList.remove('show-controls')},2800)}
